@@ -1,7 +1,7 @@
 package com.sparta.bipuminbe.common.jwt;
 
-import clone.cherrycoding.dto.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.bipuminbe.common.dto.ResponseDto;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

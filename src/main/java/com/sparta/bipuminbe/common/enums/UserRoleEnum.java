@@ -1,4 +1,4 @@
-package com.sparta.bipuminbe.common.entity;
+package com.sparta.bipuminbe.common.enums;
 
 public enum UserRoleEnum {
     USER(Authority.USER), // 사용자 권한

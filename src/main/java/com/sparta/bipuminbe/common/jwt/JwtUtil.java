@@ -1,9 +1,9 @@
 package com.sparta.bipuminbe.common.jwt;
 
-import clone.cherrycoding.entity.UserRoleEnum;
-import clone.cherrycoding.exception.CustomException;
-import clone.cherrycoding.exception.ErrorCode;
-import clone.cherrycoding.security.UserDetailsServiceImpl;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
+import com.sparta.bipuminbe.common.exception.CustomException;
+import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.common.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;

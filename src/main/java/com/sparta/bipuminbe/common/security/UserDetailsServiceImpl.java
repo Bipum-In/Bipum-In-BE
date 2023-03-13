@@ -1,7 +1,5 @@
 package com.sparta.bipuminbe.common.security;
 
-import clone.cherrycoding.entity.User;
-import clone.cherrycoding.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

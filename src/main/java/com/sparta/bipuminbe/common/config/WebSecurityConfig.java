@@ -1,7 +1,7 @@
 package com.sparta.bipuminbe.common.config;
 
-import com.sparta.kurlyo.jwt.JwtAuthFilter;
-import com.sparta.kurlyo.jwt.JwtUtil;
+import com.sparta.bipuminbe.common.jwt.JwtAuthFilter;
+import com.sparta.bipuminbe.common.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
