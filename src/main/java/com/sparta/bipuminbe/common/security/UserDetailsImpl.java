@@ -1,9 +1,10 @@
 package com.sparta.bipuminbe.common.security;
 
+import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;

@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Getter
-@Entity(name = "repairRequest")
+@Entity
 @NoArgsConstructor
 public class RepairRequest extends TimeStamped{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long requestId;
 
     @Column(nullable = false)
     private String content;
@@ -19,10 +19,15 @@ public class RepairRequest extends TimeStamped{
     @Column(nullable = false)
     private String image;
 
+    @Column(nullable = false)
+    private Boolean isSelf;
+
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplyId", nullable = false)
     private Supply supply;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
 

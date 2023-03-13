@@ -1,6 +1,6 @@
-package com.sparta.bipuminbe.supply.controller;
+package com.sparta.bipuminbe.partners.controller;
 
-import com.sparta.bipuminbe.supply.service.SupplyService;
+import com.sparta.bipuminbe.partners.service.PartnersService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class SupplyController {
-    private final SupplyService supplyService;
-
-
+public class PartnersController {
+    private final PartnersService partnersService;
 }

@@ -1,6 +1,6 @@
 package com.sparta.bipuminbe.common.exception;
 
-import clone.cherrycoding.dto.ResponseDto;
+import com.sparta.bipuminbe.common.dto.ResponseDto;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

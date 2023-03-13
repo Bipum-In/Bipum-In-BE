@@ -1,6 +1,6 @@
 package com.sparta.bipuminbe.common.dto;
 
-import com.sparta.bipuminbe.common.entity.ReturnRequset;
+import com.sparta.bipuminbe.common.entity.ReturnRequest;
 import lombok.Getter;
 
 @Getter
@@ -10,7 +10,7 @@ public class RetrunRequestDto {
 
     private String status;
 
-    private RetrunRequestDto(ReturnRequset returnRequset){
+    private RetrunRequestDto(ReturnRequest returnRequset){
         this.content = returnRequset.getContent();
         this.status = returnRequset.getStatus();
     }

@@ -1,5 +1,8 @@
 package com.sparta.bipuminbe.category.repository;
 
 
+import com.sparta.bipuminbe.common.entity.Category;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 }

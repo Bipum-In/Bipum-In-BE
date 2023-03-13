@@ -3,7 +3,6 @@ package com.sparta.bipuminbe.common.entity;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 
@@ -32,8 +31,8 @@ public class User extends TimeStamped{
 
     private Boolean alarm;
 
-    @ManyToOne
-    @JoinColumn(name = "department_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
 }

@@ -19,6 +19,8 @@ repositories {
 }
 
 dependencies {
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -32,10 +34,15 @@ dependencies {
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
 
+	// h2
+	runtimeOnly 'com.h2database:h2'
+
 	//Swagger
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
 	//MySql AWS Rds기준 적용
 	implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
+	//Aws S3
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 tasks.named('test') {

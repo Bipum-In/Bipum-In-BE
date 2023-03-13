@@ -5,17 +5,20 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Getter
 @Entity
+@Getter
 @NoArgsConstructor
-public class Category {
-
+public class Partners {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long partnersId;
 
     @Column(nullable = false)
-    private String categoryName;
+    private String partnersName;
 
-    private String categoryImage;
+    @Column(nullable = false)
+    private String phone;
+
+    @Column(nullable = false)
+    private String address;
 }
