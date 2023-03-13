@@ -11,7 +11,6 @@ public class ResponseDto<T> {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
-
     public static <T> ResponseDto<T> success(T data) {
 
         return new ResponseDto<>(200, data);
