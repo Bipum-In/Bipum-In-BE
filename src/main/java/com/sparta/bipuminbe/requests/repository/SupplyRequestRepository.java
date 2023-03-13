@@ -1,4 +1,7 @@
 package com.sparta.bipuminbe.requests.repository;
 
-public interface SupplyRequestRepository {
+import com.sparta.bipuminbe.common.entity.SupplyRequest;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface SupplyRequestRepository extends JpaRepository<SupplyRequest, Long> {
 }
