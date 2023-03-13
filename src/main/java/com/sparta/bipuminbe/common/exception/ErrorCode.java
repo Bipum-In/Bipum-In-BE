@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 @Getter
 public enum ErrorCode {
+    NotFoundCategory(HttpStatus.NOT_FOUND, "카레고리가 존재하지 않습니다."),
+
     UnAuthorized(HttpStatus.UNAUTHORIZED, "로그인을 해주세요."),
     NotFoundUser(HttpStatus.BAD_REQUEST, "아이디가 존재하지 않습니다."),
     NotMatchPassword(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
