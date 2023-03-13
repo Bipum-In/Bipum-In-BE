@@ -1,5 +1,7 @@
 package com.sparta.bipuminbe.common.entity;
 
+import com.sparta.bipuminbe.category.dto.CategoryDto;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,4 +20,15 @@ public class Category {
     private String categoryName;
 
     private String categoryImage;
+
+    @Builder
+    public Category(CategoryDto categoryDto) {
+        this.categoryName = categoryDto.getCategoryName();
+        this.categoryImage = categoryDto.getCategoryImage();
+    }
+
+    public void update(CategoryDto categoryDto) {
+        this.categoryName = categoryDto.getCategoryName();
+        this.categoryImage = categoryDto.getCategoryImage();
+    }
 }

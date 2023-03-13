@@ -1,6 +1,5 @@
 package com.sparta.bipuminbe.common.entity;
 
-import com.sparta.bipuminbe.common.dto.RetrunRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
