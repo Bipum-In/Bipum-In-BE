@@ -3,38 +3,37 @@ package com.sparta.bipuminbe.common.entity;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 
 @Entity(name = "users")
 @NoArgsConstructor
 @Getter
-public class User {
+public class User extends TimeStamped{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String username;
 
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String email;
 
-    private String nickname;
+    private String image;
 
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    public User(String username, String password, String email, String nickname, UserRoleEnum role) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.nickname = nickname;
-        this.role = role;
-    }
+    private Boolean alarm;
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
 }
