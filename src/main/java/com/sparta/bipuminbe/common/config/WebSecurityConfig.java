@@ -73,7 +73,7 @@ public class WebSecurityConfig {
         http.cors();
 
         // oauth login
-        http.oauth2Login();
+//        http.oauth2Login();
 
         return http.build();
     }

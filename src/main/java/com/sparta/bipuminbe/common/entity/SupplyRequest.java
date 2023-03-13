@@ -1,6 +1,6 @@
 package com.sparta.bipuminbe.common.entity;
 
-import com.sparta.bipuminbe.common.dto.SupplyRequestDto;
+//import com.sparta.bipuminbe.common.dto.SupplyRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,12 +29,12 @@ public class SupplyRequest extends TimeStamped {
     @JoinColumn(name = "supplyId", nullable = false)
     private Supply supply;
 
-    private SupplyRequest(SupplyRequestDto supplyRequestDto, User user, Supply supply){
-        this.content = supplyRequestDto.getContent();
-        this.status = supplyRequestDto.getStatus();
-        this.user = user;
-        this.supply = supply;
-    }
+//    private SupplyRequest(SupplyRequestDto supplyRequestDto, User user, Supply supply){
+//        this.content = supplyRequestDto.getContent();
+//        this.status = supplyRequestDto.getStatus();
+//        this.user = user;
+//        this.supply = supply;
+//    }
 
 
 }

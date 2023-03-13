@@ -15,20 +15,20 @@ public class User extends TimeStamped{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
-    private String email;
-
+    private String empName;
     private String image;
 
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
+    @Column(nullable = false)
     private Boolean alarm;
 
     @ManyToOne(fetch = FetchType.LAZY)

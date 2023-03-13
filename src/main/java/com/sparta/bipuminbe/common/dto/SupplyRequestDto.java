@@ -2,8 +2,10 @@ package com.sparta.bipuminbe.common.dto;
 
 import com.sparta.bipuminbe.common.entity.SupplyRequest;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class SupplyRequestDto {
 
     private String content;
