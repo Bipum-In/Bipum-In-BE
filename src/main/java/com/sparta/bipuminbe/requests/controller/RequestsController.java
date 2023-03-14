@@ -2,7 +2,7 @@ package com.sparta.bipuminbe.requests.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
-import com.sparta.bipuminbe.requests.dto.RequestsResponseDto;
+//import com.sparta.bipuminbe.requests.dto.RequestsResponseDto;
 import com.sparta.bipuminbe.requests.service.RequestsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
