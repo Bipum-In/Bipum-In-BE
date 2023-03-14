@@ -1,8 +1,9 @@
 package com.sparta.bipuminbe.common.entity;
 
+import com.sparta.bipuminbe.department.dto.DepartmentDto;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 
@@ -15,7 +16,15 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String deptName;
 
+    @Builder
+    public Department(DepartmentDto departmentDto){
+        this.deptName = departmentDto.getDeptName();
+    }
+
+    public void update(DepartmentDto departmentDto) {
+        this.deptName = departmentDto.getDeptName();
+    }
 }
