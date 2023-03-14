@@ -31,14 +31,15 @@ public class CategoryService {
 
     @Transactional
     public ResponseDto<String> createCategory(CategoryDto categoryDto) {
+        checkCategory(categoryDto.getCategoryName());
         categoryRepository.save(Category.builder().categoryDto(categoryDto).build());
         return ResponseDto.success("카테고리 등록 완료.");
     }
 
     @Transactional
     public ResponseDto<String> updateCategory(Long categoryId, CategoryDto categoryDto) {
-        Category category = getCategory(categoryId);
-        category.update(categoryDto);
+        checkCategory(categoryDto.getCategoryName());
+        getCategory(categoryId).update(categoryDto);
         return ResponseDto.success("카테고리 수정 완료.");
     }
 
@@ -51,5 +52,11 @@ public class CategoryService {
     private Category getCategory(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundCategory));
+    }
+
+    private void checkCategory(String categoryName) {
+        if(categoryRepository.existsByCategoryName(categoryName)){
+            throw new CustomException(ErrorCode.DuplicatedCategory);
+        }
     }
 }
