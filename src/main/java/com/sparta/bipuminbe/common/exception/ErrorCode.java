@@ -7,10 +7,12 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 @Getter
 public enum ErrorCode {
-    NotFoundCategory(HttpStatus.NOT_FOUND, "카레고리가 존재하지 않습니다."),
     DuplicatedCategory(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 입니다."),
+    NotFoundCategory(HttpStatus.NOT_FOUND, "카레고리가 존재하지 않습니다."),
     DuplicatedDepartment(HttpStatus.BAD_REQUEST, "이미 존재하는 부서입니다."),
     NotFoundDepartment(HttpStatus.NOT_FOUND, "해당 부서가 존재하지 않습니다."),
+    DuplicatedPartners(HttpStatus.BAD_REQUEST, "이미 등록된 협력업체 입니다."),
+    NotFoundPartners(HttpStatus.NOT_FOUND, "해당 업체가 존재하지 않습니다."),
 
     UnAuthorized(HttpStatus.UNAUTHORIZED, "로그인을 해주세요."),
     NotFoundUser(HttpStatus.BAD_REQUEST, "아이디가 존재하지 않습니다."),

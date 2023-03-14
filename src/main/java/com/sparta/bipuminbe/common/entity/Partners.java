@@ -1,5 +1,7 @@
 package com.sparta.bipuminbe.common.entity;
 
+import com.sparta.bipuminbe.partners.dto.PartnersDto;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +15,7 @@ public class Partners {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long partnersId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String partnersName;
 
     @Column(nullable = false)
@@ -21,4 +23,17 @@ public class Partners {
 
     @Column(nullable = false)
     private String address;
+
+    @Builder
+    public Partners(PartnersDto partnersDto) {
+        this.partnersName = partnersDto.getPartnersName();
+        this.phone = partnersDto.getPhone();
+        this.address = partnersDto.getAddress();
+    }
+
+    public void update(PartnersDto partnersDto) {
+        this.partnersName = partnersDto.getPartnersName();
+        this.phone = partnersDto.getPhone();
+        this.address = partnersDto.getAddress();
+    }
 }
