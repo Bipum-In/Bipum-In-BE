@@ -20,7 +20,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/category")
-    @Operation(summary = "카테고리 리스트")
+    @Operation(summary = "카테고리 리스트", description = "SelectBox용")
     public ResponseDto<List<CategoryDto>> getCategoryList() {
         return categoryService.getCategoryList();
     }
