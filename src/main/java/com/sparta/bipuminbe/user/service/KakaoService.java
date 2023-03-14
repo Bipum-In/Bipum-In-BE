@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.dto.KakaoUserInfoDto;
+import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
-import com.sparta.bipuminbe.common.exception.CustomException;
-import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.jwt.JwtUtil;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Slf4j
@@ -35,14 +32,14 @@ public class KakaoService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     @Value("${kakao.restapi.key}")
-    private final String apiKey;
+    private String apiKey;
 
     @Value("${kakao.redirect.url}")
-    private final String redirectUrl;
+    private String redirectUrl;
 
 
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
-    public String kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -52,11 +49,18 @@ public class KakaoService {
         // 3. 필요시에 회원가입
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
-        // 4. JWT 토큰 반환
-        String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
-//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createToken);
 
-        return createToken;
+        // 4. JWT 토큰 반환
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
+        responseHeader.set(JwtUtil.AUTHORIZATION_HEADER, createToken);
+
+        Boolean isAdmin = kakaoUser.getRole() == UserRoleEnum.ADMIN;
+
+        return ResponseEntity.ok()
+                .headers(responseHeader)
+                .body(ResponseDto.success(isAdmin));
     }
 
 
@@ -136,10 +140,12 @@ public class KakaoService {
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
 
-            // email: kakao email
-            String username = kakaoUserInfo.getUsername();
-
-            kakaoUser = new User(kakaoId, encodedPassword, KakaoUserInfoDto, UserRoleEnum.USER);
+            kakaoUser = User.builder().
+                    kakaoId(kakaoUser.getKakaoId()).
+                    encodedPassword(encodedPassword).
+                    kakaoUserInfoDto(kakaoUserInfo).
+                    role(UserRoleEnum.USER).
+                    build();
         }
 
         userRepository.save(kakaoUser);
