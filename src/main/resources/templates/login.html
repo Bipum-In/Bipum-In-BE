@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" >
+  <meta charset="UTF-8">
+  <title>로그인 페이지</title>
+</head>
+<body>
+<div id="login-form">
+  <div id="login-title">Log into Select Shop</div>
+  <button id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=bad08c2762b0ad4460013109d47675f2&redirect_uri=http://localhost:8080/api/user/kakao/callback&response_type=code'">
+    카카오로 로그인하기
+  </button>
+  <button id="login-id-btn" onclick="location.href='/api/user/signup'">
+    회원 가입하기
+  </button>
+  <div class="login-id-label">아이디</div>
+  <input id="username" type="text" name="username" class="login-input-box">
+
+  <div class="login-id-label">비밀번호</div>
+  <input id="password" type="password" name="password" class="login-input-box">
+
+  <button id="login-id-submit" onclick="login()">로그인</button>
+
+  <div id="login-failed" style="display:none" class="alert alert-danger" role="alert">로그인에 실패하였습니다.</div>
+</div>
+</body>
+<script>
+  const href = location.href;
+  const queryString = href.substring(href.indexOf("?")+1)
+  if (queryString === 'error') {
+    const errorDiv = document.getElementById('login-failed');
+    errorDiv.style.display = 'block';
+  }
+
+  function login() {
+
+    let username = $('#username').val();
+    let password = $('#password').val();
+
+    if (username == '') {
+      alert('ID를 입력해주세요');
+      return;
+    } else if(password == '') {
+      alert('비밀번호를 입력해주세요');
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: `/api/user/login`,
+      contentType: "application/json",
+      data: JSON.stringify({username: username, password: password}),
+      success: function (response, status, xhr) {
+        if(response === 'success') {
+          let host = window.location.host;
+          let url = host + '/api/shop';
+
+          document.cookie =
+                  'Authorization' + '=' + xhr.getResponseHeader('Authorization') + ';path=/';
+          window.location.href = 'http://' + url;
+        } else {
+          alert('로그인에 실패하셨습니다. 다시 로그인해 주세요.')
+          window.location.reload();
+        }
+      }
+    })
+  }
+
+</script>
+</html>

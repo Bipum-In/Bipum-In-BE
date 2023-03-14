@@ -1,6 +1,8 @@
 package com.sparta.bipuminbe.common.entity;
 
+import com.sparta.bipuminbe.common.dto.KakaoUserInfoDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,12 +18,14 @@ public class User extends TimeStamped{
     private Long id;
 
     @Column(nullable = false, unique = true)
+    private String kakaoId;
+
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
     private String empName;
     private String image;
 
@@ -34,5 +38,16 @@ public class User extends TimeStamped{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
+
+    @Builder
+    public User(String kakaoId, String encodedPassword,
+                KakaoUserInfoDto kakaoUserInfoDto, UserRoleEnum role){
+
+        this.kakaoId = kakaoId;
+        this.password = encodedPassword;
+        this.username = kakaoUserInfoDto.getUsername();
+        this.image = kakaoUserInfoDto.getImage();
+        this.role = role;
+    }
 
 }

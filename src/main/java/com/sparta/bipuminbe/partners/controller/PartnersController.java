@@ -40,7 +40,7 @@ public class PartnersController {
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PutMapping("/partners/{partnersId}")
+    @DeleteMapping("/partners/{partnersId}")
     @Operation(summary = "협력 업체 삭제")
     public ResponseDto<String> deletePartners(@PathVariable Long partnersId) {
         return partnersService.deletePartners(partnersId);
