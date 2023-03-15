@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RequestsController {
     private final RequestsService requestsService;
 
-    @Secured(value = UserRoleEnum.Authority.ADMIN)
+//    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/requests")
     @Operation(summary = "요청 현황 페이지", description = "type은 NULL/SUPPLY/REPAIR/RETURN, status는 UNPROCESSED/REPAIRING/PROCESSED")
     public ResponseDto<Page<RequestsResponseDto>> getRequests(@RequestParam(required = false) String type,
