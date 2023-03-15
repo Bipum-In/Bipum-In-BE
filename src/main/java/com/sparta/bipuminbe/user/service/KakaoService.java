@@ -19,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -41,8 +42,9 @@ public class KakaoService {
     private String redirectUrl;
 
 
+
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
-    public ResponseDto<Boolean> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -57,11 +59,13 @@ public class KakaoService {
 
         HttpHeaders responseHeader = new HttpHeaders();
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
-        responseHeader.set(JwtUtil.AUTHORIZATION_HEADER, createToken);
+        responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
 
         Boolean isInput = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null;
 
-        return ResponseDto.success(isInput);
+        return ResponseEntity.ok()
+                .headers(responseHeader)
+                .body(ResponseDto.success(isInput));
     }
 
 
@@ -131,6 +135,7 @@ public class KakaoService {
         return KakaoUserInfoDto.builder()
                 .id(id).username(username).image(profileImage).build();
     }
+
 
     // 3. 필요시에 회원가입
     private User registerKakaoUserIfNeeded(KakaoUserInfoDto kakaoUserInfo) {//받은 사용자 정보를 DTO로 받아옴

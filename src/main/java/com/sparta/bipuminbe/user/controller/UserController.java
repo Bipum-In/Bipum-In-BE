@@ -23,10 +23,10 @@ public class UserController {
     private final KakaoService kakaoService;
 
     @GetMapping("/kakao/callback")
-    public ResponseDto<Boolean> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
         // code: 카카오 서버로부터 받은 인가 코드
 
-        return kakaoService.kakaoLogin(code, response);
+        return kakaoService.kakaoLogin(code);
     }
 
     @PostMapping("/loginadd")
