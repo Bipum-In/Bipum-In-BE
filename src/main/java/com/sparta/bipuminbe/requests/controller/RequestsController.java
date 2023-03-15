@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,9 +19,9 @@ import java.util.List;
 public class RequestsController {
     private final RequestsService requestsService;
 
-//    @Secured(value = UserRoleEnum.Authority.ADMIN)
-//    @GetMapping("/admin/requests")
-//    public ResponseDto<List<RequestsResponseDto>> getAllRequests() {
-//
-//    }
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @GetMapping("/admin/requests")
+    public ResponseDto<List<RequestsResponseDto>> getAllRequests(@RequestParam(required = false) ) {
+        return requestsService.getAllRequests();
+    }
 }
