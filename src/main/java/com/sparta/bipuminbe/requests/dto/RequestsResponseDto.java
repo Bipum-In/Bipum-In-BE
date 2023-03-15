@@ -1,44 +1,45 @@
-//package com.sparta.bipuminbe.requests.dto;
-//
-//import com.sparta.bipuminbe.common.entity.RepairRequest;
-//import com.sparta.bipuminbe.common.entity.SupplyRequest;
-//import com.sparta.bipuminbe.common.enums.RequestType;
-//import com.sparta.bipuminbe.common.exception.CustomException;
-//import lombok.Builder;
-//import lombok.Getter;
-//
-//import java.time.LocalDateTime;
-//
-//@Getter
-//@Builder
-//public class RequestsResponseDto implements Comparable<RequestsResponseDto> {
-//    private String type;
-//    private Long requestId;
-//    private String title;
-//    private String userImage;
-//    private String empName;
-//    private LocalDateTime createdAt;
-//
-//    public static RequestsResponseDto of(Object request) {
-//        String type = "";
-//        String title = "";
-//        if (request.getClass().equals(SupplyRequest.class)) {
-//            type = RequestType.SUPPLY.getKorean();
-//        } else if (request.getClass().equals(RepairRequest.class)) {
-//            type = RequestType.REPAIR.getKorean();
-//        } else if (request.getClass().equals(RepairRequest.class)) {
-//            type = RequestType.RETURN.getKorean();
-//        } else{
-//            throw new CustomException()
-//        }
-//
-//        return RequestsResponseDto.builder()
-//                .type(type)
-//                .requestId(request.).build();
-//    }
-//
-//    @Override
-//    public int compareTo(RequestsResponseDto o) {
-//        return this.createdAt.compareTo(o.createdAt);
-//    }
-//}
+package com.sparta.bipuminbe.requests.dto;
+
+import com.sparta.bipuminbe.common.entity.Requests;
+import com.sparta.bipuminbe.common.entity.Supply;
+import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.RequestType;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Builder
+public class RequestsResponseDto {
+    private Long requestId;
+    private String requestType;
+    private String empName;
+    private String deptName;
+    private String categoryName;
+    private String modelName;
+    private LocalDateTime createdAt;
+    private String status;
+
+    public static RequestsResponseDto of(Requests requests) {
+        User user = requests.getUser();
+
+        RequestsResponseDtoBuilder builder = RequestsResponseDto.builder()
+                .requestId(requests.getRequestId())
+                .requestType(requests.getRequestType().getKorean())
+                .empName(user.getEmpName())
+                .deptName(user.getDepartment().getDeptName())
+                .createdAt(requests.getCreatedAt())
+                .status(requests.getRequestStatus().getKorean());
+
+        if (requests.getRequestType().equals(RequestType.SUPPLY)) {
+            builder.categoryName(requests.getCategory().getCategoryName());
+        } else {
+            Supply supply = requests.getSupply();
+            builder.categoryName(supply.getCategory().getCategoryName())
+                    .modelName(supply.getModelName());
+        }
+
+        return builder.build();
+    }
+}
