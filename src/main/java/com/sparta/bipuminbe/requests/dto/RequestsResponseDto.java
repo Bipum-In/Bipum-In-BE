@@ -25,14 +25,21 @@ public class RequestsResponseDto {
         User user = requests.getUser();
 
         RequestsResponseDtoBuilder builder = RequestsResponseDto.builder()
-                 .requestId(requests.getRequestId())
-                 .requestType(requests.getRequestType().getKorean())
-                 .empName(user.getEmpName())
-                 .deptName(user.getDepartment().getDeptName())
-                 .createdAt(requests.getCreatedAt())
-                 .status(requests.getRequestStatus().getKorean());
+                .requestId(requests.getRequestId())
+                .requestType(requests.getRequestType().getKorean())
+                .empName(user.getEmpName())
+                .deptName(user.getDepartment().getDeptName())
+                .createdAt(requests.getCreatedAt())
+                .status(requests.getRequestStatus().getKorean());
 
+        if (requests.getRequestType().equals(RequestType.SUPPLY)) {
+            builder.categoryName(requests.getCategory().getCategoryName());
+        } else {
+            Supply supply = requests.getSupply();
+            builder.categoryName(supply.getCategory().getCategoryName())
+                    .modelName(supply.getModelName());
+        }
 
-
+        return builder.build();
     }
 }
