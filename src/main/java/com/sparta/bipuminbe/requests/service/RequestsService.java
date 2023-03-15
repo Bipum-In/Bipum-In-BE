@@ -9,31 +9,50 @@ import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class RequestsService {
     private final RequestsRepository requestsRepository;
 
+    @Transactional(readOnly = true)
     public ResponseDto<Page<RequestsResponseDto>> getRequests(String type, String status, int page) {
-        RequestStatus requestStatus = RequestStatus.valueOf(status);
+        Set<RequestType> requestTypeQuery = getTypeSet(type);
+        Set<RequestStatus> requestStatusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page);
-        List<Requests> requestsList;
-
-        if (type == null) {
-            requestsList = requestsRepository.findByRequestStatusOrderByCreatedAtDesc(requestStatus, pageable);
-        } else {
-            RequestType requestType = RequestType.valueOf(type);
-            requestsList = requestsRepository.
-                    findByRequestTypeAndRequestStatusOrderByCreatedAtDesc(requestType, requestStatus, pageable);
-        }
+        List<Requests> requestsList = requestsRepository.
+                    findByRequestTypeInAndRequestStatusIn(requestTypeQuery, requestStatusQuery, pageable);
 
         List<RequestsResponseDto> requestsDtoList = converToDto(requestsList);
 
         return ResponseDto.success(new PageImpl<>(requestsDtoList, pageable, requestsDtoList.size()));
+    }
+
+    // list 추출 조건용 requestType Set 리스트.
+    private Set<RequestType> getTypeSet(String type) {
+        Set<RequestType> requestTypeQuery = new HashSet<>();
+        if (type == null) {
+            requestTypeQuery.addAll(List.of(RequestType.values()));
+        } else {
+            requestTypeQuery.add(RequestType.valueOf(type));
+        }
+        return requestTypeQuery;
+    }
+
+    // list 추출 조건용 requestStatus Set 리스트.
+    private Set<RequestStatus> getStatusSet(String status) {
+        Set<RequestStatus> requestStatusQuery = new HashSet<>();
+        requestStatusQuery.add(RequestStatus.valueOf(status));
+        if (status.equals("UNPROCESSED")) {
+            requestStatusQuery.add(RequestStatus.REPAIRING);
+        }
+        return requestStatusQuery;
     }
 
     private Pageable getPageable(int page) {
