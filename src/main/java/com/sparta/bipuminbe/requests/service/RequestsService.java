@@ -50,9 +50,10 @@ public class RequestsService {
     // list 추출 조건용 requestStatus Set 리스트.
     private Set<RequestStatus> getStatusSet(String status) {
         Set<RequestStatus> requestStatusQuery = new HashSet<>();
-        requestStatusQuery.add(RequestStatus.valueOf(status));
-        if (status.equals("UNPROCESSED")) {
-            requestStatusQuery.add(RequestStatus.REPAIRING);
+        if(status.equals("ALL")){
+            requestStatusQuery.addAll(List.of(RequestStatus.values()));
+        }else{
+            requestStatusQuery.add(RequestStatus.valueOf(status));
         }
         return requestStatusQuery;
     }

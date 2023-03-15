@@ -24,7 +24,7 @@ public class RequestsController {
     @GetMapping("/admin/requests")
     @Operation(summary = "요청 현황 페이지", description = "type은 ALL/SUPPLY/REPAIR/RETURN, status는 UNPROCESSED/REPAIRING/PROCESSED")
     public ResponseDto<Page<RequestsResponseDto>> getRequests(@RequestParam(defaultValue = "ALL") String type,
-                                                              @RequestParam(defaultValue = "UNPROCESSED") String status,
+                                                              @RequestParam(defaultValue = "ALL") String status,
                                                               @RequestParam(defaultValue = "1") int page) {
         return requestsService.getRequests(type, status, page);
     }
