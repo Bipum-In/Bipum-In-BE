@@ -19,10 +19,10 @@ public class RepairRequestController {
 
     private final RepairRequestService repairRequestService;
 
-//    @GetMapping("/requests/repair/{requestId}")
-//    @Operation(summary = "수리 요청 상세 페이지", description = "isAdmin 필드에 따라 버튼 바꿔주면 될 것 같습니다.")
-//    public ResponseDto<RepairRequestResponseDto> getRepairRequest(@PathVariable Long requestId,
-//                                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        return repairRequestService.getRepairRequest(requestId, userDetails.getUser());
-//    }
+    @GetMapping("/requests/repair/{requestId}")
+    @Operation(summary = "수리 요청 상세 페이지", description = "isAdmin 필드에 따라 버튼 바꿔주면 될 것 같습니다.")
+    public ResponseDto<RepairRequestResponseDto> getRepairRequest(@PathVariable Long requestId,
+                                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return repairRequestService.getRepairRequest(requestId, userDetails.getUser());
+    }
 }

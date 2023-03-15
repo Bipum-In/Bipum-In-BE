@@ -40,9 +40,12 @@ public class RepairRequestResponseDto {
                 .empName(user.getEmpName())
                 .supplyId(supply.getSupplyId())
                 .modelName(supply.getModelName())
+                .image(requests.getImage())
                 .content(requests.getContent())
                 .requestStatus(requests.getRequestStatus().getKorean())
                 .createdAt(requests.getCreatedAt())
+                .isSelf(requests.getIsSelf())
+                .isRead(requests.getIsRead())
                 .build();
     }
 }
