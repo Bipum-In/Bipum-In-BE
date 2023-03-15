@@ -1,6 +1,6 @@
 package com.sparta.bipuminbe.common.entity;
 
-import com.sparta.bipuminbe.common.dto.KakaoUserInfoDto;
+import com.sparta.bipuminbe.user.dto.KakaoUserInfoDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,13 +41,14 @@ public class User extends TimeStamped{
 
     @Builder
     public User(Long kakaoId, String encodedPassword,
-                KakaoUserInfoDto kakaoUserInfoDto, UserRoleEnum role){
+                KakaoUserInfoDto kakaoUserInfoDto, UserRoleEnum role, Boolean alarm){
 
         this.kakaoId = kakaoId;
         this.password = encodedPassword;
         this.username = kakaoUserInfoDto.getUsername();
         this.image = kakaoUserInfoDto.getImage();
         this.role = role;
+        this.alarm = alarm;
     }
 
 }

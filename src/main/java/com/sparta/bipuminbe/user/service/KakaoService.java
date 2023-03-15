@@ -3,8 +3,9 @@ package com.sparta.bipuminbe.user.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.bipuminbe.common.dto.KakaoUserInfoDto;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.entity.Department;
+import com.sparta.bipuminbe.user.dto.KakaoUserInfoDto;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.jwt.JwtUtil;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Slf4j
@@ -39,7 +42,7 @@ public class KakaoService {
 
 
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
-    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code) throws JsonProcessingException {
+    public ResponseDto<Boolean> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -56,11 +59,9 @@ public class KakaoService {
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
         responseHeader.set(JwtUtil.AUTHORIZATION_HEADER, createToken);
 
-        Boolean isAdmin = kakaoUser.getRole() == UserRoleEnum.ADMIN;
+        Boolean isInput = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null;
 
-        return ResponseEntity.ok()
-                .headers(responseHeader)
-                .body(ResponseDto.success(isAdmin));
+        return ResponseDto.success(isInput);
     }
 
 
@@ -126,29 +127,34 @@ public class KakaoService {
                 .get("profile_image").asText();
 
         log.info("카카오 사용자 정보: " + id + ", " + username + ", " + profileImage);
-        return new KakaoUserInfoDto(id, username, profileImage);
+
+        return KakaoUserInfoDto.builder()
+                .id(id).username(username).image(profileImage).build();
     }
 
     // 3. 필요시에 회원가입
     private User registerKakaoUserIfNeeded(KakaoUserInfoDto kakaoUserInfo) {//받은 사용자 정보를 DTO로 받아옴
         // DB 에 중복된 Kakao Id 가 있는지 확인
-        Long kakaoId = kakaoUserInfo.getId();
-        User kakaoUser = userRepository.findByKakaoId(kakaoId).orElse(null);
+        User kakaoUser = userRepository.findByKakaoId(kakaoUserInfo.getId()).orElse(null);
 
         if (kakaoUser == null) { // 유저가 없으면 새로 회원가입.
             // password: random UUID
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
 
+            //Username이 이메일이므로 주의
             kakaoUser = User.builder().
-                    kakaoId(kakaoUser.getKakaoId()).
+                    kakaoId(kakaoUserInfo.getId()).
                     encodedPassword(encodedPassword).
                     kakaoUserInfoDto(kakaoUserInfo).
                     role(UserRoleEnum.USER).
+                    alarm(true).
                     build();
+
+            userRepository.save(kakaoUser);
         }
 
-        userRepository.save(kakaoUser);
-        return kakaoUser; // 유저가 존재하면 그 유저의 정보를 그대로 반환
+        return kakaoUser;
     }
+
 }
