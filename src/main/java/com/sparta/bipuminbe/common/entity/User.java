@@ -36,7 +36,7 @@ public class User extends TimeStamped{
     private Boolean alarm;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", nullable = false)
+    @JoinColumn(name = "department_id")
     private Department department;
 
     @Builder

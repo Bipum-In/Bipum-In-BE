@@ -26,12 +26,12 @@ public class RequestsService {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page);
-        List<Requests> requestsList = requestsRepository.
+        Page<Requests> requestsList = requestsRepository.
                     findByRequestTypeInAndRequestStatusIn(requestTypeQuery, requestStatusQuery, pageable);
 
-        List<RequestsResponseDto> requestsDtoList = converToDto(requestsList);
+        List<RequestsResponseDto> requestsDtoList = converToDto(requestsList.getContent());
 
-        return ResponseDto.success(new PageImpl<>(requestsDtoList, pageable, requestsDtoList.size()));
+        return ResponseDto.success(new PageImpl<>(requestsDtoList, requestsList.getPageable(), requestsList.getTotalElements()));
     }
 
     // list 추출 조건용 requestType Set 리스트.
