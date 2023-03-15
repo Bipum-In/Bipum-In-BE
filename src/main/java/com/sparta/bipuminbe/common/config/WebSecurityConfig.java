@@ -18,6 +18,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.reactive.CorsUtils;
+
+import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
@@ -94,7 +97,8 @@ public class WebSecurityConfig {
         // 사전에 약속된 출처를 명시
 //        config.addAllowedOrigin("*");
         config.addAllowedOrigin("http://localhost:3000");
-        config.addAllowedOrigin("http://localhost:3001");
+//        config.addAllowedOrigin("http://localhost:3001");
+
         config.addAllowedOrigin("http://hanghae1teamwork.s3-website.ap-northeast-2.amazonaws.com/");
 //        config.addAllowedOrigin("http://rolling-rolling.s3-website.ap-northeast-2.amazonaws.com/");
 
@@ -103,8 +107,8 @@ public class WebSecurityConfig {
         config.addExposedHeader(jwtUtil.AUTHORIZATION_HEADER);
 
         // 본 요청에 허용할 HTTP method(예비 요청에 대한 응답 헤더에 추가됨)
-        config.addAllowedMethod("*");
-
+//        config.addAllowedMethod("*");
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
         // 본 요청에 허용할 HTTP header(예비 요청에 대한 응답 헤더에 추가됨)
         config.addAllowedHeader("*");
 

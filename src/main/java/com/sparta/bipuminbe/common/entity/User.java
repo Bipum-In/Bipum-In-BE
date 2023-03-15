@@ -18,7 +18,7 @@ public class User extends TimeStamped{
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String kakaoId;
+    private Long kakaoId;
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -40,7 +40,7 @@ public class User extends TimeStamped{
     private Department department;
 
     @Builder
-    public User(String kakaoId, String encodedPassword,
+    public User(Long kakaoId, String encodedPassword,
                 KakaoUserInfoDto kakaoUserInfoDto, UserRoleEnum role){
 
         this.kakaoId = kakaoId;
