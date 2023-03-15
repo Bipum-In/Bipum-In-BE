@@ -40,4 +40,13 @@ public class Supply extends TimeStamped{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoryId", nullable = false)
     private Category category;
+
+//    public Supply(SupplyRequestDto supplyRequestDto, User user) {
+//        this.serialNum = supplyRequestDto.getSerialNum();
+//        this.modelName = supplyRequestDto.getModelName();
+//        this.image = supplyRequestDto.getImage();
+//        this.status = supplyRequestDto.getStatus();
+//        this.returnDate = supplyRequestDto.getReturnDate();
+//        this.user = user;
+//    }
 }
