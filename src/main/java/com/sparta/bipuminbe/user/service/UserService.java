@@ -4,7 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.security.UserDetailsImpl;
+import com.sparta.bipuminbe.common.entity.Department;
+import com.sparta.bipuminbe.common.exception.CustomException;
+import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.department.repository.DepartmentRepository;
 import com.sparta.bipuminbe.user.dto.KakaoUserInfoDto;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
@@ -18,9 +21,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -34,6 +37,7 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final DepartmentRepository departmentRepository;
     private final JwtUtil jwtUtil;
     @Value("${kakao.restapi.key}")
     private String apiKey;
@@ -162,7 +166,17 @@ public class UserService {
         return kakaoUser;
     }
 
-    public void loginAdd(LoginRequestDto loginRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @Transactional
+    public ResponseDto<String> loginAdd(LoginRequestDto loginRequestDto, User user) {
+        User foundUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundUser));
+        Department department = departmentRepository.findById(loginRequestDto.getDepartmentId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundDepartment));
 
+        if(foundUser.getEmpName() == null || foundUser.getDepartment() == null){
+            foundUser.update(loginRequestDto.getEmpName(), department);
+        }
+
+        return ResponseDto.success("회원정보 수정 완료");
     }
 }
