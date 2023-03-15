@@ -24,9 +24,9 @@ public class UserController {
         return kakaoService.kakaoLogin(code);
     }
 
-    @PostMapping("/loginadd")
-    public String loginAdd(@Valid @RequestBody LoginRequestDto loginRequestDto){
-        kakaoService.loginAdd(loginRequestDto);
-        return "1";
-    }
+//    @PostMapping("/loginadd")
+//    public String loginAdd(@Valid @RequestBody LoginRequestDto loginRequestDto){
+//        kakaoService.loginAdd(loginRequestDto);
+//        return "1";
+//    }
 }
