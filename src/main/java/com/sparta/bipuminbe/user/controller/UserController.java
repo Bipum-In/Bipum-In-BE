@@ -5,6 +5,7 @@ import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.user.dto.LoginRequestDto;
 import com.sparta.bipuminbe.user.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,7 +28,7 @@ public class UserController {
 
     //로그인 시, 부서와 유저이름이 없는 경우 반드시 추가입력하게 유도
     @PostMapping("/loginadd")
-    public ResponseDto<String> loginAdd(@Valid @RequestBody LoginRequestDto loginRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseDto<String> loginAdd(@Valid @RequestBody LoginRequestDto loginRequestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
         // 카카오에서 받아오지 못하는 유저이름과 부서 추가입력
         return  kakaoService.loginAdd(loginRequestDto, userDetails.getUser());
     }
