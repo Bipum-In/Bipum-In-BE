@@ -1,5 +1,6 @@
 package com.sparta.bipuminbe.common.entity;
 
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@Getter
 public class TimeStamped {
     @CreatedDate
     @Column(updatable = false)
