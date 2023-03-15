@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class SupplyWholeResponseDto {
 
-    private List<SupplyDetailResponseDto> supplyDetail = new ArrayList<>();
+    private SupplyDetailResponseDto supplyDetail;
 
     private List<SupplyHistoryResponseDto> supplyHistory = new ArrayList<>();
 

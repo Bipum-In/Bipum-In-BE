@@ -1,6 +1,6 @@
 package com.sparta.bipuminbe.supply.dto;
 
-import com.sparta.bipuminbe.common.entity.Department;
+import com.sparta.bipuminbe.common.entity.Supply;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,17 +22,17 @@ public class SupplyResponseDto {
     private String deptName;
     private String status;
 
-    public SupplyResponseDto(Supply supply, Department department){
+    public SupplyResponseDto(Supply supply){
         this.supplyId = supply.getSupplyId();
-        this.category = supply.getCategory();
+        this.category = supply.getCategory().getCategoryName();
         this.image = supply.getImage();
         this.modelName = supply.getModelName();
         this.serialNum = supply.getSerialNum();
         this.returnDate = supply.getReturnDate();
-        this.createdAt = supply.getCreateAt();
-        this.partners = supply.getPartners();
-        this.username = supply.getUser.getUsername();
-        this.deptName = department.getDeptName();
-        this.status = supply.getStatus();
+        this.createdAt = supply.getCreatedAt();
+        this.partners = supply.getPartners() == null ? null : supply.getPartners().getPartnersName();
+        this.username = supply.getUser().getUsername();
+        this.deptName = supply.getUser().getDepartment().getDeptName();
+        this.status = supply.getStatus().name();
     }
 }

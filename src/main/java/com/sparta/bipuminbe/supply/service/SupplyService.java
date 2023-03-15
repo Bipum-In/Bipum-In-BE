@@ -13,13 +13,13 @@ import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
-import com.sparta.bipuminbe.supply.dto.SupplyRequestDto;
-import com.sparta.bipuminbe.supply.dto.SupplyResponseDto;
-import com.sparta.bipuminbe.supply.dto.SupplyWholeResponseDto;
+import com.sparta.bipuminbe.requests.repository.RequestsRepository;
+import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +44,9 @@ public class SupplyService {
     private String bucket;
     private final AmazonS3 amazonS3;
 
+    //Todo 나중에 볼게요.
     @Transactional
-    public ImageResponseDto uploadFile(
+    public ResponseDto<ImageResponseDto> uploadFile(
             MultipartFile file
     ) {
         // forEach 구문을 통해 multipartFile로 넘어온 파일들 하나씩 fileNameList에 추가
@@ -58,10 +59,10 @@ public class SupplyService {
             amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
-            throw new ResponseStatusException("파일 업로드에 실패했습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        return ImageResponseDto.of("" + fileName);
+        return ResponseDto.success(ImageResponseDto.of("" + fileName));
     }
 
     @Transactional
@@ -82,7 +83,7 @@ public class SupplyService {
     }
 
     @Transactional
-    public SupplyResponseDto createSupply(SupplyRequestDto supplyRequestDto){
+    public ResponseDto<String> createSupply(SupplyRequestDto supplyRequestDto){
 
         Partners partners = null;
         if(supplyRequestDto.getPartnersId() != null) {
@@ -93,7 +94,7 @@ public class SupplyService {
         Supply newSupply = new Supply(supplyRequestDto, partners);
         supplyRepository.save(newSupply);
 
-        return StudyResponseDto.of(newSupply);
+        return ResponseDto.success("비품 등록 성공");
     }
 
 
@@ -103,47 +104,42 @@ public class SupplyService {
         List<Supply> supplyList = supplyRepository.findAll();
         List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
         for (Supply supply : supplyList) {
-            supplyDtoList.add(SupplyResponseDto.of(supply));
+
+            //Todo 이거 나중에 of 메서드 만드시면 옮기시면 됩니다.
+            supplyDtoList.add(new SupplyResponseDto(supply));
         }
         return ResponseDto.success(supplyDtoList);
     }
 
 
-    @Transactional(readOnly = true)
-    public SupplyWholeResponseDto getSupply(
-            Long supplyId,
-            UserDetailsImpl userDetails
-            ){
-
-        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(
-                () -> new EntityNotFoundException("사용자를 찾을 수 없습니다.")
-        );
-
-        Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new EntityNotFoundException("비품을 찾을 수 없습니다.")
-        );
-
-        return SupplyWholeResponseDto(supply);
-    }
-
-//    @Transactional
-//    public SupplyResponseDto updateSupply
-//            (Long supplyId,
-//             SupplyRequestDto requestDto,
-//             User user) {
+//    @Transactional(readOnly = true)
+//    public SupplyWholeResponseDto getSupply(
+//            Long supplyId){
+//
 //        Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-//                () -> new IllegalArgumentException("해당 비품이 존재하지 않습니다.")
+//                () -> new EntityNotFoundException("비품을 찾을 수 없습니다.")
 //        );
+//
+//        List<Requests> requests = requestsRepository.findBySupplyId
+//        List<SupplyHistoryResponseDto>
+//        return SupplyWholeResponseDto(supply, );
 //    }
+
+    @Transactional
+    public ResponseDto<String> updateSupply
+            (Long supplyId,
+             Long userId) {
+        Supply supply = supplyRepository.findById(supplyId).orElseThrow(
+                () -> new IllegalArgumentException("해당 비품이 존재하지 않습니다.")
+        );
+        //Todo Supply Entity update 메서드를 만들고, user를 집어넣고, status 사용중
+        return ResponseDto.success("비품 수정 성공")
+    }
 
 
     @Transactional
     public void deleteSupply(
-            Long supplyId,
-            UserDetailsImpl userDetails) {
-        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(
-                () -> new EntityNotFoundException("사용자를 찾을 수 없습니다.")
-        );
+            Long supplyId) {
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
                 () -> new EntityNotFoundException("비품을 찾을 수 없습니다.")

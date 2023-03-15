@@ -46,7 +46,8 @@ public class Supply extends TimeStamped{
         this.serialNum = supplyRequestDto.getSerialNum();
         this.modelName = supplyRequestDto.getModelName();
         this.image = "";
-        this.status = SupplyStatusEnum.;
+        this.partners = partners;
+        this.status = SupplyStatusEnum.STOCK;
         this.returnDate = supplyRequestDto.getReturnDate();
     }
 }
