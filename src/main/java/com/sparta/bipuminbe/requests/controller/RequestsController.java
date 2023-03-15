@@ -1,17 +1,18 @@
 package com.sparta.bipuminbe.requests.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
+import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.requests.dto.RequestsResponseDto;
+import com.sparta.bipuminbe.requests.dto.SupplyRequestResponseDto;
 import com.sparta.bipuminbe.requests.service.RequestsService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
