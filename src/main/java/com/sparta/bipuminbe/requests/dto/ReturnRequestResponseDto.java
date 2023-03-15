@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class RepairRequestResponseDto {
+public class ReturnRequestResponseDto {
     private String requestType;
     private Long requestId;
     private Boolean isAdmin;
@@ -23,7 +23,6 @@ public class RepairRequestResponseDto {
     private String content;
     private String requestStatus;
     private LocalDateTime createdAt;
-    private Boolean isSelf;
 
     public static RepairRequestResponseDto of(Requests requests) {
         User user = requests.getUser();
@@ -41,8 +40,6 @@ public class RepairRequestResponseDto {
                 .content(requests.getContent())
                 .requestStatus(requests.getRequestStatus().getKorean())
                 .createdAt(requests.getCreatedAt())
-                .isSelf(requests.getIsSelf())
-                .isRead(requests.getIsRead())
                 .build();
     }
 }

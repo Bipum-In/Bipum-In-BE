@@ -22,7 +22,15 @@ public class RepairRequestService {
     public ResponseDto<RepairRequestResponseDto> getRepairRequest(Long requestId, User user) {
         Requests request = getRequest(requestId);
         checkRepairRequest(request, user);
+        readRequest(request);
         return ResponseDto.success(RepairRequestResponseDto.of(request));
+    }
+
+    @Transactional
+    void readRequest(Requests request) {
+        if(!request.getIsRead()){
+            request.read();
+        }
     }
 
     private void checkRepairRequest(Requests request, User user) {

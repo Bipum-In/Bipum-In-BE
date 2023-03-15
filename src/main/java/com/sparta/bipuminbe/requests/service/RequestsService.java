@@ -39,7 +39,7 @@ public class RequestsService {
     // list 추출 조건용 requestType Set 리스트.
     private Set<RequestType> getTypeSet(String type) {
         Set<RequestType> requestTypeQuery = new HashSet<>();
-        if (type == null) {
+        if (type.equals("ALL")) {
             requestTypeQuery.addAll(List.of(RequestType.values()));
         } else {
             requestTypeQuery.add(RequestType.valueOf(type));
