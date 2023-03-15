@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.supply.dto;
 
 import com.sparta.bipuminbe.common.entity.Department;
+import com.sparta.bipuminbe.common.entity.Supply;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,11 +9,9 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
-public class SupplyResponseDto {
+public class SupplyDetailResponseDto {
 
-    private Long supplyId;
     private String category;
-    private String image;
     private String modelName;
     private String serialNum;
     private LocalDateTime returnDate;
@@ -22,10 +21,8 @@ public class SupplyResponseDto {
     private String deptName;
     private String status;
 
-    public SupplyResponseDto(Supply supply, Department department){
-        this.supplyId = supply.getSupplyId();
+    public SupplyDetailResponseDto(Supply supply, Department department){
         this.category = supply.getCategory();
-        this.image = supply.getImage();
         this.modelName = supply.getModelName();
         this.serialNum = supply.getSerialNum();
         this.returnDate = supply.getReturnDate();

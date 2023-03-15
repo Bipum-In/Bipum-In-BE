@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
+import com.sparta.bipuminbe.supply.dto.SupplyRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,12 +42,11 @@ public class Supply extends TimeStamped{
     @JoinColumn(name = "categoryId", nullable = false)
     private Category category;
 
-//    public Supply(SupplyRequestDto supplyRequestDto, User user) {
-//        this.serialNum = supplyRequestDto.getSerialNum();
-//        this.modelName = supplyRequestDto.getModelName();
-//        this.image = supplyRequestDto.getImage();
-//        this.status = supplyRequestDto.getStatus();
-//        this.returnDate = supplyRequestDto.getReturnDate();
-//        this.user = user;
-//    }
+    public Supply(SupplyRequestDto supplyRequestDto, Partners partners) {
+        this.serialNum = supplyRequestDto.getSerialNum();
+        this.modelName = supplyRequestDto.getModelName();
+        this.image = "";
+        this.status = SupplyStatusEnum.;
+        this.returnDate = supplyRequestDto.getReturnDate();
+    }
 }
