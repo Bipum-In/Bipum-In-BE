@@ -27,6 +27,8 @@ public class Requests extends TimeStamped {
 
     private Boolean isRead;
 
+    private Boolean isAccepted;
+
     @Enumerated(EnumType.STRING)
     private RequestStatus requestStatus;
 
@@ -44,5 +46,16 @@ public class Requests extends TimeStamped {
 
     public void read() {
         this.isRead = true;
+    }
+
+    public void processingRequest(Boolean isAccepted) {
+        this.isAccepted = isAccepted;
+
+        if (isAccepted) {
+            this.requestStatus = requestType.equals(RequestType.REPAIR) && requestStatus.equals(RequestStatus.UNPROCESSED)
+                    ? RequestStatus.REPAIRING : RequestStatus.PROCESSED;
+        } else {
+            this.requestStatus = RequestStatus.PROCESSED;
+        }
     }
 }
