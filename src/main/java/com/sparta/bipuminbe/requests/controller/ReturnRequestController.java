@@ -29,7 +29,7 @@ public class ReturnRequestController {
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping("/requests/return/{requestId}")
-    @Operation(summary = "반납 요청 승인/거절", description = "isAccepted는 승인/거부")
+    @Operation(summary = "반납 요청 승인/거절", description = "isAccepted는 승인/거부, 관리자 권한 필요.")
     public ResponseDto<String> processingReturnRequest(@PathVariable Long requestId,
                                                        @RequestParam Boolean isAccepted) {
         return returnRequestService.processingReturnRequest(requestId, isAccepted);

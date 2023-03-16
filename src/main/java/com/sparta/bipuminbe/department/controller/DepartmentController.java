@@ -24,23 +24,23 @@ public class DepartmentController {
         return departmentService.getDeptList();
     }
 
-//    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PostMapping("/dept")
-    @Operation(summary = "부서 등록", description = "부서이름만 입력하면 됨.")
+    @Operation(summary = "부서 등록", description = "부서이름만 입력하면 됨, 관리자 권한 필요.")
     public ResponseDto<String> createDept(@RequestBody @Valid DepartmentDto departmentDto) {
         return departmentService.createDept(departmentDto);
     }
 
-//    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping("/dept/{deptId}")
-    @Operation(summary = "부서 수정", description = "수정할 부서 이름 입력.")
+    @Operation(summary = "부서 수정", description = "수정할 부서 이름 입력, 관리자 권한 필요.")
     public ResponseDto<String> updateDept(@PathVariable Long deptId, @RequestBody @Valid DepartmentDto departmentDto) {
         return departmentService.updateDept(deptId, departmentDto);
     }
 
-//    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @DeleteMapping("/dept/{deptId}")
-    @Operation(summary = "부서 삭제")
+    @Operation(summary = "부서 삭제", description = "관리자 권한 필요.")
     public ResponseDto<String> deleteDept(@PathVariable Long deptId) {
         return departmentService.deleteDept(deptId);
     }
