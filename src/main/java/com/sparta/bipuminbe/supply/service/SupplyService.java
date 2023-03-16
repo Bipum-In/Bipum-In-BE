@@ -82,7 +82,7 @@ public class SupplyService {
         );
         SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply);
         List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
-        List<Requests> requests = requestsRepository.findBySupplyId(supplyId);
+        List<Requests> requests = requestsRepository.findBySupply(supply);
         for (Requests request : requests) {
             historyList.add(new SupplyHistoryResponseDto(request.getSupply()));
         }

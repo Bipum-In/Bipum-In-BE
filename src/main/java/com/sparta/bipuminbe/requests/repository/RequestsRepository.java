@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.requests.repository;
 
 import com.sparta.bipuminbe.common.entity.Requests;
+import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import org.springframework.data.domain.Page;
@@ -13,5 +14,5 @@ import java.util.Set;
 
 public interface RequestsRepository extends JpaRepository<Requests, Long> {
     Page<Requests> findByRequestTypeInAndRequestStatusIn(Set<RequestType> requestTypeQuery, Set<RequestStatus> requestStatusQuery, Pageable pageable);
-    List<Requests> findBySupplyId(Long supplyId);
+    List<Requests> findBySupply(Supply supply);
 }
