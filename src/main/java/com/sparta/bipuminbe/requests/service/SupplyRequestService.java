@@ -60,7 +60,7 @@ public class SupplyRequestService {
             return ResponseDto.success("승인 거부 완료.");
         }
         Supply supply = getSupply(supplyId);
-        supply.update();
+//        supply.update();
         return ResponseDto.success("승인 처리 완료.");
     }
 
