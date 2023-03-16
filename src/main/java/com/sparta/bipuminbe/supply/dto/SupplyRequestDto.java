@@ -8,11 +8,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class SupplyRequestDto {
-
     private String category;
     private String modelName;
     private String serialNum;
     private LocalDateTime returnDate;
-    private String partners;
+    private Long partnersId;
     private Long userId;
 }
