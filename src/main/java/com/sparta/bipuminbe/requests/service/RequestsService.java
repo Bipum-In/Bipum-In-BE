@@ -22,10 +22,10 @@ public class RequestsService {
     private final RequestsRepository requestsRepository;
 
     @Transactional(readOnly = true)
-    public ResponseDto<Page<RequestsResponseDto>> getRequests(String type, String status, int page) {
+    public ResponseDto<Page<RequestsResponseDto>> getRequests(String type, String status, int page, int size) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
-        Pageable pageable = getPageable(page);
+        Pageable pageable = getPageable(page, size);
         Page<Requests> requestsList = requestsRepository.
                     findByRequestTypeInAndRequestStatusIn(requestTypeQuery, requestStatusQuery, pageable);
 
@@ -56,9 +56,9 @@ public class RequestsService {
         return requestStatusQuery;
     }
 
-    private Pageable getPageable(int page) {
+    private Pageable getPageable(int page, int size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        return PageRequest.of(page - 1, 10, sort);
+        return PageRequest.of(page - 1, size, sort);
     }
 
     private List<RequestsResponseDto> converToDto(List<Requests> requestsList) {
