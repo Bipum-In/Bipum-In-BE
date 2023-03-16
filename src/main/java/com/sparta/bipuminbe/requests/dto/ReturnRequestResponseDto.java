@@ -23,11 +23,11 @@ public class ReturnRequestResponseDto {
     private String requestStatus;
     private LocalDateTime createdAt;
 
-    public static RepairRequestResponseDto of(Requests requests) {
+    public static ReturnRequestResponseDto of(Requests requests) {
         User user = requests.getUser();
         Supply supply = requests.getSupply();
 
-        return RepairRequestResponseDto.builder()
+        return ReturnRequestResponseDto.builder()
                 .requestType(requests.getRequestType().getKorean())
                 .requestId(requests.getRequestId())
                 .isAdmin(user.getRole().equals(UserRoleEnum.ADMIN))

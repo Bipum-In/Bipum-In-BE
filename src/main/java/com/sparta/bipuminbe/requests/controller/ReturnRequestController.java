@@ -21,10 +21,10 @@ public class ReturnRequestController {
 
     private final ReturnRequestService returnRequestService;
 
-//    @GetMapping("/requests/return/{requestId}")
-//    @Operation(summary = "반납 요청 상세 페이지", description = "isAdmin 필드에 따라 버튼 바꿔주면 될 것 같습니다.")
-//    public ResponseDto<ReturnRequestResponseDto> getReturnRequest(@PathVariable Long requestId,
-//                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        return returnRequestService.getReturnRequest(requestId, userDetails.getUser());
-//    }
+    @GetMapping("/requests/return/{requestId}")
+    @Operation(summary = "반납 요청 상세 페이지", description = "isAdmin 필드에 따라 버튼 바꿔주면 될 것 같습니다.")
+    public ResponseDto<ReturnRequestResponseDto> getReturnRequest(@PathVariable Long requestId,
+                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return returnRequestService.getReturnRequest(requestId, userDetails.getUser());
+    }
 }

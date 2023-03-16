@@ -38,7 +38,7 @@ public class RepairRequestService {
             throw new CustomException(ErrorCode.NotAllowedMethod);
         }
 
-        if (!request.getUser().getId().equals(user.getId()) && user.getRole().equals(UserRoleEnum.ADMIN)) {
+        if (!request.getUser().getId().equals(user.getId()) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
             throw new CustomException(ErrorCode.NoPermission);
         }
     }
