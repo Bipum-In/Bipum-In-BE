@@ -1,6 +1,5 @@
 package com.sparta.bipuminbe.supply.dto;
 
-import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.Supply;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
