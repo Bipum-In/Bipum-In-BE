@@ -13,4 +13,5 @@ import java.util.Set;
 
 public interface RequestsRepository extends JpaRepository<Requests, Long> {
     Page<Requests> findByRequestTypeInAndRequestStatusIn(Set<RequestType> requestTypeQuery, Set<RequestStatus> requestStatusQuery, Pageable pageable);
+    List<Requests> findBySupplyId(Long supplyId);
 }

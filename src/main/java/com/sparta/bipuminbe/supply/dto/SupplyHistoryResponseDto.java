@@ -15,8 +15,8 @@ public class SupplyHistoryResponseDto {
     private String status;
 
     public SupplyHistoryResponseDto(Supply supply){
-        this.createdAt = supply.getCreatedAt() == null ? LocalDateTime.now() : supply.getCreatedAt();
-        this.username = supply.getUser.getUsername();
-        this.status = supply.getStatus();
+        this.createdAt = supply.getCreatedAt();
+        this.username = supply.getUser().getUsername();
+        this.status = supply.getStatus().name();
     }
 }

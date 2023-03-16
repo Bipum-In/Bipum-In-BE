@@ -21,15 +21,15 @@ public class SupplyDetailResponseDto {
     private String deptName;
     private String status;
 
-    public SupplyDetailResponseDto(Supply supply, Department department){
-        this.category = supply.getCategory();
+    public SupplyDetailResponseDto(Supply supply){
+        this.category = supply.getCategory().getCategoryName();
         this.modelName = supply.getModelName();
         this.serialNum = supply.getSerialNum();
         this.returnDate = supply.getReturnDate();
-        this.createdAt = supply.getCreateAt();
-        this.partners = supply.getPartners();
-        this.username = supply.getUser.getUsername();
-        this.deptName = department.getDeptName();
-        this.status = supply.getStatus();
+        this.createdAt = supply.getCreatedAt();
+        this.partners = supply.getPartners() == null ? null : supply.getPartners().getPartnersName();
+        this.username = supply.getUser().getUsername();
+        this.deptName = supply.getUser().getDepartment().getDeptName();
+        this.status = supply.getStatus().name();
     }
 }

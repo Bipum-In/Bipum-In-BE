@@ -15,4 +15,13 @@ public class SupplyWholeResponseDto {
 
     private List<SupplyHistoryResponseDto> supplyHistory = new ArrayList<>();
 
+
+    SupplyWholeResponseDto(SupplyDetailResponseDto supplyDetail, List<SupplyHistoryResponseDto> supplyHistory){
+        this.supplyDetail =supplyDetail;
+        this.supplyHistory=supplyHistory;
+    }
+
+    public static SupplyWholeResponseDto of(SupplyDetailResponseDto supplyDetail, List<SupplyHistoryResponseDto> supplyHistory){
+        return new SupplyWholeResponseDto(supplyDetail, supplyHistory);
+    }
 }

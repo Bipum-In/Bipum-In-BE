@@ -35,4 +35,7 @@ public class SupplyResponseDto {
         this.deptName = supply.getUser().getDepartment().getDeptName();
         this.status = supply.getStatus().name();
     }
+    public static SupplyResponseDto of (Supply supply) {
+        return new SupplyResponseDto(supply);
+    }
 }
