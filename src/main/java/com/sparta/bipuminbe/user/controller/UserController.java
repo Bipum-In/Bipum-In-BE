@@ -23,7 +23,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
         // code: 카카오 서버로부터 받은 인가 코드
         return userService.kakaoLogin(code);
