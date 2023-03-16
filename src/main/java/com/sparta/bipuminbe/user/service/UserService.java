@@ -13,6 +13,7 @@ import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.jwt.JwtUtil;
 import com.sparta.bipuminbe.user.dto.LoginRequestDto;
+import com.sparta.bipuminbe.user.dto.UserResponseDto;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -170,13 +173,27 @@ public class UserService {
     public ResponseDto<String> loginAdd(LoginRequestDto loginRequestDto, User user) {
         User foundUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
-        Department department = departmentRepository.findById(loginRequestDto.getDepartmentId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundDepartment));
+        Department department = getDepartment(loginRequestDto.getDepartmentId());
 
         if(foundUser.getEmpName() == null || foundUser.getDepartment() == null){
             foundUser.update(loginRequestDto.getEmpName(), department);
         }
 
         return ResponseDto.success("회원정보 수정 완료");
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<List<UserResponseDto>> getUserByDept(Long deptId) {
+        List<User> userInDeptList = userRepository.findByDepartment(getDepartment(deptId));
+        List<UserResponseDto> userResponseDtoList = new ArrayList<>();
+        for (User user : userInDeptList) {
+            userResponseDtoList.add(UserResponseDto.of(user));
+        }
+        return ResponseDto.success(userResponseDtoList);
+    }
+
+    private Department getDepartment(Long deptId) {
+        return departmentRepository.findById(deptId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundDepartment));
     }
 }
