@@ -23,7 +23,7 @@ public class SupplyRequestResponseDto {
     private String content;
     private String requestStatus;
     private LocalDateTime createdAt;
-
+    //
     public static SupplyRequestResponseDto of(Requests requests) {
         User user = requests.getUser();
         Category category = requests.getCategory();
