@@ -23,7 +23,15 @@ public class SupplyRequestService {
     public ResponseDto<SupplyRequestResponseDto> getSupplyRequest(Long requestId, User user) {
         Requests request = getRequest(requestId);
         checkSupplyRequest(request, user);
+        readRequest(request);
         return ResponseDto.success(SupplyRequestResponseDto.of(request));
+    }
+
+    @Transactional
+    void readRequest(Requests request) {
+        if(!request.getIsRead()){
+            request.read();
+        }
     }
 
     private void checkSupplyRequest(Requests request, User user) {
@@ -31,7 +39,7 @@ public class SupplyRequestService {
             throw new CustomException(ErrorCode.NotAllowedMethod);
         }
 
-        if (!request.getUser().getId().equals(user.getId()) && user.getRole().equals(UserRoleEnum.ADMIN)) {
+        if (!request.getUser().getId().equals(user.getId()) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
             throw new CustomException(ErrorCode.NoPermission);
         }
     }
