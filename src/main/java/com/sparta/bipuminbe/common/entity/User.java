@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.user.dto.KakaoUserInfoDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
+import com.sparta.bipuminbe.user.dto.LoginRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,4 +52,8 @@ public class User extends TimeStamped{
         this.alarm = alarm;
     }
 
+    public void update(String empName, Department department) {
+        this.empName = empName;
+        this.department = department;
+    }
 }

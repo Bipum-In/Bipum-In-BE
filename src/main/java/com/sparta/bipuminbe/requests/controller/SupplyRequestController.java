@@ -6,6 +6,7 @@ import com.sparta.bipuminbe.requests.dto.SupplyRequestResponseDto;
 import com.sparta.bipuminbe.requests.service.SupplyRequestService;
 import com.sparta.bipuminbe.supply.service.SupplyService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ public class SupplyRequestController {
     @GetMapping("/requests/supply/{requestId}")
     @Operation(summary = "비품 요청 상세 페이지", description = "isAdmin 필드에 따라 버튼 바꿔주면 될 것 같습니다.")
     public ResponseDto<SupplyRequestResponseDto> getSupplyRequest(@PathVariable Long requestId,
-                                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                    @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return supplyRequestService.getSupplyRequest(requestId, userDetails.getUser());
     }
 }

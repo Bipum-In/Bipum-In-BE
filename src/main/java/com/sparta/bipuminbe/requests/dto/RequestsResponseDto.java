@@ -20,6 +20,7 @@ public class RequestsResponseDto {
     private String modelName;
     private LocalDateTime createdAt;
     private String status;
+    private boolean isRead;
 
     public static RequestsResponseDto of(Requests requests) {
         User user = requests.getUser();
@@ -30,7 +31,8 @@ public class RequestsResponseDto {
                 .empName(user.getEmpName())
                 .deptName(user.getDepartment().getDeptName())
                 .createdAt(requests.getCreatedAt())
-                .status(requests.getRequestStatus().getKorean());
+                .status(requests.getRequestStatus().getKorean())
+                .isRead(requests.getIsRead());
 
         if (requests.getRequestType().equals(RequestType.SUPPLY)) {
             builder.categoryName(requests.getCategory().getCategoryName());

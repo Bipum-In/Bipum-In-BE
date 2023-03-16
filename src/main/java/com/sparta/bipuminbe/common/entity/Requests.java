@@ -41,4 +41,8 @@ public class Requests extends TimeStamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoryId")
     private Category category;
+
+    public void read() {
+        this.isRead = true;
+    }
 }
