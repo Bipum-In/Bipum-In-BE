@@ -42,7 +42,6 @@ public class RepairRequestResponseDto {
                 .requestStatus(requests.getRequestStatus().getKorean())
                 .createdAt(requests.getCreatedAt())
                 .isSelf(requests.getIsSelf())
-                .isRead(requests.getIsRead())
                 .build();
     }
 }
