@@ -16,7 +16,7 @@ public class RequestsController {
 
 //    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/requests")
-    @Operation(summary = "요청 현황 페이지", description = "type은 ALL/SUPPLY/REPAIR/RETURN, status는 UNPROCESSED/REPAIRING/PROCESSED")
+    @Operation(summary = "요청 현황 페이지", description = "type은 ALL/SUPPLY/REPAIR/RETURN, status는 UNPROCESSED/PROCESSING/PROCESSED")
     public ResponseDto<Page<RequestsResponseDto>> getRequests(@RequestParam(defaultValue = "ALL") String type,
                                                               @RequestParam(defaultValue = "ALL") String status,
                                                               @RequestParam(defaultValue = "1") int page,

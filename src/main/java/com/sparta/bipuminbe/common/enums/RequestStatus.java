@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum RequestStatus {
     UNPROCESSED("처리전"),
-    REPAIRING("수리중"),
+    PROCESSING("처리중"),
     PROCESSED("처리완료");
 
     private final String korean;
