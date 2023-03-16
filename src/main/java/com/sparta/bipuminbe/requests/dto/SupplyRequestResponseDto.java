@@ -15,7 +15,6 @@ public class SupplyRequestResponseDto {
     private String requestType;
     private Long requestId;
     private Boolean isAdmin;
-    private Long userId;
     private String deptName;
     private String empName;
     private Long categoryId;
@@ -23,7 +22,7 @@ public class SupplyRequestResponseDto {
     private String content;
     private String requestStatus;
     private LocalDateTime createdAt;
-    //
+
     public static SupplyRequestResponseDto of(Requests requests) {
         User user = requests.getUser();
         Category category = requests.getCategory();
@@ -32,7 +31,6 @@ public class SupplyRequestResponseDto {
                 .requestType(requests.getRequestType().getKorean())
                 .requestId(requests.getRequestId())
                 .isAdmin(user.getRole().equals(UserRoleEnum.ADMIN))
-                .userId(user.getId())
                 .deptName(user.getDepartment().getDeptName())
                 .empName(user.getEmpName())
                 .categoryId(category.getId())

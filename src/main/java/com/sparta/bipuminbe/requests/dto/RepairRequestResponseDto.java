@@ -17,7 +17,6 @@ public class RepairRequestResponseDto {
     private Boolean isAdmin;
     private String deptName;
     private String empName;
-    private Long supplyId;
     private String modelName;
     private String image;
     private String content;
@@ -35,7 +34,6 @@ public class RepairRequestResponseDto {
                 .isAdmin(user.getRole().equals(UserRoleEnum.ADMIN))
                 .deptName(user.getDepartment().getDeptName())
                 .empName(user.getEmpName())
-                .supplyId(supply.getSupplyId())
                 .modelName(supply.getModelName())
                 .image(requests.getImage())
                 .content(requests.getContent())
