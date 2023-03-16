@@ -2,11 +2,9 @@ package com.sparta.bipuminbe.requests.service;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.requests.dto.RequestsResponseDto;
-import com.sparta.bipuminbe.requests.dto.SupplyRequestResponseDto;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -24,10 +22,10 @@ public class RequestsService {
     private final RequestsRepository requestsRepository;
 
     @Transactional(readOnly = true)
-    public ResponseDto<Page<RequestsResponseDto>> getRequests(String type, String status, int page) {
+    public ResponseDto<Page<RequestsResponseDto>> getRequests(String type, String status, int page, int size) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
-        Pageable pageable = getPageable(page);
+        Pageable pageable = getPageable(page, size);
         Page<Requests> requestsList = requestsRepository.
                     findByRequestTypeInAndRequestStatusIn(requestTypeQuery, requestStatusQuery, pageable);
 
@@ -39,7 +37,7 @@ public class RequestsService {
     // list 추출 조건용 requestType Set 리스트.
     private Set<RequestType> getTypeSet(String type) {
         Set<RequestType> requestTypeQuery = new HashSet<>();
-        if (type == null) {
+        if (type.equals("ALL")) {
             requestTypeQuery.addAll(List.of(RequestType.values()));
         } else {
             requestTypeQuery.add(RequestType.valueOf(type));
@@ -50,16 +48,17 @@ public class RequestsService {
     // list 추출 조건용 requestStatus Set 리스트.
     private Set<RequestStatus> getStatusSet(String status) {
         Set<RequestStatus> requestStatusQuery = new HashSet<>();
-        requestStatusQuery.add(RequestStatus.valueOf(status));
-        if (status.equals("UNPROCESSED")) {
-            requestStatusQuery.add(RequestStatus.REPAIRING);
+        if(status.equals("ALL")){
+            requestStatusQuery.addAll(List.of(RequestStatus.values()));
+        }else{
+            requestStatusQuery.add(RequestStatus.valueOf(status));
         }
         return requestStatusQuery;
     }
 
-    private Pageable getPageable(int page) {
+    private Pageable getPageable(int page, int size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        return PageRequest.of(page - 1, 10, sort);
+        return PageRequest.of(page - 1, size, sort);
     }
 
     private List<RequestsResponseDto> converToDto(List<Requests> requestsList) {

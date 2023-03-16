@@ -1,7 +1,7 @@
 package com.sparta.bipuminbe.requests.dto;
 
-import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Requests;
+import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import lombok.Builder;
@@ -11,30 +11,30 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class SupplyRequestResponseDto {
+public class ReturnRequestResponseDto {
     private String requestType;
     private Long requestId;
     private Boolean isAdmin;
     private String deptName;
     private String empName;
-    private Long categoryId;
-    private String categoryName;
+    private String modelName;
+    private String image;
     private String content;
     private String requestStatus;
     private LocalDateTime createdAt;
 
-    public static SupplyRequestResponseDto of(Requests requests) {
+    public static ReturnRequestResponseDto of(Requests requests) {
         User user = requests.getUser();
-        Category category = requests.getCategory();
+        Supply supply = requests.getSupply();
 
-        return SupplyRequestResponseDto.builder()
+        return ReturnRequestResponseDto.builder()
                 .requestType(requests.getRequestType().getKorean())
                 .requestId(requests.getRequestId())
                 .isAdmin(user.getRole().equals(UserRoleEnum.ADMIN))
                 .deptName(user.getDepartment().getDeptName())
                 .empName(user.getEmpName())
-                .categoryId(category.getId())
-                .categoryName(category.getCategoryName())
+                .modelName(supply.getModelName())
+                .image(requests.getImage())
                 .content(requests.getContent())
                 .requestStatus(requests.getRequestStatus().getKorean())
                 .createdAt(requests.getCreatedAt())
