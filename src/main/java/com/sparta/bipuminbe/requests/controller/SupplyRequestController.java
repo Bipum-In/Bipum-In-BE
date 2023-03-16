@@ -31,7 +31,7 @@ public class SupplyRequestController {
     @PutMapping("/requests/supply/{requestId}")
     @Operation(summary = "비품 요청 승인/거절", description = "isAccepted는 승인/거부, 승인의 경우 supplyId 같이 넘겨줄 것")
     public ResponseDto<String> processingSupplyRequest(@PathVariable Long requestId,
-                                                       @RequestParam() Boolean isAccepted,
+                                                       @RequestParam Boolean isAccepted,
                                                        @RequestParam(required = false) Long supplyId) {
         return supplyRequestService.processingSupplyRequest(requestId, isAccepted, supplyId);
     }

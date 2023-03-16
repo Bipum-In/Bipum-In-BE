@@ -35,11 +35,14 @@ public class SupplyRequestService {
         Requests request = getRequest(requestId);
         request.processingRequest(isAccepted);
         if (isAccepted) {
-            Supply supply = getSupply(supplyId);
-            supply.allocateSupply(request.getUser());
-            return ResponseDto.success("승인 처리 완료.");
+            return ResponseDto.success("승인 거부 완료.");
         }
-        return ResponseDto.success("승인 거부 완료.");
+        if (supplyId == null) {
+            throw new CustomException(ErrorCode.NotAllowedMethod);
+        }
+        Supply supply = getSupply(supplyId);
+        supply.allocateSupply(request.getUser());
+        return ResponseDto.success("승인 처리 완료.");
     }
 
     @Transactional
