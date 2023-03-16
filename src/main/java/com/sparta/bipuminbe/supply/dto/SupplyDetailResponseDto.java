@@ -8,11 +8,9 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
-public class SupplyResponseDto {
+public class SupplyDetailResponseDto {
 
-    private Long supplyId;
     private String category;
-    private String image;
     private String modelName;
     private String serialNum;
     private LocalDateTime returnDate;
@@ -22,10 +20,8 @@ public class SupplyResponseDto {
     private String deptName;
     private String status;
 
-    public SupplyResponseDto(Supply supply){
-        this.supplyId = supply.getSupplyId();
+    public SupplyDetailResponseDto(Supply supply){
         this.category = supply.getCategory().getCategoryName();
-        this.image = supply.getImage();
         this.modelName = supply.getModelName();
         this.serialNum = supply.getSerialNum();
         this.returnDate = supply.getReturnDate();
@@ -34,8 +30,5 @@ public class SupplyResponseDto {
         this.username = supply.getUser().getUsername();
         this.deptName = supply.getUser().getDepartment().getDeptName();
         this.status = supply.getStatus().name();
-    }
-    public static SupplyResponseDto of (Supply supply) {
-        return new SupplyResponseDto(supply);
     }
 }
