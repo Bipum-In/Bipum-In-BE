@@ -13,6 +13,7 @@ public enum ErrorCode {
     NotFoundDepartment(HttpStatus.NOT_FOUND, "해당 부서가 존재하지 않습니다."),
     DuplicatedPartners(HttpStatus.BAD_REQUEST, "이미 등록된 협력업체 입니다."),
     NotFoundPartners(HttpStatus.NOT_FOUND, "해당 업체가 존재하지 않습니다."),
+    NotFoundUsers(HttpStatus.NOT_FOUND, "해당 사용자가 존재하지 않습니다."),
     NotFoundRequest(HttpStatus.NOT_FOUND, "존재하지 않는 요청입니다."),
     NotAllowedMethod(HttpStatus.METHOD_NOT_ALLOWED, "잘못된 요청입니다."),
     NoPermission(HttpStatus.BAD_REQUEST, "해당 작업에 대한 권한이 없습니다."),

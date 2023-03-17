@@ -6,16 +6,14 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.Partners;
-import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.entity.Supply;
-import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
+import com.sparta.bipuminbe.user.dto.UserResponseDto;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,7 +76,7 @@ public class SupplyService {
     public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId){
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new EntityNotFoundException("비품을 찾을 수 없습니다.")
+                () -> new CustomException(ErrorCode.NotFoundSupply)
         );
         SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply);
         List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
@@ -95,11 +93,11 @@ public class SupplyService {
     public ResponseDto<String> updateSupply(Long supplyId, Long userId) {
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new IllegalArgumentException("해당 비품이 존재하지 않습니다.")
+                () -> new CustomException(ErrorCode.NotFoundSupply)
         );
 
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다.")
+                () -> new CustomException(ErrorCode.NotFoundUsers)
         );
 
         if (supply.getUser() != user) {
@@ -116,7 +114,7 @@ public class SupplyService {
     public ResponseDto<String> deleteSupply(Long supplyId) {
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new EntityNotFoundException("비품을 찾을 수 없습니다.")
+                () -> new CustomException(ErrorCode.NotFoundSupply)
         );
         supplyRepository.delete(supply);
         return ResponseDto.success("비품 삭제 성공");
@@ -124,5 +122,18 @@ public class SupplyService {
 
 
     //자신의 비품 목록(selectbox용)
+    @Transactional(readOnly = true)
+    public ResponseDto<List<SupplyUserDto>> getSupplyUser(Long userId) {
+        List<Supply> supplyInUserList = supplyRepository.findByUser(getUser(userId));
+        List<SupplyUserDto> supplyUserDtoList = new ArrayList<>();
+        for (Supply supply : supplyInUserList) {
+            supplyUserDtoList.add(SupplyUserDto.of(supply));
+        }
+        return ResponseDto.success(supplyUserDtoList);
+    }
 
+    private User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundUsers));
+    }
 }
