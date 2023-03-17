@@ -34,7 +34,7 @@ public class SupplyRequestService {
     public ResponseDto<String> processingSupplyRequest(Long requestId, Boolean isAccepted, Long supplyId) {
         Requests request = getRequest(requestId);
         request.processingRequest(isAccepted);
-        if (isAccepted) {
+        if (!isAccepted) {
             return ResponseDto.success("승인 거부 완료.");
         }
         if (supplyId == null) {
