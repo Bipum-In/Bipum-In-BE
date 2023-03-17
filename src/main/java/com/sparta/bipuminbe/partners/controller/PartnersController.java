@@ -24,24 +24,24 @@ public class PartnersController {
         return partnersService.getPartnersList();
     }
 
-//    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PostMapping("/partners")
-    @Operation(summary = "협력 업체 등록", description = "이름(NotNull), 번호, 주소 입력")
+    @Operation(summary = "협력 업체 등록", description = "이름(NotNull), 번호, 주소 입력. 관리자 권한 필요.")
     public ResponseDto<String> createPartners(@RequestBody @Valid PartnersDto partnersDto) {
         return partnersService.createPartners(partnersDto);
     }
 
-//    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping("/partners/{partnersId}")
-    @Operation(summary = "협력 업체 정보 수정", description = "이름(NotNull), 번호, 주소 입력")
+    @Operation(summary = "협력 업체 정보 수정", description = "이름(NotNull), 번호, 주소 입력. 관리자 권한 필요.")
     public ResponseDto<String> updatePartners(@PathVariable Long partnersId,
                                               @RequestBody @Valid PartnersDto partnersDto) {
         return partnersService.updatePartners(partnersId, partnersDto);
     }
 
-//    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @DeleteMapping("/partners/{partnersId}")
-    @Operation(summary = "협력 업체 삭제")
+    @Operation(summary = "협력 업체 삭제", description = "관리자 권한 필요.")
     public ResponseDto<String> deletePartners(@PathVariable Long partnersId) {
         return partnersService.deletePartners(partnersId);
     }

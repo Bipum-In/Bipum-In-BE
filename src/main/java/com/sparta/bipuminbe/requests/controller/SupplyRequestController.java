@@ -29,9 +29,10 @@ public class SupplyRequestController {
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping("/requests/supply/{requestId}")
-    @Operation(summary = "비품 요청 승인/거절", description = "isAccepted는 승인/거부, 승인의 경우 supplyId 같이 넘겨줄 것")
+    @Operation(summary = "비품 요청 승인/거절", description = "isAccepted는 승인/거부, 승인의 경우 supplyId 같이 필요. " +
+                                                                "관리자 권한 필요.")
     public ResponseDto<String> processingSupplyRequest(@PathVariable Long requestId,
-                                                       @RequestParam() Boolean isAccepted,
+                                                       @RequestParam Boolean isAccepted,
                                                        @RequestParam(required = false) Long supplyId) {
         return supplyRequestService.processingSupplyRequest(requestId, isAccepted, supplyId);
     }
