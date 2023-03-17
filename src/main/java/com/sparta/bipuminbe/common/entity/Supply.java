@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.STOCK;
+import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -28,7 +31,7 @@ public class Supply extends TimeStamped{
     @Enumerated(EnumType.STRING)
     private SupplyStatusEnum status;
 
-    private LocalDateTime returnDate;
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partnersId")
@@ -42,13 +45,16 @@ public class Supply extends TimeStamped{
     @JoinColumn(name = "categoryId", nullable = false)
     private Category category;
 
-    public Supply(SupplyRequestDto supplyRequestDto, Partners partners) {
+
+    public Supply(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user) {
         this.serialNum = supplyRequestDto.getSerialNum();
         this.modelName = supplyRequestDto.getModelName();
-        this.image = "";
+        this.image = supplyRequestDto.getImage();
         this.partners = partners;
-        this.status = SupplyStatusEnum.STOCK;
-        this.returnDate = supplyRequestDto.getReturnDate();
+        this.status = user == null ? STOCK : USING;
+        this.createdAt = supplyRequestDto.getCreatedAt();
+        this.category = category;
+        this.user = user;
     }
 
     public void allocateSupply(User user) {
@@ -62,6 +68,6 @@ public class Supply extends TimeStamped{
 
     public void returnSupply() {
         this.user = null;
-        this.status = SupplyStatusEnum.STOCK;
+        this.status = STOCK;
     }
 }

@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
@@ -40,6 +41,7 @@ public class SupplyService {
     private final UserRepository userRepository;
     private final PartnersRepository partnersRepository;
     private final RequestsRepository requestsRepository;
+    private final CategoryRepository categoryRepository;
 
 
     //비품 등록
@@ -52,7 +54,19 @@ public class SupplyService {
                     () -> new CustomException(ErrorCode.NotFoundPartners)
             );
         }
-        Supply newSupply = new Supply(supplyRequestDto, partners);
+
+        User user = null;
+        if(supplyRequestDto.getUserId() != null) {
+            user = userRepository.findById(supplyRequestDto.getUserId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundUsers)
+            );
+        }
+
+        Category category = categoryRepository.findById(supplyRequestDto.getCategoryId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundCategory)
+        );
+
+        Supply newSupply = new Supply(supplyRequestDto, partners, category, user);
         supplyRepository.save(newSupply);
 
         return ResponseDto.success("비품 등록 성공");
@@ -61,8 +75,8 @@ public class SupplyService {
 
     //비품 조회
     @Transactional(readOnly = true)
-    public ResponseDto<List<SupplyResponseDto>> getSupplyList(int categoryId) {
-        List<Supply> supplyList = supplyRepository.findAllByCategoryId(categoryId);
+    public ResponseDto<List<SupplyResponseDto>> getSupplyList(Long categoryId) {
+        List<Supply> supplyList = supplyRepository.findByCategory_Id(categoryId);
         List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
         for (Supply supply : supplyList) {
             supplyDtoList.add(SupplyResponseDto.of(supply));
