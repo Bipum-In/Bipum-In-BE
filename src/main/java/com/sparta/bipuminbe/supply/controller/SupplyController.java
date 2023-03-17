@@ -4,6 +4,7 @@ import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.service.SupplyService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -57,6 +58,7 @@ public class SupplyController {
     //비품 폐기
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @DeleteMapping("/supply/{supplyId}")
+    @Operation(summary = "비품 폐기")
     public ResponseDto<String> deleteSupply(
             @PathVariable Long supplyId
     ) {
@@ -64,12 +66,10 @@ public class SupplyController {
     }
 
     //자신의 비품 목록(selectbox용)
-//    @GetMapping("/supply/{userId}")
-//    public ResponseDto<List<SupplyUserDto>> getSupplyUserList(
-//            @PathVariable Long userId,
-//            @AuthenticationPrincipal UserDetailsImpl userDetails
-//    ) {
-//        return supplyService.getSupplyUserList(userId, userDetails);
-//    }
+    @GetMapping("/supply/{userId}")
+    @Operation(summary = "자신의 비품 목록 조회", description = "SelectBox용")
+    public ResponseDto<List<SupplyUserDto>> getSupplyUser(@PathVariable Long userId) {
+        return supplyService.getSupplyUser(userId);
+    }
 
 }
