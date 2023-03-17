@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
@@ -22,4 +23,6 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
     @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'STOCK'", nativeQuery = true)
     Long countStock(@Param("categoryId") Long categoryId);
+
+    Optional<List<Supply>> findAllByUserId(Long userId);
 }

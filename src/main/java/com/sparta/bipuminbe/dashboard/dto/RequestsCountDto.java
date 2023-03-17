@@ -4,32 +4,19 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Builder
 @Getter
 public class RequestsCountDto {
-    private Long supplyRequests;
-    private Long returnRequests;
-    private Long repairRequests;
-    private Long inRepair;
-    private LocalDateTime supplyModifiedAt;
-    private LocalDateTime returnModifiedAt;
-    private LocalDateTime repairModifiedAt;
-    private LocalDateTime inRepairModifiedAt;
+    private Map<String, Long> countMap;
+    private Map<String, LocalDateTime> modifiedAtMap;
 
-    public static RequestsCountDto of(Long supplyRequests, Long returnRequests, Long repairRequests, Long inRepair,
-LocalDateTime supplyModifiedAt, LocalDateTime returnModifiedAt,LocalDateTime repairModifiedAt, LocalDateTime inRepairModifiedAt) {
-
+    public static RequestsCountDto of(Map<String, Long> countMap,
+                                      Map<String, LocalDateTime> modifiedAtMap) {
         return RequestsCountDto.builder()
-                .supplyRequests(supplyRequests)
-                .returnRequests(returnRequests)
-                .repairRequests(repairRequests)
-                .inRepair(inRepair)
-                .supplyModifiedAt(supplyModifiedAt)
-                .returnModifiedAt(returnModifiedAt)
-                .repairModifiedAt(repairModifiedAt)
-                .inRepairModifiedAt(inRepairModifiedAt)
+                .countMap(countMap)
+                .modifiedAtMap(modifiedAtMap)
                 .build();
     }
-
 }
