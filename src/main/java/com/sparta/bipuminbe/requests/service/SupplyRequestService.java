@@ -31,6 +31,21 @@ public class SupplyRequestService {
     }
 
     @Transactional
+    public ResponseDto<String> processingSupplyRequest(Long requestId, Boolean isAccepted, Long supplyId) {
+        Requests request = getRequest(requestId);
+        request.processingRequest(isAccepted);
+        if (!isAccepted) {
+            return ResponseDto.success("승인 거부 완료.");
+        }
+        if (supplyId == null) {
+            throw new CustomException(ErrorCode.NotAllowedMethod);
+        }
+        Supply supply = getSupply(supplyId);
+        supply.allocateSupply(request.getUser());
+        return ResponseDto.success("승인 처리 완료.");
+    }
+
+    @Transactional
     void readRequest(Requests request) {
         if (!request.getIsRead()) {
             request.read();
@@ -50,18 +65,6 @@ public class SupplyRequestService {
     private Requests getRequest(Long requestId) {
         return requestsRepository.findById(requestId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest));
-    }
-
-    @Transactional
-    public ResponseDto<String> processingSupplyRequest(Long requestId, Boolean isAccepted, Long supplyId) {
-        Requests request = getRequest(requestId);
-        request.processingRequest(isAccepted);
-        if (!isAccepted) {
-            return ResponseDto.success("승인 거부 완료.");
-        }
-        Supply supply = getSupply(supplyId);
-//        supply.update();
-        return ResponseDto.success("승인 처리 완료.");
     }
 
     private Supply getSupply(Long supplyId) {

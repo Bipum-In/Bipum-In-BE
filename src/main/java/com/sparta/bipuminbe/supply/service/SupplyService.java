@@ -104,7 +104,7 @@ public class SupplyService {
             throw new CustomException(ErrorCode.NoPermission);
         }
 
-        supply.updateSupplyStatus(USING);
+        supply.allocateSupply(user);
         return ResponseDto.success("비품 수정 성공");
     }
 

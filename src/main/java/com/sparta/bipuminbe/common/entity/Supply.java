@@ -51,7 +51,17 @@ public class Supply extends TimeStamped{
         this.returnDate = supplyRequestDto.getReturnDate();
     }
 
-    public void updateSupplyStatus(SupplyStatusEnum status) {
-        this.status = status.USING;
+    public void allocateSupply(User user) {
+        this.user = user;
+        this.status = SupplyStatusEnum.USING;
+    }
+
+    public void repairSupply() {
+        status = status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.USING : SupplyStatusEnum.REPAIRING;
+    }
+
+    public void returnSupply() {
+        this.user = null;
+        this.status = SupplyStatusEnum.STOCK;
     }
 }

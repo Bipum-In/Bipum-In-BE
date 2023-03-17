@@ -53,7 +53,7 @@ public class Requests extends TimeStamped {
 
         if (isAccepted) {
             this.requestStatus = requestType.equals(RequestType.REPAIR) && requestStatus.equals(RequestStatus.UNPROCESSED)
-                    ? RequestStatus.REPAIRING : RequestStatus.PROCESSED;
+                    ? RequestStatus.PROCESSING : RequestStatus.PROCESSED;
         } else {
             this.requestStatus = RequestStatus.PROCESSED;
         }
