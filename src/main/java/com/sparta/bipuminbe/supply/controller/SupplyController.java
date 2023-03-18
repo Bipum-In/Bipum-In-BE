@@ -2,13 +2,15 @@ package com.sparta.bipuminbe.supply.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
+import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.service.SupplyService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -70,10 +72,10 @@ public class SupplyController {
     }
 
     //자신의 비품 목록(selectbox용)
-    @GetMapping("/supply/{userId}")
+    @GetMapping("/supply/mysupply")
     @Operation(summary = "자신의 비품 목록 조회", description = "SelectBox용")
-    public ResponseDto<List<SupplyUserDto>> getSupplyUser(@PathVariable Long userId) {
-        return supplyService.getSupplyUser(userId);
+    public ResponseDto<List<SupplyUserDto>> getSupplyUser(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return supplyService.getSupplyUser(userDetails.getUser());
     }
 
 }
