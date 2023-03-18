@@ -1,39 +1,23 @@
 package com.sparta.bipuminbe.supply.service;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.Partners;
-import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.entity.Supply;
-import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +26,7 @@ public class SupplyService {
     private final UserRepository userRepository;
     private final PartnersRepository partnersRepository;
     private final RequestsRepository requestsRepository;
+    private final CategoryRepository categoryRepository;
 
 
     //비품 등록
@@ -54,7 +39,19 @@ public class SupplyService {
                     () -> new CustomException(ErrorCode.NotFoundPartners)
             );
         }
-        Supply newSupply = new Supply(supplyRequestDto, partners);
+
+        User user = null;
+        if(supplyRequestDto.getUserId() != null) {
+            user = userRepository.findById(supplyRequestDto.getUserId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundUsers)
+            );
+        }
+
+        Category category = categoryRepository.findById(supplyRequestDto.getCategoryId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundCategory)
+        );
+
+        Supply newSupply = new Supply(supplyRequestDto, partners, category, user);
         supplyRepository.save(newSupply);
 
         return ResponseDto.success("비품 등록 성공");
@@ -63,8 +60,8 @@ public class SupplyService {
 
     //비품 조회
     @Transactional(readOnly = true)
-    public ResponseDto<List<SupplyResponseDto>> getSupplyList(int categoryId) {
-        List<Supply> supplyList = supplyRepository.findAllByCategoryId(categoryId);
+    public ResponseDto<List<SupplyResponseDto>> getSupplyList(Long categoryId) {
+        List<Supply> supplyList = supplyRepository.findByCategory_Id(categoryId);
         List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
         for (Supply supply : supplyList) {
             supplyDtoList.add(SupplyResponseDto.of(supply));
@@ -78,7 +75,7 @@ public class SupplyService {
     public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId){
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new EntityNotFoundException("비품을 찾을 수 없습니다.")
+                () -> new CustomException(ErrorCode.NotFoundSupply)
         );
         SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply);
         List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
@@ -95,16 +92,17 @@ public class SupplyService {
     public ResponseDto<String> updateSupply(Long supplyId, Long userId) {
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new IllegalArgumentException("해당 비품이 존재하지 않습니다.")
+                () -> new CustomException(ErrorCode.NotFoundSupply)
         );
 
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다.")
+                () -> new CustomException(ErrorCode.NotFoundUsers)
         );
 
-        if (supply.getUser() != user) {
-            throw new CustomException(ErrorCode.NoPermission);
-        }
+        //Todo 여기 관리자 권한을 이미 Controller에서 Secured로 확인 했어서 필요없어 보입니다.
+//        if (supply.getUser() != user) {
+//            throw new CustomException(ErrorCode.NoPermission);
+//        }
 
         supply.allocateSupply(user);
         return ResponseDto.success("비품 수정 성공");
@@ -116,7 +114,7 @@ public class SupplyService {
     public ResponseDto<String> deleteSupply(Long supplyId) {
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new EntityNotFoundException("비품을 찾을 수 없습니다.")
+                () -> new CustomException(ErrorCode.NotFoundSupply)
         );
         supplyRepository.delete(supply);
         return ResponseDto.success("비품 삭제 성공");
@@ -124,5 +122,18 @@ public class SupplyService {
 
 
     //자신의 비품 목록(selectbox용)
+    @Transactional(readOnly = true)
+    public ResponseDto<List<SupplyUserDto>> getSupplyUser(User user) {
+        List<Supply> supplyInUserList = supplyRepository.findByUser(user);
+        List<SupplyUserDto> supplyUserDtoList = new ArrayList<>();
+        for (Supply supply : supplyInUserList) {
+            supplyUserDtoList.add(SupplyUserDto.of(supply));
+        }
+        return ResponseDto.success(supplyUserDtoList);
+    }
 
+    private User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundUsers));
+    }
 }
