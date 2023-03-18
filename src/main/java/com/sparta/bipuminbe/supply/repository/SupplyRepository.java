@@ -1,6 +1,5 @@
 package com.sparta.bipuminbe.supply.repository;
 
-import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
+    List<Supply> findByCategory_Id(Long id);
 
-    List<Supply> findAllByCategoryId(int categoryId);
     List<Supply> findByUser(User user);
 
     @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId", nativeQuery = true)

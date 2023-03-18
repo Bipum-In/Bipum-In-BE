@@ -23,6 +23,7 @@ public class SupplyController {
     //비품 등록
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PostMapping("/supply")
+    @Operation(summary = "비품 등록", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가), 반납 날짜(null 가능), 협력업체(null 가능), 유저 아이디(null 불가), 관리자 권한 필요.")
     public ResponseDto<String> createSupply(
             @RequestBody @Valid SupplyRequestDto supplyRequestDto) {
         return supplyService.createSupply(supplyRequestDto);
@@ -31,14 +32,16 @@ public class SupplyController {
 
     //비품 조회
     @GetMapping("/supply")
+    @Operation(summary = "비품 조회", description = "SelectBox용(카테고리), 관리자 권한 필요.")
     public ResponseDto<List<SupplyResponseDto>> getSupplyList(
-            @RequestParam("categoryId") int categoryId
+            @RequestParam("categoryId") Long categoryId
     ) {
         return supplyService.getSupplyList(categoryId);
     }
 
     //비품 상세
     @GetMapping("/supply/{supplyId}")
+    @Operation(summary = "비품 상세", description = "관리자 권한 필요.")
     public ResponseDto<SupplyWholeResponseDto> getSupply(
             @PathVariable Long supplyId
     ) {
@@ -48,6 +51,7 @@ public class SupplyController {
     //유저 할당
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping("/supply")
+    @Operation(summary = "유저 할당", description = "SelectBox용(카테고리), 관리자 권한 필요.")
     public ResponseDto<String> updateSupply(
             @RequestParam("supplyId") Long supplyId,
             @RequestParam("userId") Long userId
@@ -58,7 +62,7 @@ public class SupplyController {
     //비품 폐기
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @DeleteMapping("/supply/{supplyId}")
-    @Operation(summary = "비품 폐기")
+    @Operation(summary = "비품 폐기", description = "관리자 권한 필요.")
     public ResponseDto<String> deleteSupply(
             @PathVariable Long supplyId
     ) {

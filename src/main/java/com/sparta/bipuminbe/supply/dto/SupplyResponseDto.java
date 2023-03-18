@@ -15,7 +15,6 @@ public class SupplyResponseDto {
     private String image;
     private String modelName;
     private String serialNum;
-    private LocalDateTime returnDate;
     private LocalDateTime createdAt;
     private String partners;
     private String username;
@@ -28,7 +27,6 @@ public class SupplyResponseDto {
         this.image = supply.getImage();
         this.modelName = supply.getModelName();
         this.serialNum = supply.getSerialNum();
-        this.returnDate = supply.getReturnDate();
         this.createdAt = supply.getCreatedAt();
         this.partners = supply.getPartners() == null ? null : supply.getPartners().getPartnersName();
         this.username = supply.getUser().getUsername();
