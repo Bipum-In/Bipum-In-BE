@@ -1,5 +1,6 @@
 package com.sparta.bipuminbe.common.sse.entity;
 
+import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

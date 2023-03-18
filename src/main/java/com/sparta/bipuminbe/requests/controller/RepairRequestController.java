@@ -3,6 +3,7 @@ package com.sparta.bipuminbe.requests.controller;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
+import com.sparta.bipuminbe.common.sse.service.NotificationService;
 import com.sparta.bipuminbe.requests.dto.RepairRequestResponseDto;
 import com.sparta.bipuminbe.requests.service.RepairRequestService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class RepairRequestController {
 
     private final RepairRequestService repairRequestService;
+    private final NotificationService notificationService;
 
     @GetMapping("/requests/repair/{requestId}")
     @Operation(summary = "수리 요청 상세 페이지", description = "isAdmin 필드에 따라 버튼 바꿔주면 될 것 같습니다.")

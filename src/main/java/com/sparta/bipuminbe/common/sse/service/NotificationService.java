@@ -1,10 +1,14 @@
 package com.sparta.bipuminbe.common.sse.service;
 
+import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.exception.CustomException;
+import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseDto;
 import com.sparta.bipuminbe.common.sse.entity.Notification;
 import com.sparta.bipuminbe.common.sse.repository.EmitterRepository;
 import com.sparta.bipuminbe.common.sse.repository.NotificationRepository;
+import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +25,7 @@ public class NotificationService {
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 20;
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
+    private final RequestsRepository requestsRepository;
 
     //시간이 포함된 아이디 생성. SseEmitter 구분을 위함
     public SseEmitter subscribe(Long userId, String lastEventId) {
@@ -73,7 +79,16 @@ public class NotificationService {
     // content는 send하는 곳에서 만들어서 전달함.
     // ~님이 ~를 요청하셨습니다. (관리자) or ~님의 ~ 요청이 처리되었습니다. (유저)
     @Transactional
-    public void send(User receiver, String content, String url) {
+//    public void send(User receiver, String content, String url) {
+    public void send(Long requestsId, Boolean isAccepted, String url) {
+        Requests request = requestsRepository.findById(requestsId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundRequest)
+        );
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 어떤 요청이 들어오는지 알 수 없음.. 방법 찾아야함 각 수리, 반납, 비품
+        // Request의 id명이 같음. 구별해서 받을 수 있어야함. isAccepted 값을 기준으로? 메시지를 작성한다.
+        User receiver = request.getUser();
+        String content = "";
+
         Notification notification = notificationRepository.save(createNotification(receiver, content, url));
 
         String receiverId = String.valueOf(receiver.getId());
