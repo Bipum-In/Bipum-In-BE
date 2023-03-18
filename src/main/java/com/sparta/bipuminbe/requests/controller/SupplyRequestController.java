@@ -3,6 +3,7 @@ package com.sparta.bipuminbe.requests.controller;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
+import com.sparta.bipuminbe.common.sse.service.NotificationService;
 import com.sparta.bipuminbe.requests.dto.SupplyRequestResponseDto;
 import com.sparta.bipuminbe.requests.service.SupplyRequestService;
 import com.sparta.bipuminbe.supply.service.SupplyService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class SupplyRequestController {
 
     private final SupplyRequestService supplyRequestService;
+    private final NotificationService notificationService;
 
     @GetMapping("/requests/supply/{requestId}")
     @Operation(summary = "비품 요청 상세 페이지", description = "isAdmin 필드에 따라 버튼 바꿔주면 될 것 같습니다.")
@@ -34,6 +36,10 @@ public class SupplyRequestController {
     public ResponseDto<String> processingSupplyRequest(@PathVariable Long requestId,
                                                        @RequestParam Boolean isAccepted,
                                                        @RequestParam(required = false) Long supplyId) {
+
+        // 본인이 요청한 페이지를 볼 수 있도록 함. uri requestId를 보내서 직접 조회한다.
+//        notificationService.send(requestId, isAccepted);
+
         return supplyRequestService.processingSupplyRequest(requestId, isAccepted, supplyId);
     }
 }
