@@ -45,4 +45,5 @@ public class UserController {
     public ResponseDto<List<UserResponseDto>> getUsersByDept(@PathVariable Long deptId) {
         return userService.getUserByDept(deptId);
     }
+
 }
