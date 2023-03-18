@@ -3,6 +3,7 @@ package com.sparta.bipuminbe.requests.controller;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
+import com.sparta.bipuminbe.common.sse.service.NotificationService;
 import com.sparta.bipuminbe.requests.dto.RepairRequestResponseDto;
 import com.sparta.bipuminbe.requests.dto.ReturnRequestResponseDto;
 import com.sparta.bipuminbe.requests.service.ReturnRequestService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReturnRequestController {
 
     private final ReturnRequestService returnRequestService;
+    private final NotificationService notificationService;
 
     @GetMapping("/requests/return/{requestId}")
     @Operation(summary = "반납 요청 상세 페이지", description = "isAdmin 필드에 따라 버튼 바꿔주면 될 것 같습니다.")
@@ -32,6 +34,10 @@ public class ReturnRequestController {
     @Operation(summary = "반납 요청 승인/거절", description = "isAccepted는 승인/거부, 관리자 권한 필요.")
     public ResponseDto<String> processingReturnRequest(@PathVariable Long requestId,
                                                        @RequestParam Boolean isAccepted) {
+
+//        String uri = "/api/requests/supply/";
+//        notificationService.send(requestId, isAccepted, uri);
+
         return returnRequestService.processingReturnRequest(requestId, isAccepted);
     }
 }
