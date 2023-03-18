@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.dashboard.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.dashboard.dto.AdminMainResponseDto;
 import com.sparta.bipuminbe.dashboard.dto.UserMainResponseDto;
@@ -8,6 +9,7 @@ import com.sparta.bipuminbe.dashboard.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
 
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @Operation(summary = "관리자용 대쉬보드")
     @GetMapping(value = "/admin/main")
     public ResponseDto<AdminMainResponseDto> getAdminMain(){

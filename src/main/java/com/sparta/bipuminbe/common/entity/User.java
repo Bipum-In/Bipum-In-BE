@@ -56,4 +56,8 @@ public class User extends TimeStamped{
         this.empName = empName;
         this.department = department;
     }
+
+    public void switchAlarm(Boolean alarm) {
+        this.alarm =! alarm;
+    }
 }
