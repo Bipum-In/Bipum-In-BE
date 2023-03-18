@@ -1,38 +1,23 @@
 package com.sparta.bipuminbe.supply.service;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
-import com.sparta.bipuminbe.user.dto.UserResponseDto;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
 
 @Service
 @RequiredArgsConstructor
@@ -138,8 +123,8 @@ public class SupplyService {
 
     //자신의 비품 목록(selectbox용)
     @Transactional(readOnly = true)
-    public ResponseDto<List<SupplyUserDto>> getSupplyUser(Long userId) {
-        List<Supply> supplyInUserList = supplyRepository.findByUser(getUser(userId));
+    public ResponseDto<List<SupplyUserDto>> getSupplyUser(User user) {
+        List<Supply> supplyInUserList = supplyRepository.findByUser(user);
         List<SupplyUserDto> supplyUserDtoList = new ArrayList<>();
         for (Supply supply : supplyInUserList) {
             supplyUserDtoList.add(SupplyUserDto.of(supply));

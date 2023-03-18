@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.supply.repository;
 
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
