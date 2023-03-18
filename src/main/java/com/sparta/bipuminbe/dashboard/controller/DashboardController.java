@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class DashboardController {
     private final DashboardService dashboardService;
 
-    @Operation(summary = "관리자용 대쉬보드")
-    @GetMapping("/admin/main")
-    public ResponseDto<AdminMainResponseDto> getAdminMain(){
 
+    @Operation(summary = "관리자용 대쉬보드")
+    @GetMapping(value = "/admin/main")
+    public ResponseDto<AdminMainResponseDto> getAdminMain(){
         return dashboardService.getAdminMain();
     }
 
