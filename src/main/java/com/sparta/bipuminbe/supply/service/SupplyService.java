@@ -1,5 +1,11 @@
 package com.sparta.bipuminbe.supply.service;
 
+import com.sparta.bipuminbe.category.dto.CategoryDto;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
@@ -60,13 +66,20 @@ public class SupplyService {
 
     //비품 조회
     @Transactional(readOnly = true)
-    public ResponseDto<List<SupplyResponseDto>> getSupplyList(Long categoryId) {
+    public ResponseDto<SupplyCategoryDto> getSupplyCategory(Long categoryId) {
+        List<Category> categoryList = categoryRepository.findAll();
         List<Supply> supplyList = supplyRepository.findByCategory_Id(categoryId);
         List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
         for (Supply supply : supplyList) {
             supplyDtoList.add(SupplyResponseDto.of(supply));
         }
-        return ResponseDto.success(supplyDtoList);
+        List<CategoryDto> categoryDtoList = new ArrayList<>();
+        for (Category category : categoryList) {
+            categoryDtoList.add(CategoryDto.of(category));
+        }
+
+        SupplyCategoryDto supplyCategory = SupplyCategoryDto.of(categoryDtoList,supplyDtoList);
+        return ResponseDto.success(supplyCategory);
     }
 
 
