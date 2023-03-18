@@ -114,9 +114,10 @@ public class SupplyService {
                 () -> new CustomException(ErrorCode.NotFoundUsers)
         );
 
-        if (supply.getUser() != user) {
-            throw new CustomException(ErrorCode.NoPermission);
-        }
+        //Todo 여기 관리자 권한을 이미 Controller에서 Secured로 확인 했어서 필요없어 보입니다.
+//        if (supply.getUser() != user) {
+//            throw new CustomException(ErrorCode.NoPermission);
+//        }
 
         supply.allocateSupply(user);
         return ResponseDto.success("비품 수정 성공");
