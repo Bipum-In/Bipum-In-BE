@@ -5,6 +5,7 @@ import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
+import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
@@ -14,17 +15,11 @@ import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -39,17 +34,17 @@ public class SupplyService {
 
     //비품 등록
     @Transactional
-    public ResponseDto<String> createSupply(SupplyRequestDto supplyRequestDto){
+    public ResponseDto<String> createSupply(SupplyRequestDto supplyRequestDto) {
 
         Partners partners = null;
-        if(supplyRequestDto.getPartnersId() != null) {
+        if (supplyRequestDto.getPartnersId() != null) {
             partners = partnersRepository.findById(supplyRequestDto.getPartnersId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundPartners)
             );
         }
 
         User user = null;
-        if(supplyRequestDto.getUserId() != null) {
+        if (supplyRequestDto.getUserId() != null) {
             user = userRepository.findById(supplyRequestDto.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundUsers)
             );
@@ -67,26 +62,38 @@ public class SupplyService {
 
     //비품 조회
     @Transactional(readOnly = true)
-    public ResponseDto<Page<SupplyResponseDto>> getSupplyList(Long categoryId, String status, ing page, ing size) {
-        List<Supply> supplyList = supplyRepository.findByCategory_Id(categoryId);
-        List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
-        Set<RequestStatus> requestStatusQuery = getStatusSet(status);
+    public ResponseDto<Page<SupplyResponseDto>> getSupplyList(String keyword, String categoryId, String status, int page, int size) {
+        Set<Long> categoryQuery = getCategoryQuerySet(categoryId);
+        Set<SupplyStatusEnum> statusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page, size);
-        Page<Supply> supplies = supplyRepository.findBySupplyInRequestStatusIn(requestStatusQuery, pageable);
-        List<RequestsResponseDto> requestsDtoList = converToDto(requestsList.getContent());
-        for (Supply supply : supplyList) {
-            supplyDtoList.add(SupplyResponseDto.of(supply));
+
+        Page<Supply> supplies = supplyRepository.getSupplyList("%" + keyword + "%", categoryQuery, statusQuery, pageable);
+        List<SupplyResponseDto> supplyResponseDtoList = converToDto(supplies.getContent());
+        return ResponseDto.success(new PageImpl<>(supplyResponseDtoList, supplies.getPageable(), supplies.getTotalElements()));
+    }
+
+    private Set<Long> getCategoryQuerySet(String categoryId) {
+        Set<Long> categoryQuerySet = new HashSet<>();
+        if (categoryId.equals("ALL")) {
+            List<Category> categoryList = categoryRepository.findAll();
+            for (Category category : categoryList) {
+                categoryQuerySet.add(category.getId());
+            }
+        } else {
+            Category category = categoryRepository.findById(Long.parseLong(categoryId)).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundCategory));
+            categoryQuerySet.add(category.getId());
         }
-        return ResponseDto.success(supplyDtoList);
+        return categoryQuerySet;
     }
 
     // list 추출 조건용 requestStatus Set 리스트.
-    private Set<RequestStatus> getStatusSet(String status) {
-        Set<RequestStatus> requestStatusQuery = new HashSet<>();
-        if(status.equals("ALL")){
-            requestStatusQuery.addAll(List.of(RequestStatus.values()));
-        }else{
-            requestStatusQuery.add(RequestStatus.valueOf(status));
+    private Set<SupplyStatusEnum> getStatusSet(String status) {
+        Set<SupplyStatusEnum> requestStatusQuery = new HashSet<>();
+        if (status.equals("ALL")) {
+            requestStatusQuery.addAll(List.of(SupplyStatusEnum.values()));
+        } else {
+            requestStatusQuery.add(SupplyStatusEnum.valueOf(status));
         }
         return requestStatusQuery;
     }
@@ -96,12 +103,12 @@ public class SupplyService {
         return PageRequest.of(page - 1, size, sort);
     }
 
-    private List<RequestsResponseDto> converToDto(List<Requests> requestsList) {
-        List<RequestsResponseDto> requestsDtoList = new ArrayList<>();
-        for (Requests requests : requestsList) {
-            requestsDtoList.add(RequestsResponseDto.of(requests));
+    private List<SupplyResponseDto> converToDto(List<Supply> supplyList) {
+        List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
+        for (Supply supply : supplyList) {
+            supplyDtoList.add(SupplyResponseDto.of(supply));
         }
-        return requestsDtoList;
+        return supplyDtoList;
     }
 
 //    //비품 조회
@@ -125,7 +132,7 @@ public class SupplyService {
 
     //비품 상세
     @Transactional(readOnly = true)
-    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId){
+    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId) {
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply)
@@ -189,4 +196,5 @@ public class SupplyService {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUsers));
     }
+
 }

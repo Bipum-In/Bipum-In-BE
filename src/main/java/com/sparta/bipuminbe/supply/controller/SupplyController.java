@@ -37,12 +37,13 @@ public class SupplyController {
     @GetMapping("/supply")
     @Operation(summary = "비품 조회", description = "SelectBox용(카테고리), 관리자 권한 필요.")
     public ResponseDto<Page<SupplyResponseDto>> getSupplyList(
-            @RequestParam("categoryId") Long categoryId,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String categoryId,
             @RequestParam(defaultValue = "ALL") String status,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return supplyService.getSupplyList(categoryId, status, page, size);
+        return supplyService.getSupplyList(keyword, categoryId, status, page, size);
     }
 
     //비품 상세
