@@ -37,11 +37,10 @@ public class SupplyRequestController {
                                                        @RequestParam Boolean isAccepted,
                                                        @RequestParam(required = false) Long supplyId) {
 
-//        본인이 요청한 페이지를 볼 수 있도록 함. uri requestId를 보내서 직접 조회한다.
-//        관리자가 비품 처리 > 해당 요청 글의 유저에게 알림 생성
-//        uri는 유저 요청 상세조회 모달창 uri 주면 될듯
-//        String uri = "/api/requests/supply/";
-//        notificationService.send(requestId, isAccepted, uri);
+        // 관리자의 요청 처리 >> 요청자에게 알림 전송.
+        // uri는 해당 알림을 클릭하면 이동할 상세페이지 uri이다.
+        String uri = "/api/requests/supply/";
+        notificationService.send(requestId, isAccepted, uri);
 
         return supplyRequestService.processingSupplyRequest(requestId, isAccepted, supplyId);
     }

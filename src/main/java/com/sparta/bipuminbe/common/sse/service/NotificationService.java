@@ -80,16 +80,20 @@ public class NotificationService {
     // ~님이 ~를 요청하셨습니다. (관리자) or ~님의 ~ 요청이 처리되었습니다. (유저)
     @Transactional
 //    public void send(User receiver, String content, String url) {
-    public void send(Long requestsId, Boolean isAccepted, String url) {
+    public void send(Long requestsId, Boolean isAccepted, String uri) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest)
         );
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 어떤 요청이 들어오는지 알 수 없음.. 방법 찾아야함 각 수리, 반납, 비품
-        // Request의 id명이 같음. 구별해서 받을 수 있어야함. isAccepted 값을 기준으로? 메시지를 작성한다.
-        User receiver = request.getUser();
-        String content = "";
 
-        Notification notification = notificationRepository.save(createNotification(receiver, content, url));
+        User receiver = request.getUser();
+
+        String content = isAccepted ?
+                receiver.getEmpName() + " 님의 " + request.getRequestType() + "이 수락되었습니다.":
+                receiver.getEmpName() +" 님의 " + request.getRequestType() + "이 거부되었습니다.";
+
+        uri = uri + requestsId;
+
+        Notification notification = notificationRepository.save(createNotification(receiver, content, uri));
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
