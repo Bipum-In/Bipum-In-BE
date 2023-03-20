@@ -63,24 +63,34 @@ public class SupplyService {
         return ResponseDto.success("비품 등록 성공");
     }
 
-
     //비품 조회
     @Transactional(readOnly = true)
-    public ResponseDto<SupplyCategoryDto> getSupplyCategory(Long categoryId) {
-        List<Category> categoryList = categoryRepository.findAll();
+    public ResponseDto<List<SupplyResponseDto>> getSupplyList(Long categoryId) {
         List<Supply> supplyList = supplyRepository.findByCategory_Id(categoryId);
         List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
         for (Supply supply : supplyList) {
             supplyDtoList.add(SupplyResponseDto.of(supply));
         }
-        List<CategoryDto> categoryDtoList = new ArrayList<>();
-        for (Category category : categoryList) {
-            categoryDtoList.add(CategoryDto.of(category));
-        }
-
-        SupplyCategoryDto supplyCategory = SupplyCategoryDto.of(categoryDtoList,supplyDtoList);
-        return ResponseDto.success(supplyCategory);
+        return ResponseDto.success(supplyDtoList);
     }
+
+//    //비품 조회
+//    @Transactional(readOnly = true)
+//    public ResponseDto<SupplyCategoryDto> getSupplyCategory(Long categoryId) {
+//        List<Category> categoryList = categoryRepository.findAll();
+//        List<Supply> supplyList = supplyRepository.findByCategory_Id(categoryId);
+//        List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
+//        for (Supply supply : supplyList) {
+//            supplyDtoList.add(SupplyResponseDto.of(supply));
+//        }
+//        List<CategoryDto> categoryDtoList = new ArrayList<>();
+//        for (Category category : categoryList) {
+//            categoryDtoList.add(CategoryDto.of(category));
+//        }
+//
+//        SupplyCategoryDto supplyCategory = SupplyCategoryDto.of(categoryDtoList,supplyDtoList);
+//        return ResponseDto.success(supplyCategory);
+//    }
 
 
     //비품 상세
