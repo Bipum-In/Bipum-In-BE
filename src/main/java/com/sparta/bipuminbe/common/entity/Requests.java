@@ -1,5 +1,6 @@
 package com.sparta.bipuminbe.common.entity;
 
+import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import lombok.Getter;
@@ -23,11 +24,8 @@ public class Requests extends TimeStamped {
 
     private String image;
 
-    private Boolean isSelf;
-
-    private Boolean isRead;
-
-    private Boolean isAccepted;
+    @Enumerated(EnumType.STRING)
+    private AcceptResult acceptResult;
 
     @Enumerated(EnumType.STRING)
     private RequestStatus requestStatus;
@@ -44,17 +42,16 @@ public class Requests extends TimeStamped {
     @JoinColumn(name = "categoryId")
     private Category category;
 
-    public void read() {
-        this.isRead = true;
-    }
+//    public void read() {
+//        this.isRead = true;
+//    }
 
-    public void processingRequest(Boolean isAccepted) {
-        this.isAccepted = isAccepted;
-
-        if (isAccepted) {
-            this.requestStatus = requestType.equals(RequestType.REPAIR) && requestStatus.equals(RequestStatus.UNPROCESSED)
-                    ? RequestStatus.PROCESSING : RequestStatus.PROCESSED;
-        } else {
+    public void processingRequest(AcceptResult acceptResult) {
+        // 처리중 상태 처리.
+        if(this.requestStatus.equals(RequestStatus.UNPROCESSED) && this.acceptResult.equals(AcceptResult.ACCEPT)){
+            this.requestStatus = RequestStatus.PROCESSING;
+        }else{
+            this.acceptResult = acceptResult;
             this.requestStatus = RequestStatus.PROCESSED;
         }
     }
