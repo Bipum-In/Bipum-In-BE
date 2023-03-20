@@ -1,28 +1,30 @@
 package com.sparta.bipuminbe.supply.service;
 
 import com.sparta.bipuminbe.category.dto.CategoryDto;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
+import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
-import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
+import com.sparta.bipuminbe.requests.dto.RequestsResponseDto;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -65,13 +67,41 @@ public class SupplyService {
 
     //비품 조회
     @Transactional(readOnly = true)
-    public ResponseDto<List<SupplyResponseDto>> getSupplyList(Long categoryId) {
+    public ResponseDto<Page<SupplyResponseDto>> getSupplyList(Long categoryId, String status, ing page, ing size) {
         List<Supply> supplyList = supplyRepository.findByCategory_Id(categoryId);
         List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
+        Set<RequestStatus> requestStatusQuery = getStatusSet(status);
+        Pageable pageable = getPageable(page, size);
+        Page<Supply> supplies = supplyRepository.findBySupplyInRequestStatusIn(requestStatusQuery, pageable);
+        List<RequestsResponseDto> requestsDtoList = converToDto(requestsList.getContent());
         for (Supply supply : supplyList) {
             supplyDtoList.add(SupplyResponseDto.of(supply));
         }
         return ResponseDto.success(supplyDtoList);
+    }
+
+    // list 추출 조건용 requestStatus Set 리스트.
+    private Set<RequestStatus> getStatusSet(String status) {
+        Set<RequestStatus> requestStatusQuery = new HashSet<>();
+        if(status.equals("ALL")){
+            requestStatusQuery.addAll(List.of(RequestStatus.values()));
+        }else{
+            requestStatusQuery.add(RequestStatus.valueOf(status));
+        }
+        return requestStatusQuery;
+    }
+
+    private Pageable getPageable(int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return PageRequest.of(page - 1, size, sort);
+    }
+
+    private List<RequestsResponseDto> converToDto(List<Requests> requestsList) {
+        List<RequestsResponseDto> requestsDtoList = new ArrayList<>();
+        for (Requests requests : requestsList) {
+            requestsDtoList.add(RequestsResponseDto.of(requests));
+        }
+        return requestsDtoList;
     }
 
 //    //비품 조회
