@@ -35,10 +35,10 @@ public class SupplyController {
     //비품 조회
     @GetMapping("/supply")
     @Operation(summary = "비품 조회", description = "SelectBox용(카테고리), 관리자 권한 필요.")
-    public ResponseDto<SupplyCategoryDto> getSupplyCategory(
+    public ResponseDto<List<SupplyResponseDto>> getSupplyList(
             @RequestParam("categoryId") Long categoryId
     ) {
-        return supplyService.getSupplyCategory(categoryId);
+        return supplyService.getSupplyList(categoryId);
     }
 
     //비품 상세
