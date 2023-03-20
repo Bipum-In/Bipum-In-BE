@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.common.sse.repository;
 
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 @NoArgsConstructor
 public class EmitterRepositoryImpl implements EmitterRepository{
@@ -19,6 +21,10 @@ public class EmitterRepositoryImpl implements EmitterRepository{
     @Override
     public SseEmitter save(String emitterId, SseEmitter sseEmitter) {
         emitters.put(emitterId, sseEmitter);
+
+        for(Map.Entry<String, SseEmitter> entrySet : emitters.entrySet()){
+            log.info(entrySet.getKey() + " : " + entrySet.getValue());
+        }
         return sseEmitter;
     }
 
@@ -33,6 +39,7 @@ public class EmitterRepositoryImpl implements EmitterRepository{
     public Map<String, SseEmitter> findAllEmitterStartWithByUserId(String userId) {
         return emitters.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(userId))
+                .peek(entry -> System.out.printf("Emitter 값 = %s%n", entry.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -41,15 +48,16 @@ public class EmitterRepositoryImpl implements EmitterRepository{
     public Map<String, Object> findAllEventCacheStartWithByUserId(String userId) {
         return eventCache.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(userId))
+                .peek(entry -> System.out.printf("이벤트 값 = %s%n", entry.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     //Emitter를 삭제한다
     @Override
     public void deleteById(String id) {
+        log.info(id + " 삭제");
         emitters.remove(id);
     }
-
     //회원과 관련된 모든 Emitter를 지운다
     @Override
     public void deleteAllEmitterStartWithId(String userId) {
