@@ -13,12 +13,15 @@ import javax.validation.constraints.NotNull;
 public class CategoryDto {
     private Long categoryId;
     @NotNull
+    private String largeCategory;
+    @NotNull
     private String categoryName;
     private String categoryImage;
 
     public static CategoryDto of(Category category) {
         return CategoryDto.builder()
                 .categoryId(category.getId())
+                .largeCategory(category.getLargeCategory().getKorean())
                 .categoryName(category.getCategoryName())
                 .categoryImage(category.getCategoryImage())
                 .build();
