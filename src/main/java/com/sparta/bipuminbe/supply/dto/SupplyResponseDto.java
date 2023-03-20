@@ -29,8 +29,8 @@ public class SupplyResponseDto {
         this.serialNum = supply.getSerialNum();
         this.createdAt = supply.getCreatedAt();
         this.partners = supply.getPartners() == null ? null : supply.getPartners().getPartnersName();
-        this.username = supply.getUser().getUsername();
-        this.deptName = supply.getUser().getDepartment().getDeptName();
+        this.username = supply.getUser() == null ? null : supply.getUser().getEmpName();
+        this.deptName = supply.getUser() == null ? null : supply.getUser().getDepartment().getDeptName();
         this.status = supply.getStatus().name();
     }
     public static SupplyResponseDto of (Supply supply) {

@@ -8,6 +8,7 @@ import com.sparta.bipuminbe.supply.service.SupplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -35,10 +36,14 @@ public class SupplyController {
     //비품 조회
     @GetMapping("/supply")
     @Operation(summary = "비품 조회", description = "SelectBox용(카테고리), 관리자 권한 필요.")
-    public ResponseDto<List<SupplyResponseDto>> getSupplyList(
-            @RequestParam("categoryId") Long categoryId
+    public ResponseDto<Page<SupplyResponseDto>> getSupplyList(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String categoryId,
+            @RequestParam(defaultValue = "ALL") String status,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return supplyService.getSupplyList(categoryId);
+        return supplyService.getSupplyList(keyword, categoryId, status, page, size);
     }
 
     //비품 상세
