@@ -4,6 +4,7 @@ import com.sparta.bipuminbe.category.dto.CategoryDto;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Category;
+import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +23,24 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
-    public ResponseDto<List<CategoryDto>> getCategoryList() {
-        List<Category> categoryList = categoryRepository.findAll();
+    public ResponseDto<List<CategoryDto>> getCategoryList(String largeCategory) {
+        Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
+        List<Category> categoryList = categoryRepository.findByLargeCategoryIn(categoryQuery);
         List<CategoryDto> categoryDtoList = new ArrayList<>();
         for (Category category : categoryList) {
             categoryDtoList.add(CategoryDto.of(category));
         }
         return ResponseDto.success(categoryDtoList);
+    }
+
+    private Set<LargeCategory> getCategoryQuery(String largeCategory) {
+        Set<LargeCategory> categoryQuery = new HashSet<>();
+        if (largeCategory.equals("ALL")) {
+            categoryQuery.addAll(List.of(LargeCategory.values()));
+        } else {
+            categoryQuery.add(LargeCategory.valueOf(largeCategory));
+        }
+        return categoryQuery;
     }
 
     @Transactional
@@ -55,7 +69,7 @@ public class CategoryService {
     }
 
     private void checkCategory(String categoryName) {
-        if(categoryRepository.existsByCategoryName(categoryName)){
+        if (categoryRepository.existsByCategoryName(categoryName)) {
             throw new CustomException(ErrorCode.DuplicatedCategory);
         }
     }

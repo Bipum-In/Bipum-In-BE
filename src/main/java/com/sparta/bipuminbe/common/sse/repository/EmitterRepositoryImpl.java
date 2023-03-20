@@ -39,6 +39,7 @@ public class EmitterRepositoryImpl implements EmitterRepository{
     public Map<String, SseEmitter> findAllEmitterStartWithByUserId(String userId) {
         return emitters.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(userId))
+                .peek(entry -> System.out.printf("Emitter 값 = %s%n", entry.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -47,6 +48,7 @@ public class EmitterRepositoryImpl implements EmitterRepository{
     public Map<String, Object> findAllEventCacheStartWithByUserId(String userId) {
         return eventCache.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(userId))
+                .peek(entry -> System.out.printf("이벤트 값 = %s%n", entry.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
