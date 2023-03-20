@@ -20,14 +20,15 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/category")
-    @Operation(summary = "카테고리 리스트", description = "SelectBox용")
-    public ResponseDto<List<CategoryDto>> getCategoryList() {
-        return categoryService.getCategoryList();
+    @Operation(summary = "카테고리 리스트", description = "SelectBox용. 전체조회(ALL) or 대분류이름(영어). /n" +
+            "ALL/COMPUTER/DIGITAL/ELECTRONICS/FURNITURE/ETC")
+    public ResponseDto<List<CategoryDto>> getCategoryList(@RequestParam(defaultValue = "ALL") String largeCategory) {
+        return categoryService.getCategoryList(largeCategory);
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PostMapping("/category")
-    @Operation(summary = "카테고리 등록", description = "카테고리 이름(null 불가), 카테고리 이미지(null 가능), 관리자 권한 필요.")
+    @Operation(summary = "카테고리 등록", description = "카테고리 이름(null 불가), 카테고리 대분류(null 불가), 카테고리 이미지(null 가능), 관리자 권한 필요.")
     public ResponseDto<String> createCategory(@RequestBody @Valid CategoryDto categoryDto) {
         return categoryService.createCategory(categoryDto);
     }
