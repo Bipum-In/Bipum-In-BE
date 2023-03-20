@@ -31,7 +31,6 @@ public class NotificationService {
     private final RequestsRepository requestsRepository;
 
     //시간이 포함된 아이디 생성. SseEmitter 구분을 위함
-    @Transactional
     public SseEmitter subscribe(Long userId, String lastEventId) {
         String emitterId = makeTimeIncludeId(userId);
         // lastEventId가 있을 경우, userId와 비교해서 유실된 데이터일 경우 재전송할 수 있다.
