@@ -31,7 +31,7 @@ public class SupplyResponseDto {
         this.partners = supply.getPartners() == null ? null : supply.getPartners().getPartnersName();
         this.username = supply.getUser() == null ? null : supply.getUser().getEmpName();
         this.deptName = supply.getUser() == null ? null : supply.getUser().getDepartment().getDeptName();
-        this.status = supply.getStatus().name();
+        this.status = supply.getStatus().getKorean();
     }
     public static SupplyResponseDto of (Supply supply) {
         return new SupplyResponseDto(supply);
