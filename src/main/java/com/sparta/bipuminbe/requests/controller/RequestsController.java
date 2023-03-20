@@ -18,12 +18,13 @@ public class RequestsController {
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/requests")
-    @Operation(summary = "요청 현황 페이지", description = "type은 ALL/SUPPLY/REPAIR/RETURN, " +
-                                                "status는 UNPROCESSED/PROCESSING/PROCESSED, 관리자 권한 필요.")
-    public ResponseDto<Page<RequestsResponseDto>> getRequests(@RequestParam(defaultValue = "ALL") String type,
+    @Operation(summary = "요청 현황 페이지", description = "keyword는 필수 x, type은 ALL/SUPPLY/REPAIR/RETURN, " +
+            "status는 ALL/UNPROCESSED/PROCESSING/PROCESSED, ALL(전체조회) 일 때는 쿼리 안날려도 되긴함. 관리자 권한 필요.")
+    public ResponseDto<Page<RequestsResponseDto>> getRequests(@RequestParam(defaultValue = "") String keyword,
+                                                              @RequestParam(defaultValue = "ALL") String type,
                                                               @RequestParam(defaultValue = "ALL") String status,
                                                               @RequestParam(defaultValue = "1") int page,
                                                               @RequestParam (defaultValue = "10") int size) {
-        return requestsService.getRequests(type, status, page, size);
+        return requestsService.getRequests(keyword, type, status, page, size);
     }
 }
