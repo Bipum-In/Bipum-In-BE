@@ -53,9 +53,9 @@ public class EmitterRepositoryImpl implements EmitterRepository{
     //Emitter를 삭제한다
     @Override
     public void deleteById(String id) {
+        log.info(id + " 삭제");
         emitters.remove(id);
     }
-
     //회원과 관련된 모든 Emitter를 지운다
     @Override
     public void deleteAllEmitterStartWithId(String userId) {
