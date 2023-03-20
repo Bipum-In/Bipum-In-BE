@@ -48,6 +48,10 @@ public class NotificationService {
         sendNotification(emitter, eventId, emitterId, "EventStream Created. [userId=" + userId + "]");
         log.info("subscribe6");
 
+        log.info("userId : " + userId);
+        log.info("emitterId " + emitterId);
+        log.info("lastEventId : " + lastEventId);
+
         // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방한다.
         if (hasLostData(lastEventId)) {
             log.info("subscribe7");
