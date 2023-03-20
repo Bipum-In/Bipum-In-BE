@@ -10,6 +10,7 @@ import com.sparta.bipuminbe.common.sse.repository.EmitterRepository;
 import com.sparta.bipuminbe.common.sse.repository.NotificationRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -78,7 +79,8 @@ public class NotificationService {
     //알림을 구성하고, 알림에 대한 이벤트를 발생시킴. 유저이름. 요청 카테고리. 요청 uri
     // content는 send하는 곳에서 만들어서 전달함.
     // ~님이 ~를 요청하셨습니다. (관리자) or ~님의 ~ 요청이 처리되었습니다. (유저)
-    @Transactional
+
+    @Async
 //    public void send(User receiver, String content, String url) {
     public void send(Long requestsId, Boolean isAccepted, String uri) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
