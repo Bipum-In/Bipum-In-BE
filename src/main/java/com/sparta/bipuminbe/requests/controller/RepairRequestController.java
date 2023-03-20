@@ -36,6 +36,12 @@ public class RepairRequestController {
             "수리완료 버튼 하나만 있으면 될 것 같습니다.")
     public ResponseDto<String> processingRepairRequest(@PathVariable Long requestId,
                                                        @RequestParam Boolean isAccepted) {
+
+        // 관리자의 요청 처리 >> 요청자에게 알림 전송.
+        // uri는 해당 알림을 클릭하면 이동할 상세페이지 uri이다.
+        String uri = "/api/requests/repair/";
+        notificationService.send(requestId, isAccepted, uri);
+
         return repairRequestService.processingRepairRequest(requestId, isAccepted);
     }
 }
