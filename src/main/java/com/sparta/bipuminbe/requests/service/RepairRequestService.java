@@ -11,6 +11,7 @@ import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.requests.dto.RepairRequestResponseDto;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
+import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RepairRequestService {
     private final RequestsRepository requestsRepository;
+    private final SupplyRepository supplyRepository;
 
     @Transactional(readOnly = true)
     public ResponseDto<RepairRequestResponseDto> getRepairRequest(Long requestId, User user) {
@@ -34,7 +36,12 @@ public class RepairRequestService {
         if (acceptResult.equals(AcceptResult.DECLINE)) {
             return ResponseDto.success("승인 거부 완료.");
         }
-        request.getSupply().repairSupply();
+        Supply supply = request.getSupply();
+        if (acceptResult.equals(AcceptResult.DISPOSE)) {
+            supplyRepository.delete(supply);
+            return ResponseDto.success("비품 폐기 처리 완료.");
+        }
+        supply.repairSupply();
         return ResponseDto.success("승인 처리 완료.");
     }
 
