@@ -20,7 +20,7 @@ public class RequestsResponseDto {
     private String modelName;
     private LocalDateTime createdAt;
     private String status;
-    private boolean isRead;
+    private String acceptResult;
 
     public static RequestsResponseDto of(Requests requests) {
         User user = requests.getUser();
@@ -31,8 +31,7 @@ public class RequestsResponseDto {
                 .empName(user.getEmpName())
                 .deptName(user.getDepartment().getDeptName())
                 .createdAt(requests.getCreatedAt())
-                .status(requests.getRequestStatus().getKorean())
-                .isRead(requests.getIsRead());
+                .status(requests.getRequestStatus().getKorean());
 
         if (requests.getRequestType().equals(RequestType.SUPPLY)) {
             builder.categoryName(requests.getCategory().getCategoryName());
@@ -40,6 +39,10 @@ public class RequestsResponseDto {
             Supply supply = requests.getSupply();
             builder.categoryName(supply.getCategory().getCategoryName())
                     .modelName(supply.getModelName());
+        }
+
+        if (requests.getAcceptResult() != null) {
+            builder.acceptResult(requests.getAcceptResult().getKorean());
         }
 
         return builder.build();

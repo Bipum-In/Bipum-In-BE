@@ -4,12 +4,14 @@ import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.requests.dto.RepairRequestResponseDto;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
+import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,32 +20,36 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RepairRequestService {
     private final RequestsRepository requestsRepository;
+    private final SupplyRepository supplyRepository;
 
     @Transactional(readOnly = true)
     public ResponseDto<RepairRequestResponseDto> getRepairRequest(Long requestId, User user) {
         Requests request = getRequest(requestId);
         checkRepairRequest(request, user);
-        readRequest(request);
         return ResponseDto.success(RepairRequestResponseDto.of(request));
     }
 
     @Transactional
-    public ResponseDto<String> processingRepairRequest(Long requestId, Boolean isAccepted) {
+    public ResponseDto<String> processingRepairRequest(Long requestId, AcceptResult acceptResult) {
         Requests request = getRequest(requestId);
-        request.processingRequest(isAccepted);
-        if (!isAccepted) {
+        request.processingRequest(acceptResult);
+        if (acceptResult.equals(AcceptResult.DECLINE)) {
             return ResponseDto.success("승인 거부 완료.");
         }
-        request.getSupply().repairSupply();
+        Supply supply = request.getSupply();
+        if (acceptResult.equals(AcceptResult.DISPOSE)) {
+            supplyRepository.delete(supply);
+            return ResponseDto.success("비품 폐기 처리 완료.");
+        }
+        supply.repairSupply();
         return ResponseDto.success("승인 처리 완료.");
     }
 
-    @Transactional
-    void readRequest(Requests request) {
-        if (!request.getIsRead()) {
-            request.read();
-        }
-    }
+//    void readRequest(Requests request) {
+//        if (!request.getIsRead()) {
+//            request.read();
+//        }
+//    }
 
     private void checkRepairRequest(Requests request, User user) {
         if (!request.getRequestType().equals(RequestType.REPAIR)) {
