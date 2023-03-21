@@ -30,15 +30,20 @@ public class DepartmentService {
 
     @Transactional
     public ResponseDto<String> createDept(DepartmentDto departmentDto) {
-        checkDepartment(departmentDto.getDeptName());
+        if (checkDepartment(departmentDto.getDeptName())) {
+            throw new CustomException(ErrorCode.DuplicatedDepartment);
+        }
         departmentRepository.save(Department.builder().departmentDto(departmentDto).build());
         return ResponseDto.success("부서 등록 완료.");
     }
 
     @Transactional
     public ResponseDto<String> updateDept(Long deptId, DepartmentDto departmentDto) {
-        checkDepartment(departmentDto.getDeptName());
-        getDept(deptId).update(departmentDto);
+        Department department = getDept(deptId);
+        if (!department.getDeptName().equals(departmentDto.getDeptName()) && checkDepartment(departmentDto.getDeptName())) {
+            throw new CustomException(ErrorCode.DuplicatedDepartment);
+        }
+        department.update(departmentDto);
         return ResponseDto.success("부서 수정 완료.");
     }
 
@@ -53,9 +58,7 @@ public class DepartmentService {
                 () -> new CustomException(ErrorCode.NotFoundCategory));
     }
 
-    private void checkDepartment(String deptName) {
-        if (departmentRepository.existsByDeptName(deptName)) {
-            throw new CustomException(ErrorCode.DuplicatedDepartment);
-        }
+    private Boolean checkDepartment(String deptName) {
+        return departmentRepository.existsByDeptName(deptName);
     }
 }
