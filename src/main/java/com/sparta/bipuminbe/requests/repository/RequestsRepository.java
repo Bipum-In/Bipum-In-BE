@@ -16,8 +16,19 @@ import java.util.List;
 import java.util.Set;
 
 public interface RequestsRepository extends JpaRepository<Requests, Long> {
-    Page<Requests> findByRequestTypeInAndRequestStatusIn(Set<RequestType> requestTypeQuery, Set<RequestStatus> requestStatusQuery, Pageable pageable);
     List<Requests> findBySupply(Supply supply);
+
+    @Query(value = "SELECT r FROM Requests r " +
+            "INNER JOIN users u ON r.user = u " +
+            "INNER JOIN Department d ON u.department = d " +
+            "LEFT JOIN Category c ON r.category  = c " +
+            "LEFT JOIN Supply s ON r.supply = s " +
+            "WHERE (u.empName LIKE :keyword OR d.deptName LIKE :keyword OR c.categoryName LIKE :keyword " +
+            "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
+            "AND r.requestType IN :requestTypeQuery " +
+            "AND r.requestStatus IN :requestStatusQuery")
+    Page<Requests> getRequestsList(@Param("keyword") String keyword, @Param("requestTypeQuery") Set<RequestType> requestTypeQuery,
+                                   @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery, Pageable pageable);
 
     @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.request_type = 'SUPPLY'", nativeQuery = true)
     Long countSupply();

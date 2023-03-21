@@ -35,8 +35,10 @@ public class ReturnRequestController {
     public ResponseDto<String> processingReturnRequest(@PathVariable Long requestId,
                                                        @RequestParam Boolean isAccepted) {
 
-//        String uri = "/api/requests/supply/";
-//        notificationService.send(requestId, isAccepted, uri);
+        // 관리자의 요청 처리 >> 요청자에게 알림 전송.
+        // uri는 해당 알림을 클릭하면 이동할 상세페이지 uri이다.
+        String uri = "/api/requests/return/";
+        notificationService.send(requestId, isAccepted, uri);
 
         return returnRequestService.processingReturnRequest(requestId, isAccepted);
     }

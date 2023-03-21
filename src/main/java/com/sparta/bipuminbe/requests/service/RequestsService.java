@@ -22,12 +22,12 @@ public class RequestsService {
     private final RequestsRepository requestsRepository;
 
     @Transactional(readOnly = true)
-    public ResponseDto<Page<RequestsResponseDto>> getRequests(String type, String status, int page, int size) {
+    public ResponseDto<Page<RequestsResponseDto>> getRequests(String keyword, String type, String status, int page, int size) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page, size);
         Page<Requests> requestsList = requestsRepository.
-                    findByRequestTypeInAndRequestStatusIn(requestTypeQuery, requestStatusQuery, pageable);
+                    getRequestsList("%"+keyword+"%", requestTypeQuery, requestStatusQuery, pageable);
 
         List<RequestsResponseDto> requestsDtoList = converToDto(requestsList.getContent());
 
