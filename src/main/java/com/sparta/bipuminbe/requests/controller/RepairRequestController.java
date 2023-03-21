@@ -33,7 +33,7 @@ public class RepairRequestController {
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PutMapping("/requests/repair/{requestId}")
+    @PutMapping("/admin/requests/repair")
     @Operation(summary = "수리 요청 승인/거절", description = "acceptResult 승인/거부/폐기 ACCEPT/DECLINE/DISPOSE, 관리자 권한 필요. " +
             "처리 전 요청 -> 처리 중 / 처리 중 -> 처리 완료. " +
             "생각해 봤는데, 처리 중 상태에서는 거절 버튼 없애 줄 수 있나요? " +
