@@ -45,7 +45,9 @@ public class CategoryService {
 
     @Transactional
     public ResponseDto<String> createCategory(CategoryDto categoryDto) {
-        checkCategory(categoryDto.getCategoryName());
+        if (checkCategory(categoryDto.getCategoryName())) {
+            throw new CustomException(ErrorCode.DuplicatedCategory);
+        }
         Category category = Category.builder().categoryName(categoryDto.getCategoryName())
                 .largeCategory(LargeCategory.valueOf(categoryDto.getLargeCategory()))
                 .categoryImage(categoryDto.getCategoryImage()).build();
