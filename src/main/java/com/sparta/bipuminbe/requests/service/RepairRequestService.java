@@ -26,7 +26,7 @@ public class RepairRequestService {
     public ResponseDto<RepairRequestResponseDto> getRepairRequest(Long requestId, User user) {
         Requests request = getRequest(requestId);
         checkRepairRequest(request, user);
-        return ResponseDto.success(RepairRequestResponseDto.of(request));
+        return ResponseDto.success(RepairRequestResponseDto.of(request, user.getRole()));
     }
 
     @Transactional
@@ -44,12 +44,6 @@ public class RepairRequestService {
         supply.repairSupply();
         return ResponseDto.success("승인 처리 완료.");
     }
-
-//    void readRequest(Requests request) {
-//        if (!request.getIsRead()) {
-//            request.read();
-//        }
-//    }
 
     private void checkRepairRequest(Requests request, User user) {
         if (!request.getRequestType().equals(RequestType.REPAIR)) {
