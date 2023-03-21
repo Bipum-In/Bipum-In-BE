@@ -29,7 +29,7 @@ public class RequestsService {
         Page<Requests> requestsList = requestsRepository.
                     getRequestsList("%"+keyword+"%", requestTypeQuery, requestStatusQuery, pageable);
 
-        List<RequestsResponseDto> requestsDtoList = converToDto(requestsList.getContent());
+        List<RequestsResponseDto> requestsDtoList = convertToDto(requestsList.getContent());
 
         return ResponseDto.success(new PageImpl<>(requestsDtoList, requestsList.getPageable(), requestsList.getTotalElements()));
     }
@@ -61,7 +61,7 @@ public class RequestsService {
         return PageRequest.of(page - 1, size, sort);
     }
 
-    private List<RequestsResponseDto> converToDto(List<Requests> requestsList) {
+    private List<RequestsResponseDto> convertToDto(List<Requests> requestsList) {
         List<RequestsResponseDto> requestsDtoList = new ArrayList<>();
         for (Requests requests : requestsList) {
             requestsDtoList.add(RequestsResponseDto.of(requests));

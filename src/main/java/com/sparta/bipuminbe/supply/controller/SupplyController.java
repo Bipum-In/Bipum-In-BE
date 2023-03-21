@@ -35,7 +35,7 @@ public class SupplyController {
 
     //비품 조회
     @GetMapping("/supply")
-    @Operation(summary = "비품 조회", description = "SelectBox용(카테고리), 관리자 권한 필요.")
+    @Operation(summary = "비품 조회", description = "SelectBox용(카테고리), 관리자 권한 필요. status ALL/USING/STOCK/REPAIRING")
     public ResponseDto<Page<SupplyResponseDto>> getSupplyList(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") String categoryId,

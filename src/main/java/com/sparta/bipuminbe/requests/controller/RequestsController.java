@@ -18,7 +18,7 @@ public class RequestsController {
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/requests")
-    @Operation(summary = "요청 현황 페이지", description = "keyword는 필수 x, type은 ALL/SUPPLY/REPAIR/RETURN, " +
+    @Operation(summary = "요청 현황 페이지", description = "keyword는 필수 x, type은 ALL/SUPPLY/REPAIR/RETURN/REPORT, " +
             "status는 ALL/UNPROCESSED/PROCESSING/PROCESSED, ALL(전체조회) 일 때는 쿼리 안날려도 되긴함. 관리자 권한 필요.")
     public ResponseDto<Page<RequestsResponseDto>> getRequests(@RequestParam(defaultValue = "") String keyword,
                                                               @RequestParam(defaultValue = "ALL") String type,

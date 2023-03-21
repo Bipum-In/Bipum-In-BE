@@ -4,6 +4,7 @@ import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
@@ -26,15 +27,14 @@ public class SupplyRequestService {
     public ResponseDto<SupplyRequestResponseDto> getSupplyRequest(Long requestId, User user) {
         Requests request = getRequest(requestId);
         checkSupplyRequest(request, user);
-        readRequest(request);
-        return ResponseDto.success(SupplyRequestResponseDto.of(request));
+        return ResponseDto.success(SupplyRequestResponseDto.of(request, user.getRole()));
     }
 
     @Transactional
-    public ResponseDto<String> processingSupplyRequest(Long requestId, Boolean isAccepted, Long supplyId) {
+    public ResponseDto<String> processingSupplyRequest(Long requestId, AcceptResult acceptResult, Long supplyId) {
         Requests request = getRequest(requestId);
-        request.processingRequest(isAccepted);
-        if (!isAccepted) {
+        request.processingRequest(acceptResult);
+        if (acceptResult.equals(AcceptResult.DECLINE)) {
             return ResponseDto.success("승인 거부 완료.");
         }
         if (supplyId == null) {
@@ -43,13 +43,6 @@ public class SupplyRequestService {
         Supply supply = getSupply(supplyId);
         supply.allocateSupply(request.getUser());
         return ResponseDto.success("승인 처리 완료.");
-    }
-
-    @Transactional
-    void readRequest(Requests request) {
-        if (!request.getIsRead()) {
-            request.read();
-        }
     }
 
     private void checkSupplyRequest(Requests request, User user) {
