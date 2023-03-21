@@ -65,44 +65,7 @@ public class SupplyService {
         return ResponseDto.success("비품 등록 성공");
     }
 
-    //비품 조회
-    @Transactional(readOnly = true)
-    public ResponseDto<Page<SupplyResponseDto>> getSupplyList(Long categoryId, String status, ing page, ing size) {
-        List<Supply> supplyList = supplyRepository.findByCategory_Id(categoryId);
-        List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
-        Set<RequestStatus> requestStatusQuery = getStatusSet(status);
-        Pageable pageable = getPageable(page, size);
-        Page<Supply> supplies = supplyRepository.findBySupplyInRequestStatusIn(requestStatusQuery, pageable);
-        List<RequestsResponseDto> requestsDtoList = converToDto(requestsList.getContent());
-        for (Supply supply : supplyList) {
-            supplyDtoList.add(SupplyResponseDto.of(supply));
-        }
-        return ResponseDto.success(supplyDtoList);
-    }
 
-    // list 추출 조건용 requestStatus Set 리스트.
-    private Set<RequestStatus> getStatusSet(String status) {
-        Set<RequestStatus> requestStatusQuery = new HashSet<>();
-        if(status.equals("ALL")){
-            requestStatusQuery.addAll(List.of(RequestStatus.values()));
-        }else{
-            requestStatusQuery.add(RequestStatus.valueOf(status));
-        }
-        return requestStatusQuery;
-    }
-
-    private Pageable getPageable(int page, int size) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        return PageRequest.of(page - 1, size, sort);
-    }
-
-    private List<RequestsResponseDto> converToDto(List<Requests> requestsList) {
-        List<RequestsResponseDto> requestsDtoList = new ArrayList<>();
-        for (Requests requests : requestsList) {
-            requestsDtoList.add(RequestsResponseDto.of(requests));
-        }
-        return requestsDtoList;
-    }
 
 //    //비품 조회
 //    @Transactional(readOnly = true)

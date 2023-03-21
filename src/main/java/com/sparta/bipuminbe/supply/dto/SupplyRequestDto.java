@@ -6,7 +6,8 @@ import java.time.LocalDateTime;
 
 @Getter
 public class SupplyRequestDto {
-    private Long categoryId;
+    private String largeCategory;
+    private String categoryName;
     private String modelName;
     private String serialNum;
     private LocalDateTime createdAt;
