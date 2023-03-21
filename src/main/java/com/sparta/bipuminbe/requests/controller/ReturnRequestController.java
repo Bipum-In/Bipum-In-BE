@@ -47,7 +47,7 @@ public class ReturnRequestController {
     }
 
     @PostMapping("/requests/return")
-    @Operation(summary = "반납 요청", description = "유저 >> 관리자에게 반납 요청")
+    @Operation(summary = "유저의 반납 요청", description = "필요 값 = supplyId, requestType, content, multipartFile(이미지)")
     public ResponseDto<String> supplyRequest(@RequestBody RequestsRequestDto requestsRequestDto,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return returnRequestService.returnRequest(requestsRequestDto, userDetails.getUser());

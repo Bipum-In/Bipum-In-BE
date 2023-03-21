@@ -39,8 +39,8 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
     @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.request_type = 'REPAIR'", nativeQuery = true)
     Long countRepair();
 
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.request_status = 'REPAIRING'", nativeQuery = true)
-    Long countInRepair();
+    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.request_status = 'REPORT'", nativeQuery = true)
+    Long countReport();
 
     @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'SUPPLY'", nativeQuery = true)
     LocalDateTime supplyModifiedAt();
@@ -51,8 +51,8 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
     @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'REPAIR'", nativeQuery = true)
     LocalDateTime repairModifiedAt();
 
-    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_status = 'REPAIRING'", nativeQuery = true)
-    LocalDateTime inRepairModifiedAt();
+    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_status = 'REPORT'", nativeQuery = true)
+    LocalDateTime reportModifiedAt();
 
     @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_status = 'REPAIRING'", nativeQuery = true)
     Long userCountInRepair(@Param("userId") Long id);
