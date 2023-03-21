@@ -27,7 +27,7 @@ public class SupplyRequestService {
     public ResponseDto<SupplyRequestResponseDto> getSupplyRequest(Long requestId, User user) {
         Requests request = getRequest(requestId);
         checkSupplyRequest(request, user);
-        return ResponseDto.success(SupplyRequestResponseDto.of(request));
+        return ResponseDto.success(SupplyRequestResponseDto.of(request, user.getRole()));
     }
 
     @Transactional
@@ -44,12 +44,6 @@ public class SupplyRequestService {
         supply.allocateSupply(request.getUser());
         return ResponseDto.success("승인 처리 완료.");
     }
-
-//    void readRequest(Requests request) {
-//        if (!request.getIsRead()) {
-//            request.read();
-//        }
-//    }
 
     private void checkSupplyRequest(Requests request, User user) {
         if (!request.getRequestType().equals(RequestType.SUPPLY)) {

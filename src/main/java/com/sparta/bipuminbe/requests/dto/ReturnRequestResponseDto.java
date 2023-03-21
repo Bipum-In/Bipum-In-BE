@@ -23,14 +23,14 @@ public class ReturnRequestResponseDto {
     private String requestStatus;
     private LocalDateTime createdAt;
 
-    public static ReturnRequestResponseDto of(Requests requests) {
+    public static ReturnRequestResponseDto of(Requests requests, UserRoleEnum role) {
         User user = requests.getUser();
         Supply supply = requests.getSupply();
 
         return ReturnRequestResponseDto.builder()
                 .requestType(requests.getRequestType().getKorean())
                 .requestId(requests.getRequestId())
-                .isAdmin(user.getRole().equals(UserRoleEnum.ADMIN))
+                .isAdmin(role.equals(UserRoleEnum.ADMIN))
                 .deptName(user.getDepartment().getDeptName())
                 .empName(user.getEmpName())
                 .modelName(supply.getModelName())

@@ -45,15 +45,20 @@ public class CategoryService {
 
     @Transactional
     public ResponseDto<String> createCategory(CategoryDto categoryDto) {
-        checkCategory(categoryDto.getCategoryName());
+        if (checkCategory(categoryDto.getCategoryName())) {
+            throw new CustomException(ErrorCode.DuplicatedCategory);
+        }
         categoryRepository.save(Category.builder().categoryDto(categoryDto).build());
         return ResponseDto.success("카테고리 등록 완료.");
     }
 
     @Transactional
     public ResponseDto<String> updateCategory(Long categoryId, CategoryDto categoryDto) {
-        checkCategory(categoryDto.getCategoryName());
-        getCategory(categoryId).update(categoryDto);
+        Category category = getCategory(categoryId);
+        if (!categoryDto.getCategoryName().equals(category.getCategoryName()) && checkCategory(categoryDto.getCategoryName())) {
+            throw new CustomException(ErrorCode.DuplicatedCategory);
+        }
+        category.update(categoryDto);
         return ResponseDto.success("카테고리 수정 완료.");
     }
 
@@ -68,9 +73,7 @@ public class CategoryService {
                 () -> new CustomException(ErrorCode.NotFoundCategory));
     }
 
-    private void checkCategory(String categoryName) {
-        if (categoryRepository.existsByCategoryName(categoryName)) {
-            throw new CustomException(ErrorCode.DuplicatedCategory);
-        }
+    private Boolean checkCategory(String categoryName) {
+        return categoryRepository.existsByCategoryName(categoryName);
     }
 }

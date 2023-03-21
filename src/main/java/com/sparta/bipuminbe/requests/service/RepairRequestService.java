@@ -33,7 +33,7 @@ public class RepairRequestService {
     public ResponseDto<RepairRequestResponseDto> getRepairRequest(Long requestId, User user) {
         Requests request = getRequest(requestId);
         checkRepairRequest(request, user);
-        return ResponseDto.success(RepairRequestResponseDto.of(request));
+        return ResponseDto.success(RepairRequestResponseDto.of(request, user.getRole()));
     }
 
     @Transactional
