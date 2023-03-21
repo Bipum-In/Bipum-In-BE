@@ -25,15 +25,22 @@ public class Category {
     private String categoryImage;
 
     @Builder
-    public Category(CategoryDto categoryDto) {
-        this.categoryName = categoryDto.getCategoryName();
-        this.largeCategory = LargeCategory.valueOf(categoryDto.getLargeCategory());
-        this.categoryImage = categoryDto.getCategoryImage();
+    public Category(String categoryName, LargeCategory largeCategory, String categoryImage) {
+        this.categoryName = categoryName;
+        this.largeCategory = largeCategory;
+        this.categoryImage = categoryImage;
     }
 
     public void update(CategoryDto categoryDto) {
         this.categoryName = categoryDto.getCategoryName();
         this.largeCategory = LargeCategory.valueOf(categoryDto.getLargeCategory());
         this.categoryImage = categoryDto.getCategoryImage();
+    }
+
+    public void madeCategory(String categoryName, LargeCategory largeCategory,
+                             String categoryImage){
+        this.categoryName=categoryName;
+        this.largeCategory = largeCategory;
+        this.categoryImage=categoryImage;
     }
 }
