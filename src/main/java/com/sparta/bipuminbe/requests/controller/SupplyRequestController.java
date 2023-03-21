@@ -48,7 +48,7 @@ public class SupplyRequestController {
     }
 
     @PostMapping("/requests/supply")
-    @Operation(summary = "비품 요청", description = "유저 >> 관리자에게 비품 요청")
+    @Operation(summary = "유저의 비품 요청", description = "필요 값 = categoryId, requestType, content")
     public ResponseDto<String> supplyRequest(@RequestBody RequestsRequestDto requestsRequestDto,
                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
         return supplyRequestService.supplyRequest(requestsRequestDto, userDetails.getUser());

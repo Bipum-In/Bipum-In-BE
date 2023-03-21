@@ -50,7 +50,7 @@ public class RepairRequestController {
     }
 
     @PostMapping("/requests/repair")
-    @Operation(summary = "수리 요청", description = "유저 >> 관리자에게 수리 요청")
+    @Operation(summary = "유저의 수리 요청", description = "필요 값 = supplyId, requestType, content, multipartFile(이미지)")
     public ResponseDto<String> supplyRequest(@RequestBody RequestsRequestDto requestsRequestDto,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return repairRequestService.repairRequest(requestsRequestDto, userDetails.getUser());
