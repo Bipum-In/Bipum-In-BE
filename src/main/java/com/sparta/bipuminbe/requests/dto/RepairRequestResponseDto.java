@@ -23,14 +23,14 @@ public class RepairRequestResponseDto {
     private String requestStatus;
     private LocalDateTime createdAt;
 
-    public static RepairRequestResponseDto of(Requests requests) {
+    public static RepairRequestResponseDto of(Requests requests, UserRoleEnum role) {
         User user = requests.getUser();
         Supply supply = requests.getSupply();
 
         return RepairRequestResponseDto.builder()
                 .requestType(requests.getRequestType().getKorean())
                 .requestId(requests.getRequestId())
-                .isAdmin(user.getRole().equals(UserRoleEnum.ADMIN))
+                .isAdmin(role.equals(UserRoleEnum.ADMIN))
                 .deptName(user.getDepartment().getDeptName())
                 .empName(user.getEmpName())
                 .modelName(supply.getModelName())

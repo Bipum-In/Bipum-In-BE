@@ -42,9 +42,6 @@ public class Requests extends TimeStamped {
     @JoinColumn(name = "categoryId")
     private Category category;
 
-//    public void read() {
-//        this.isRead = true;
-//    }
 
     public void processingRequest(AcceptResult acceptResult) {
         // 처리중 상태 처리.
