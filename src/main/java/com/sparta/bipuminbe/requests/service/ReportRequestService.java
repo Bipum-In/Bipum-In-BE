@@ -28,12 +28,14 @@ public class ReportRequestService {
         return ResponseDto.success(ReportRequestResponseDto.of(request, user.getRole()));
     }
 
+    // 요청 유형이 맞는지 확인.
     private void checkReportRequest(Requests request) {
         if (!request.getRequestType().equals(RequestType.REPORT)) {
             throw new CustomException(ErrorCode.NotAllowedMethod);
         }
     }
 
+    // 해당 요청을 볼 권한 확인.
     private void checkPermission(Requests request, User user) {
         if (!user.getRole().equals(UserRoleEnum.ADMIN) && !request.getUser().getId().equals(user.getId())) {
             throw new CustomException(ErrorCode.NoPermission);
@@ -50,6 +52,7 @@ public class ReportRequestService {
         Requests request = getRequest(reportProcessRequestDto.getRequestId());
         checkReportRequest(request);
         AcceptResult acceptResult = AcceptResult.valueOf(reportProcessRequestDto.getAcceptResult());
+        checkAcceptResult(acceptResult);
         String comment = reportProcessRequestDto.getComment();
         checkNullComment(acceptResult, comment);
         request.processingRequest(acceptResult, comment);
@@ -57,8 +60,16 @@ public class ReportRequestService {
         return ResponseDto.success(message);
     }
 
+    // 폐기는 수리 요청에만 존재해야 한다.
+    private void checkAcceptResult(AcceptResult acceptResult) {
+        if (acceptResult.equals(AcceptResult.DISPOSE)) {
+            throw new CustomException(ErrorCode.NotAllowedMethod);
+        }
+    }
+
+    // 거절시 거절 사유 작성은 필수다.
     private void checkNullComment(AcceptResult acceptResult, String comment) {
-        if (acceptResult.equals(AcceptResult.DECLINE) && comment == null) {
+        if (acceptResult.equals(AcceptResult.DECLINE) && (comment == null || comment.equals(""))) {
             throw new CustomException(ErrorCode.NullComment);
         }
     }

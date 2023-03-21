@@ -28,7 +28,7 @@ public class ReportRequestController {
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping("/admin/requests/report")
-    @Operation(summary = "보고서 결재 승인/거부", description = "acceptResult 승인/거절/폐기 ACCEPT/DECLINE/DISPOSE, " +
+    @Operation(summary = "보고서 결재 승인/거부", description = "acceptResult 승인/거절 ACCEPT/DECLINE, " +
             "거절시 거절 사유(comment) 작성 필수")
     public ResponseDto<String> processingReportRequest(@RequestBody ReportProcessRequestDto reportProcessRequestDto) {
         return reportRequestService.processingReportRequest(reportProcessRequestDto);
