@@ -45,10 +45,11 @@ public class CategoryService {
 
     @Transactional
     public ResponseDto<String> createCategory(CategoryDto categoryDto) {
-        if (checkCategory(categoryDto.getCategoryName())) {
-            throw new CustomException(ErrorCode.DuplicatedCategory);
-        }
-        categoryRepository.save(Category.builder().categoryDto(categoryDto).build());
+        checkCategory(categoryDto.getCategoryName());
+        Category category = Category.builder().categoryName(categoryDto.getCategoryName())
+                .largeCategory(LargeCategory.valueOf(categoryDto.getLargeCategory()))
+                .categoryImage(categoryDto.getCategoryImage()).build();
+        categoryRepository.save(category);
         return ResponseDto.success("카테고리 등록 완료.");
     }
 

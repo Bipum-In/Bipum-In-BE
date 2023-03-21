@@ -19,6 +19,7 @@ public class Supply extends TimeStamped{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long supplyId;
 
+
     @Column(nullable = false)
     private String serialNum;
 
