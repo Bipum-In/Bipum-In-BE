@@ -32,7 +32,7 @@ public class ReportRequestResponseDto {
                 .isAdmin(role.equals(UserRoleEnum.ADMIN))
                 .requestType(request.getRequestType().getKorean())
                 .requestStatus(request.getRequestStatus().getKorean())
-                .acceptResult(request.getAcceptResult().getKorean())
+                .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
                 .deptName(department.getDeptName())
                 .empName(user.getEmpName())
                 .categoryName(category.getCategoryName())
