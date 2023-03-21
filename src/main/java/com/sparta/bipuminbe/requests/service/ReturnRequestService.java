@@ -29,7 +29,7 @@ public class ReturnRequestService {
     @Transactional
     public ResponseDto<String> processingReturnRequest(Long requestId, AcceptResult acceptResult) {
         Requests request = getRequests(requestId);
-        request.processingRequest(acceptResult);
+        request.processingRequest(acceptResult, "");
         if (acceptResult.equals(AcceptResult.DECLINE)) {
             return ResponseDto.success("승인 거부 완료.");
         }

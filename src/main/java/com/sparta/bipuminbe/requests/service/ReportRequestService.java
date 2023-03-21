@@ -4,6 +4,7 @@ import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
+import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
@@ -22,15 +23,21 @@ public class ReportRequestService {
     @Transactional(readOnly = true)
     public ResponseDto<ReportRequestResponseDto> getReportRequest(Long reportId, User user) {
         Requests request = getRequest(reportId);
-        checkReportRequest(request, user);
+        checkReportRequest(request);
+        checkPermission(request, user);
         return ResponseDto.success(ReportRequestResponseDto.of(request, user.getRole()));
     }
 
-    private void checkReportRequest(Requests request, User user) {
-        if (user.getRole().equals(UserRoleEnum.ADMIN) || request.getUser().getId().equals(user.getId())) {
-            return;
+    private void checkReportRequest(Requests request) {
+        if (!request.getRequestType().equals(RequestType.REPORT)) {
+            throw new CustomException(ErrorCode.NotAllowedMethod);
         }
-        throw new CustomException(ErrorCode.NoPermission);
+    }
+
+    private void checkPermission(Requests request, User user) {
+        if (!user.getRole().equals(UserRoleEnum.ADMIN) && !request.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.NoPermission);
+        }
     }
 
     private Requests getRequest(Long reportId) {
@@ -41,9 +48,11 @@ public class ReportRequestService {
     @Transactional
     public ResponseDto<String> processingReportRequest(ReportProcessRequestDto reportProcessRequestDto) {
         Requests request = getRequest(reportProcessRequestDto.getRequestId());
+        checkReportRequest(request);
         AcceptResult acceptResult = AcceptResult.valueOf(reportProcessRequestDto.getAcceptResult());
-        checkNullComment(acceptResult, reportProcessRequestDto.getComment());
-        request.processingRequest(acceptResult);
+        String comment = reportProcessRequestDto.getComment();
+        checkNullComment(acceptResult, comment);
+        request.processingRequest(acceptResult, comment);
         String message = acceptResult.equals(AcceptResult.ACCEPT) ? "승인 처리 완료." : "승인 거부 완료.";
         return ResponseDto.success(message);
     }

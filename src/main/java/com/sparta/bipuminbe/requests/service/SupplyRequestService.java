@@ -33,7 +33,7 @@ public class SupplyRequestService {
     @Transactional
     public ResponseDto<String> processingSupplyRequest(Long requestId, AcceptResult acceptResult, Long supplyId) {
         Requests request = getRequest(requestId);
-        request.processingRequest(acceptResult);
+        request.processingRequest(acceptResult, "");
         if (acceptResult.equals(AcceptResult.DECLINE)) {
             return ResponseDto.success("승인 거부 완료.");
         }
