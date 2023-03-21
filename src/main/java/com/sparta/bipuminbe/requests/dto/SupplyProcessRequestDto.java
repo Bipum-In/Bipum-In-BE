@@ -5,10 +5,11 @@ import lombok.Getter;
 import javax.validation.constraints.NotNull;
 
 @Getter
-public class ReportProcessRequestDto {
+public class SupplyProcessRequestDto {
     @NotNull
     private Long requestId;
     @NotNull
     private String acceptResult;
+    private Long supplyId;
     private String comment;
 }

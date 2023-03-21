@@ -1,6 +1,8 @@
 package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
+import com.sparta.bipuminbe.common.exception.CustomException;
+import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.supply.dto.SupplyRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +16,7 @@ import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Supply extends TimeStamped{
+public class Supply extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long supplyId;
@@ -59,8 +61,15 @@ public class Supply extends TimeStamped{
     }
 
     public void allocateSupply(User user) {
+        checkSupplyStatus();
         this.user = user;
         this.status = SupplyStatusEnum.USING;
+    }
+
+    private void checkSupplyStatus() {
+        if (!this.status.equals(STOCK)) {
+            throw new CustomException(ErrorCode.NotStockSupply);
+        }
     }
 
     public void repairSupply() {

@@ -16,9 +16,10 @@ public enum ErrorCode {
     NotFoundUsers(HttpStatus.NOT_FOUND, "해당 사용자가 존재하지 않습니다."),
     NotFoundRequest(HttpStatus.NOT_FOUND, "존재하지 않는 요청입니다."),
     NotAllowedMethod(HttpStatus.METHOD_NOT_ALLOWED, "잘못된 요청입니다."),
-    NoPermission(HttpStatus.BAD_REQUEST, "해당 작업에 대한 권한이 없습니다."),
+    NoPermission(HttpStatus.BAD_REQUEST, "해당 요청에 대한 권한이 없습니다."),
     NotFoundSupply(HttpStatus.NOT_FOUND, "해당 비품이 존재하지 않습니다."),
     NullComment(HttpStatus.BAD_REQUEST, "거절 사유를 작성해 주세요."),
+    NotStockSupply(HttpStatus.BAD_REQUEST, "사용 중인 비품입니다."),
 
     UnAuthorized(HttpStatus.UNAUTHORIZED, "로그인을 해주세요."),
     NotFoundUser(HttpStatus.BAD_REQUEST, "아이디가 존재하지 않습니다."),
