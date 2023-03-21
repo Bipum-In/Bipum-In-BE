@@ -24,6 +24,8 @@ public class Requests extends TimeStamped {
 
     private String image;
 
+    private String comment;
+
     @Enumerated(EnumType.STRING)
     private AcceptResult acceptResult;
 
