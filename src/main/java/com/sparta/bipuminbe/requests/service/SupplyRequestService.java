@@ -13,6 +13,7 @@ import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
+import com.sparta.bipuminbe.requests.dto.SupplyProcessResponseDto;
 import com.sparta.bipuminbe.requests.dto.SupplyRequestResponseDto;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -32,15 +33,40 @@ public class SupplyRequestService {
     @Transactional(readOnly = true)
     public ResponseDto<SupplyRequestResponseDto> getSupplyRequest(Long requestId, User user) {
         Requests request = getRequest(requestId);
-        checkSupplyRequest(request, user);
+        checkSupplyRequest(request);
+        checkPermission(request, user);
         return ResponseDto.success(SupplyRequestResponseDto.of(request, user.getRole()));
     }
 
+    // 요청 유형이 맞는지 확인.
+    private void checkSupplyRequest(Requests request) {
+        if (!request.getRequestType().equals(RequestType.SUPPLY)) {
+            throw new CustomException(ErrorCode.NotAllowedMethod);
+        }
+    }
+
+    // 해당 요청을 볼 권한 확인.
+    private void checkPermission(Requests request, User user) {
+        if (!user.getRole().equals(UserRoleEnum.ADMIN) && !request.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.NoPermission);
+        }
+    }
+
+    private Requests getRequest(Long requestId) {
+        return requestsRepository.findById(requestId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundRequest));
+    }
+
     @Transactional
-    public ResponseDto<String> processingSupplyRequest(Long requestId, AcceptResult acceptResult, Long supplyId) {
-        Requests request = getRequest(requestId);
-        request.processingRequest(acceptResult, "");
+    public ResponseDto<String> processingSupplyRequest(SupplyProcessResponseDto supplyProcessResponseDto) {
+        Requests request = getRequest(supplyProcessResponseDto.getRequestId());
+        checkSupplyRequest(request);
+        AcceptResult acceptResult = AcceptResult.valueOf(supplyProcessResponseDto.getAcceptResult());
+        checkAcceptResult(acceptResult);
+        String comment = supplyProcessResponseDto.getComment();
+        request.processingRequest(acceptResult, comment);
         if (acceptResult.equals(AcceptResult.DECLINE)) {
+            checkNullComment();
             return ResponseDto.success("승인 거부 완료.");
         }
         if (supplyId == null) {
@@ -51,19 +77,11 @@ public class SupplyRequestService {
         return ResponseDto.success("승인 처리 완료.");
     }
 
-    private void checkSupplyRequest(Requests request, User user) {
-        if (!request.getRequestType().equals(RequestType.SUPPLY)) {
+    // 폐기는 수리 요청에만 존재해야 한다.
+    private void checkAcceptResult(AcceptResult acceptResult) {
+        if (acceptResult.equals(AcceptResult.DISPOSE)) {
             throw new CustomException(ErrorCode.NotAllowedMethod);
         }
-
-        if (!request.getUser().getId().equals(user.getId()) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
-            throw new CustomException(ErrorCode.NoPermission);
-        }
-    }
-
-    private Requests getRequest(Long requestId) {
-        return requestsRepository.findById(requestId).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundRequest));
     }
 
     private Supply getSupply(Long supplyId) {
@@ -77,11 +95,11 @@ public class SupplyRequestService {
 
         requestsRepository.save(Requests
                 .builder()
-                        .content(requestsRequestDto.getContent())
-                        .requestType(requestsRequestDto.getRequestType())
-                        .requestStatus(RequestStatus.UNPROCESSED)
-                        .category(category)
-                        .user(user)
+                .content(requestsRequestDto.getContent())
+                .requestType(requestsRequestDto.getRequestType())
+                .requestStatus(RequestStatus.UNPROCESSED)
+                .category(category)
+                .user(user)
                 .build());
 
         return ResponseDto.success("비품 요청 완료");
