@@ -31,15 +31,20 @@ public class PartnersService {
 
     @Transactional
     public ResponseDto<String> createPartners(PartnersDto partnersDto) {
-        checkPartners(partnersDto.getPartnersName());
+        if (checkPartners(partnersDto.getPartnersName())) {
+            throw new CustomException(ErrorCode.DuplicatedPartners);
+        }
         partnersRepository.save(Partners.builder().partnersDto(partnersDto).build());
         return ResponseDto.success("협력 업체 등록 완료.");
     }
 
     @Transactional
     public ResponseDto<String> updatePartners(Long partnersId, PartnersDto partnersDto) {
-        checkPartners(partnersDto.getPartnersName());
-        getPartners(partnersId).update(partnersDto);
+        Partners partners = getPartners(partnersId);
+        if (!partners.getPartnersName().equals(partnersDto.getPartnersName()) && checkPartners(partnersDto.getPartnersName())) {
+            throw new CustomException(ErrorCode.DuplicatedPartners);
+        }
+        partners.update(partnersDto);
         return ResponseDto.success("협력 업체 정보 수정 완료.");
     }
 
@@ -54,9 +59,7 @@ public class PartnersService {
                 () -> new CustomException(ErrorCode.NotFoundPartners));
     }
 
-    private void checkPartners(String partnersName) {
-        if(partnersRepository.existsByPartnersName(partnersName)){
-            throw new CustomException(ErrorCode.DuplicatedPartners);
-        }
+    private Boolean checkPartners(String partnersName) {
+        return partnersRepository.existsByPartnersName(partnersName);
     }
 }

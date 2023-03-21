@@ -5,7 +5,7 @@ import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.common.sse.service.NotificationService;
-import com.sparta.bipuminbe.requests.dto.RepairRequestResponseDto;
+import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
 import com.sparta.bipuminbe.requests.dto.ReturnRequestResponseDto;
 import com.sparta.bipuminbe.requests.service.ReturnRequestService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
@@ -42,5 +44,12 @@ public class ReturnRequestController {
 //        notificationService.send(requestId, accep, uri);
 
         return returnRequestService.processingReturnRequest(requestId, AcceptResult.valueOf(acceptResult));
+    }
+
+    @PostMapping("/requests/return")
+    @Operation(summary = "유저의 반납 요청", description = "필요 값 = supplyId, requestType, content, multipartFile(이미지)")
+    public ResponseDto<String> supplyRequest(@RequestBody RequestsRequestDto requestsRequestDto,
+                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        return returnRequestService.returnRequest(requestsRequestDto, userDetails.getUser());
     }
 }

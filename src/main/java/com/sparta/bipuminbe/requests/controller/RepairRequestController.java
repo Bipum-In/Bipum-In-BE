@@ -6,6 +6,7 @@ import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.common.sse.service.NotificationService;
 import com.sparta.bipuminbe.requests.dto.RepairRequestResponseDto;
+import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
 import com.sparta.bipuminbe.requests.service.RepairRequestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +33,7 @@ public class RepairRequestController {
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PutMapping("/requests/repair/{requestId}")
+    @PutMapping("/admin/requests/repair")
     @Operation(summary = "수리 요청 승인/거절", description = "acceptResult 승인/거부/폐기 ACCEPT/DECLINE/DISPOSE, 관리자 권한 필요. " +
             "처리 전 요청 -> 처리 중 / 처리 중 -> 처리 완료. " +
             "생각해 봤는데, 처리 중 상태에서는 거절 버튼 없애 줄 수 있나요? " +
@@ -44,5 +47,12 @@ public class RepairRequestController {
 //        notificationService.send(requestId, isAccepted, uri);
 
         return repairRequestService.processingRepairRequest(requestId, AcceptResult.valueOf(acceptResult));
+    }
+
+    @PostMapping("/requests/repair")
+    @Operation(summary = "유저의 수리 요청", description = "필요 값 = supplyId, requestType, content, multipartFile(이미지)")
+    public ResponseDto<String> supplyRequest(@RequestBody RequestsRequestDto requestsRequestDto,
+                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        return repairRequestService.repairRequest(requestsRequestDto, userDetails.getUser());
     }
 }
