@@ -13,7 +13,7 @@ import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
-import com.sparta.bipuminbe.requests.dto.SupplyProcessResponseDto;
+import com.sparta.bipuminbe.requests.dto.SupplyProcessRequestDto;
 import com.sparta.bipuminbe.requests.dto.SupplyRequestResponseDto;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -58,23 +58,39 @@ public class SupplyRequestService {
     }
 
     @Transactional
-    public ResponseDto<String> processingSupplyRequest(SupplyProcessResponseDto supplyProcessResponseDto) {
-        Requests request = getRequest(supplyProcessResponseDto.getRequestId());
+    public ResponseDto<String> processingSupplyRequest(SupplyProcessRequestDto supplyProcessRequestDto) {
+        Requests request = getRequest(supplyProcessRequestDto.getRequestId());
         checkSupplyRequest(request);
-        AcceptResult acceptResult = AcceptResult.valueOf(supplyProcessResponseDto.getAcceptResult());
+
+        AcceptResult acceptResult = AcceptResult.valueOf(supplyProcessRequestDto.getAcceptResult());
         checkAcceptResult(acceptResult);
-        String comment = supplyProcessResponseDto.getComment();
+
+        String comment = supplyProcessRequestDto.getComment();
         request.processingRequest(acceptResult, comment);
+
         if (acceptResult.equals(AcceptResult.DECLINE)) {
-            checkNullComment();
+            checkNullComment(comment);
             return ResponseDto.success("승인 거부 완료.");
         }
+
+        checkNullSupplyId(supplyProcessRequestDto.getSupplyId());
+        Supply supply = getSupply(supplyProcessRequestDto.getSupplyId());
+        supply.allocateSupply(request.getUser());
+        return ResponseDto.success("승인 처리 완료.");
+    }
+
+    // 비품요청의 승인에는 비품이 필요하다.
+    private void checkNullSupplyId(Long supplyId) {
         if (supplyId == null) {
             throw new CustomException(ErrorCode.NotAllowedMethod);
         }
-        Supply supply = getSupply(supplyId);
-        supply.allocateSupply(request.getUser());
-        return ResponseDto.success("승인 처리 완료.");
+    }
+
+    // 거절시 거절 사유 작성은 필수다.
+    private void checkNullComment(String comment) {
+        if (comment == null || comment.equals("")) {
+            throw new CustomException(ErrorCode.NullComment);
+        }
     }
 
     // 폐기는 수리 요청에만 존재해야 한다.

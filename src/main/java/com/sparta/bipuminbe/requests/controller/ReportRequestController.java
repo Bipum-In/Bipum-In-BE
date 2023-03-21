@@ -13,6 +13,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController
@@ -30,7 +32,7 @@ public class ReportRequestController {
     @PutMapping("/admin/requests/report")
     @Operation(summary = "보고서 결재 승인/거부", description = "acceptResult 승인/거절 ACCEPT/DECLINE, " +
             "거절시 거절 사유(comment) 작성 필수")
-    public ResponseDto<String> processingReportRequest(@RequestBody ReportProcessRequestDto reportProcessRequestDto) {
+    public ResponseDto<String> processingReportRequest(@RequestBody @Valid ReportProcessRequestDto reportProcessRequestDto) {
         return reportRequestService.processingReportRequest(reportProcessRequestDto);
     }
 
