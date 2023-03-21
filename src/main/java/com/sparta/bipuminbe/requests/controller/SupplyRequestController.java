@@ -5,15 +5,16 @@ import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.common.sse.service.NotificationService;
+import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
 import com.sparta.bipuminbe.requests.dto.SupplyRequestResponseDto;
 import com.sparta.bipuminbe.requests.service.SupplyRequestService;
-import com.sparta.bipuminbe.supply.service.SupplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api")
@@ -44,5 +45,12 @@ public class SupplyRequestController {
 //        notificationService.send(requestId, isAccepted, uri);
 
         return supplyRequestService.processingSupplyRequest(requestId, AcceptResult.valueOf(acceptResult), supplyId);
+    }
+
+    @PostMapping("/requests/supply")
+    @Operation(summary = "비품 요청", description = "유저 >> 관리자에게 비품 요청")
+    public ResponseDto<String> supplyRequest(@RequestBody RequestsRequestDto requestsRequestDto,
+                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return supplyRequestService.supplyRequest(requestsRequestDto, userDetails.getUser());
     }
 }
