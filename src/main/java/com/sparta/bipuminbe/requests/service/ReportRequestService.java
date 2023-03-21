@@ -52,25 +52,8 @@ public class ReportRequestService {
         Requests request = getRequest(reportProcessRequestDto.getRequestId());
         checkReportRequest(request);
         AcceptResult acceptResult = AcceptResult.valueOf(reportProcessRequestDto.getAcceptResult());
-        checkAcceptResult(acceptResult);
-        String comment = reportProcessRequestDto.getComment();
-        checkNullComment(acceptResult, comment);
-        request.processingRequest(acceptResult, comment);
+        request.processingRequest(acceptResult, reportProcessRequestDto.getComment());
         String message = acceptResult.equals(AcceptResult.ACCEPT) ? "승인 처리 완료." : "승인 거부 완료.";
         return ResponseDto.success(message);
-    }
-
-    // 폐기는 수리 요청에만 존재해야 한다.
-    private void checkAcceptResult(AcceptResult acceptResult) {
-        if (acceptResult.equals(AcceptResult.DISPOSE)) {
-            throw new CustomException(ErrorCode.NotAllowedMethod);
-        }
-    }
-
-    // 거절시 거절 사유 작성은 필수다.
-    private void checkNullComment(AcceptResult acceptResult, String comment) {
-        if (acceptResult.equals(AcceptResult.DECLINE) && (comment == null || comment.equals(""))) {
-            throw new CustomException(ErrorCode.NullComment);
-        }
     }
 }
