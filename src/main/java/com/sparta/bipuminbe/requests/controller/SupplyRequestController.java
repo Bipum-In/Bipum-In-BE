@@ -36,7 +36,7 @@ public class SupplyRequestController {
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping("/admin/requests/supply")
     @Operation(summary = "비품 요청 승인/거절", description = "acceptResult 승인/거절 ACCEPT/DECLINE, " +
-            "승인의 경우 supplyId 같이 필요. 관리자 권한 필요.")
+            "승인의 경우 supplyId 같이 필요. 거절시 거절 사유(comment) 작성 필수. 관리자 권한 필요.")
     public ResponseDto<String> processingSupplyRequest(@RequestBody @Valid SupplyProcessRequestDto supplyProcessRequestDto) {
 
         // 관리자의 요청 처리 >> 요청자에게 알림 전송.
