@@ -74,7 +74,7 @@ public class SupplyService {
 
     private Set<Long> getCategoryQuerySet(String categoryId) {
         Set<Long> categoryQuerySet = new HashSet<>();
-        if (categoryId.equals("ALL")) {
+        if (categoryId.equals("")) {
             List<Category> categoryList = categoryRepository.findAll();
             for (Category category : categoryList) {
                 categoryQuerySet.add(category.getId());

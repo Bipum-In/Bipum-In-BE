@@ -24,7 +24,6 @@ public class NotificationController {
     @GetMapping(value = "/subscribe", produces = "text/event-stream")
     public SseEmitter subscribe(@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId,
                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
-        log.info("들어옴");
         return notificationService.subscribe(userDetails.getUser().getId(), lastEventId);
     }
 }

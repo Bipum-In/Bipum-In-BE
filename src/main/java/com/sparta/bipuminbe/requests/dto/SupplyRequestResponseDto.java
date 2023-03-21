@@ -23,14 +23,14 @@ public class SupplyRequestResponseDto {
     private String requestStatus;
     private LocalDateTime createdAt;
 
-    public static SupplyRequestResponseDto of(Requests requests) {
+    public static SupplyRequestResponseDto of(Requests requests, UserRoleEnum role) {
         User user = requests.getUser();
         Category category = requests.getCategory();
 
         return SupplyRequestResponseDto.builder()
                 .requestType(requests.getRequestType().getKorean())
                 .requestId(requests.getRequestId())
-                .isAdmin(user.getRole().equals(UserRoleEnum.ADMIN))
+                .isAdmin(role.equals(UserRoleEnum.ADMIN))
                 .deptName(user.getDepartment().getDeptName())
                 .empName(user.getEmpName())
                 .categoryId(category.getId())
