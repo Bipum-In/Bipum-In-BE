@@ -1,10 +1,12 @@
 package com.sparta.bipuminbe.dashboard.service;
 
+import com.sparta.bipuminbe.category.dto.CategoryDto;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.dashboard.dto.*;
@@ -22,15 +24,14 @@ import java.util.*;
 public class DashboardService {
     private final CategoryRepository categoryRepository;
     private final SupplyRepository supplyRepository;
-
     private final RequestsRepository requestsRepository;
 
     // 관리자 대시보드
     @Transactional(readOnly = true)
-    public ResponseDto<AdminMainResponseDto> getAdminMain() {
-
-        // 비품 카테고리별 현황
-        List<Category> categoryList = categoryRepository.findAll();
+    public ResponseDto<AdminMainResponseDto> getAdminMain(String largeCategory) {
+        Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
+        List<Category> categoryList = categoryRepository.findByLargeCategoryIn(categoryQuery);
+        List<CategoryDto> categoryDtoList = new ArrayList<>();
 
         List<SupplyCountDto> responseDtos = new ArrayList();
         // 카테고리별 총 수량, 사용중, 수리중, 재고량 계산
@@ -50,14 +51,17 @@ public class DashboardService {
         countMap.put("supplyRequests", requestsRepository.countSupply());
         countMap.put("returnRequests", requestsRepository.countReturn());
         countMap.put("repairRequests", requestsRepository.countRepair());
-        countMap.put("inRepairRequests", requestsRepository.countInRepair());
+        countMap.put("ReportRequests", requestsRepository.countReport());
+        countMap.put("UnProcessedRequests",
+                requestsRepository.countSupply() + requestsRepository.countReturn() +
+                requestsRepository.countRepair() + requestsRepository.countReport());
 
         // 요청 종류별 최신 수정일자
         Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
         modifiedAtMap.put("supplyModifiedAt", requestsRepository.supplyModifiedAt());
         modifiedAtMap.put("returnModifiedAt", requestsRepository.returnModifiedAt());
         modifiedAtMap.put("repairModifiedAt", requestsRepository.repairModifiedAt());
-        modifiedAtMap.put("inRepairModifiedAt", requestsRepository.inRepairModifiedAt());
+        modifiedAtMap.put("ReportModifiedAt", requestsRepository.reportModifiedAt());
 
         RequestsCountDto requestsCountDto = RequestsCountDto.of
                 (countMap, modifiedAtMap);
@@ -83,5 +87,15 @@ public class DashboardService {
         userCountMap.put("userCountSupply", requestsRepository.userCountInRepair(user.getId()));
 
         return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, userCountMap));
+    }
+
+    private Set<LargeCategory> getCategoryQuery(String largeCategory) {
+        Set<LargeCategory> categoryQuery = new HashSet<>();
+        if (largeCategory.equals("ALL")) {
+            categoryQuery.addAll(List.of(LargeCategory.values()));
+        } else {
+            categoryQuery.add(LargeCategory.valueOf(largeCategory));
+        }
+        return categoryQuery;
     }
 }
