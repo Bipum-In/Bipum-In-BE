@@ -26,6 +26,8 @@ public class Requests extends TimeStamped {
 
     private String image;
 
+    private String comment;
+
     @Enumerated(EnumType.STRING)
     private AcceptResult acceptResult;
 
@@ -45,14 +47,16 @@ public class Requests extends TimeStamped {
     private Category category;
 
 
-    public void processingRequest(AcceptResult acceptResult) {
+    public void processingRequest(AcceptResult acceptResult, String comment) {
         // 처리중 상태 처리.
-        if(this.requestStatus.equals(RequestStatus.UNPROCESSED) && this.acceptResult.equals(AcceptResult.ACCEPT)){
+        if (this.requestStatus.equals(RequestStatus.UNPROCESSED) && this.acceptResult.equals(AcceptResult.ACCEPT)) {
             this.requestStatus = RequestStatus.PROCESSING;
-        }else{
+        } else {
             this.acceptResult = acceptResult;
             this.requestStatus = RequestStatus.PROCESSED;
         }
+
+        this.comment = comment;
     }
 
     @Builder
