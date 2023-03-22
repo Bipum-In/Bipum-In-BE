@@ -32,19 +32,19 @@ public class ReturnRequestController {
         return returnRequestService.getReturnRequest(requestId, userDetails.getUser());
     }
 
-    @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PutMapping("/requests/return/{requestId}")
-    @Operation(summary = "반납 요청 승인/거절", description = "acceptResult 승인/거부/폐기 ACCEPT/DECLINE/DISPOSE, 관리자 권한 필요. ")
-    public ResponseDto<String> processingReturnRequest(@PathVariable Long requestId,
-                                                       @RequestParam String acceptResult) {
-
-        // 관리자의 요청 처리 >> 요청자에게 알림 전송.
-        // uri는 해당 알림을 클릭하면 이동할 상세페이지 uri이다.
-//        String uri = "/api/requests/return/";
-//        notificationService.send(requestId, accep, uri);
-
-        return returnRequestService.processingReturnRequest(requestId, AcceptResult.valueOf(acceptResult));
-    }
+//    @Secured(value = UserRoleEnum.Authority.ADMIN)
+//    @PutMapping("/admin/requests/return")
+//    @Operation(summary = "반납 요청 승인/거절", description = "acceptResult 승인/거부/폐기 ACCEPT/DECLINE/DISPOSE, 관리자 권한 필요. ")
+//    public ResponseDto<String> processingReturnRequest(@PathVariable Long requestId,
+//                                                       @RequestParam String acceptResult) {
+//
+//        // 관리자의 요청 처리 >> 요청자에게 알림 전송.
+//        // uri는 해당 알림을 클릭하면 이동할 상세페이지 uri이다.
+////        String uri = "/api/requests/return/";
+////        notificationService.send(requestId, accep, uri);
+//
+//        return returnRequestService.processingReturnRequest(requestId, AcceptResult.valueOf(acceptResult));
+//    }
 
     @PostMapping("/requests/return")
     @Operation(summary = "유저의 반납 요청", description = "필요 값 = supplyId, requestType, content, multipartFile(이미지)")
