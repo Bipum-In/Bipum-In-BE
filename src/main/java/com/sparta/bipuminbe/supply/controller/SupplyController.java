@@ -83,4 +83,10 @@ public class SupplyController {
         return supplyService.getSupplyUser(userDetails.getUser());
     }
 
+    // 비품 요청 상세 페이지 SelectBox.
+    @GetMapping("/supply/stock/{categoryId}")
+    @Operation(summary = "재고 비품 조회", description = "비품 요청 상세 페이지. SelectBox용.")
+    public ResponseDto<List<StockSupplyResponseDto>> getStockSupply(@PathVariable Long categoryId) {
+        return supplyService.getStockSupply(categoryId);
+    }
 }
