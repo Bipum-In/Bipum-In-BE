@@ -22,18 +22,18 @@ public class ReportRequestController {
     private final ReportRequestService reportRequestService;
 
     @GetMapping("/requests/report/{reportId}")
-    @Operation(summary = "보고서 결재 상세 페이지", description = "isAdmin 필드에 따라 버튼 바꿔주면 될 것 같습니다.")
+    @Operation(summary = "보고서 결재 상세 페이지", description = "isAdmin/requestStatus 필드에 따라 버튼 바꿔주면 될 것 같습니다.")
     public ResponseDto<ReportRequestResponseDto> getReportRequest(@PathVariable Long reportId,
                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return reportRequestService.getReportRequest(reportId, userDetails.getUser());
     }
 
-    @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PutMapping("/admin/requests/report")
-    @Operation(summary = "보고서 결재 승인/거부", description = "acceptResult 승인/거절 ACCEPT/DECLINE, " +
-            "거절시 거절 사유(comment) 작성 필수. 관리자 권한 필요.")
-    public ResponseDto<String> processingReportRequest(@RequestBody @Valid ReportProcessRequestDto reportProcessRequestDto) {
-        return reportRequestService.processingReportRequest(reportProcessRequestDto);
-    }
+//    @Secured(value = UserRoleEnum.Authority.ADMIN)
+//    @PutMapping("/admin/requests/report")
+//    @Operation(summary = "보고서 결재 승인/거부", description = "acceptResult 승인/거절 ACCEPT/DECLINE. " +
+//            "거절시 거절 사유(comment) 작성 필수. 관리자 권한 필요.")
+//    public ResponseDto<String> processingReportRequest(@RequestBody @Valid ReportProcessRequestDto reportProcessRequestDto) {
+//        return reportRequestService.processingReportRequest(reportProcessRequestDto);
+//    }
 
 }

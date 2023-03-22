@@ -3,8 +3,6 @@ package com.sparta.bipuminbe.common.entity;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
-import com.sparta.bipuminbe.common.exception.CustomException;
-import com.sparta.bipuminbe.common.exception.ErrorCode;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -61,9 +59,6 @@ public class Requests extends TimeStamped {
     }
 
     public void processingRequest(AcceptResult acceptResult, String comment) {
-        checkAcceptResult(acceptResult);
-        checkNullComment(acceptResult, comment);
-
         // 처리중 상태 처리.
         if (this.requestType.equals(RequestType.REPAIR) && acceptResult.equals(AcceptResult.ACCEPT)
                 && this.requestStatus.equals(RequestStatus.UNPROCESSED)) {
@@ -74,19 +69,5 @@ public class Requests extends TimeStamped {
         this.acceptResult = acceptResult;
         this.requestStatus = RequestStatus.PROCESSED;
         this.comment = comment;
-    }
-
-    // 거절시 거절 사유 작성은 필수다.
-    private void checkNullComment(AcceptResult acceptResult, String comment) {
-        if (acceptResult.equals(AcceptResult.DECLINE) && (comment == null || comment.equals(""))) {
-            throw new CustomException(ErrorCode.NullComment);
-        }
-    }
-
-    // 폐기는 수리 요청에만 존재해야 한다.
-    private void checkAcceptResult(AcceptResult acceptResult) {
-        if (acceptResult.equals(AcceptResult.DISPOSE) && !this.requestType.equals(RequestType.REPAIR)) {
-            throw new CustomException(ErrorCode.NotAllowedMethod);
-        }
     }
 }
