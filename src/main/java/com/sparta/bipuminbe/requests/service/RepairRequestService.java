@@ -11,6 +11,7 @@ import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
+import com.sparta.bipuminbe.requests.dto.RepairProcessRequestDto;
 import com.sparta.bipuminbe.requests.dto.RepairRequestResponseDto;
 
 import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.Valid;
 import java.io.IOException;
 
 @Service
@@ -32,18 +34,40 @@ public class RepairRequestService {
     @Transactional(readOnly = true)
     public ResponseDto<RepairRequestResponseDto> getRepairRequest(Long requestId, User user) {
         Requests request = getRequest(requestId);
-        checkRepairRequest(request, user);
+        checkRepairRequest(request);
+        checkPermission(request, user);
         return ResponseDto.success(RepairRequestResponseDto.of(request, user.getRole()));
     }
 
+    private void checkRepairRequest(Requests request) {
+        if (!request.getRequestType().equals(RequestType.REPAIR)) {
+            throw new CustomException(ErrorCode.NotAllowedMethod);
+        }
+    }
+
+    private void checkPermission(Requests request, User user) {
+        if (!request.getUser().getId().equals(user.getId()) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
+            throw new CustomException(ErrorCode.NoPermission);
+        }
+    }
+
+    private Requests getRequest(Long requestId) {
+        return requestsRepository.findById(requestId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundRequest)
+        );
+    }
+
     @Transactional
-    public ResponseDto<String> processingRepairRequest(Long requestId, AcceptResult acceptResult) {
-        Requests request = getRequest(requestId);
-        request.processingRequest(acceptResult, "");
+    public ResponseDto<String> processingRepairRequest(RepairProcessRequestDto repairProcessRequestDto) {
+        Requests request = getRequest(repairProcessRequestDto.getRequestId());
+        checkRepairRequest(request);
+        AcceptResult acceptResult = AcceptResult.valueOf(repairProcessRequestDto.getAcceptResult());
+        request.processingRequest(acceptResult, repairProcessRequestDto.getComment());
+
+        Supply supply = request.getSupply();
         if (acceptResult.equals(AcceptResult.DECLINE)) {
             return ResponseDto.success("승인 거부 완료.");
         }
-        Supply supply = request.getSupply();
         if (acceptResult.equals(AcceptResult.DISPOSE)) {
             supplyRepository.delete(supply);
             return ResponseDto.success("비품 폐기 처리 완료.");
@@ -51,12 +75,6 @@ public class RepairRequestService {
         supply.repairSupply();
         return ResponseDto.success("승인 처리 완료.");
     }
-
-//    void readRequest(Requests request) {
-//        if (!request.getIsRead()) {
-//            request.read();
-//        }
-//    }
 
     public ResponseDto<String> repairRequest(RequestsRequestDto requestsRequestDto, User user) throws IOException {
         Supply supply = supplyRepository.findById(requestsRequestDto.getSupplyId())
@@ -74,21 +92,5 @@ public class RepairRequestService {
                 .build());
 
         return ResponseDto.success("수리 요청 성공");
-    }
-
-    private void checkRepairRequest(Requests request, User user) {
-        if (!request.getRequestType().equals(RequestType.REPAIR)) {
-            throw new CustomException(ErrorCode.NotAllowedMethod);
-        }
-
-        if (!request.getUser().getId().equals(user.getId()) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
-            throw new CustomException(ErrorCode.NoPermission);
-        }
-    }
-
-    private Requests getRequest(Long requestId) {
-        return requestsRepository.findById(requestId).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundRequest)
-        );
     }
 }
