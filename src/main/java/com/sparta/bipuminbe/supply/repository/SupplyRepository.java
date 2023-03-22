@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
-    List<Supply> findByCategory_Id(Long id);
+    List<Supply> findByCategory_IdAndStatus(Long id, SupplyStatusEnum status);
 
     List<Supply> findByUser(User user);
 

@@ -89,4 +89,11 @@ public class SupplyController {
     public ResponseDto<List<StockSupplyResponseDto>> getStockSupply(@PathVariable Long categoryId) {
         return supplyService.getStockSupply(categoryId);
     }
+
+    // 비품 이미지 search
+    @GetMapping("/supply/search")
+    @Operation(summary = "naver Api를 통한 이미지 서치")
+    public ResponseDto<ImageResponseDto> getImageByNaver(@RequestParam String modelName) {
+        return supplyService.getImageByNaver(modelName);
+    }
 }
