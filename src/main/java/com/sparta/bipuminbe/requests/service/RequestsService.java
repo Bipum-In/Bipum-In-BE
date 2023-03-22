@@ -3,13 +3,16 @@ package com.sparta.bipuminbe.requests.service;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
+import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
-import com.sparta.bipuminbe.requests.dto.RequestsProcessDto;
-import com.sparta.bipuminbe.requests.dto.RequestsResponseDto;
+import com.sparta.bipuminbe.requests.dto.RequestsDetailsResponseDto;
+import com.sparta.bipuminbe.requests.dto.RequestsProcessRequestDto;
+import com.sparta.bipuminbe.requests.dto.RequestsPageResponseDto;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +32,14 @@ public class RequestsService {
     private final SupplyRepository supplyRepository;
 
     @Transactional(readOnly = true)
-    public ResponseDto<Page<RequestsResponseDto>> getRequestsPage(String keyword, String type, String status, int page, int size) {
+    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, String type, String status, int page, int size) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page, size);
         Page<Requests> requestsList = requestsRepository.
                 getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, pageable);
 
-        List<RequestsResponseDto> requestsDtoList = convertToDto(requestsList.getContent());
+        List<RequestsPageResponseDto> requestsDtoList = convertToDto(requestsList.getContent());
 
         return ResponseDto.success(new PageImpl<>(requestsDtoList, requestsList.getPageable(), requestsList.getTotalElements()));
     }
@@ -68,24 +71,43 @@ public class RequestsService {
         return PageRequest.of(page - 1, size, sort);
     }
 
-    private List<RequestsResponseDto> convertToDto(List<Requests> requestsList) {
-        List<RequestsResponseDto> requestsDtoList = new ArrayList<>();
+    private List<RequestsPageResponseDto> convertToDto(List<Requests> requestsList) {
+        List<RequestsPageResponseDto> requestsDtoList = new ArrayList<>();
         for (Requests requests : requestsList) {
-            requestsDtoList.add(RequestsResponseDto.of(requests));
+            requestsDtoList.add(RequestsPageResponseDto.of(requests));
         }
         return requestsDtoList;
     }
 
+    @Transactional(readOnly = true)
+    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(Long requestId, User user) {
+        Requests request = getRequest(requestId);
+        checkPermission(request, user);
+        return ResponseDto.success(RequestsDetailsResponseDto.of(request, user.getRole()));
+    }
+
+    // 해당 요청을 볼 권한 확인.
+    private void checkPermission(Requests request, User user) {
+        if (!user.getRole().equals(UserRoleEnum.ADMIN) && !request.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.NoPermission);
+        }
+    }
+
+    private Requests getRequest(Long requestId) {
+        return requestsRepository.findById(requestId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundRequest));
+    }
+
     @Transactional
-    public ResponseDto<String> processingRequest(RequestsProcessDto requestsProcessDto) {
-        Requests request = getRequest(requestsProcessDto);
-        AcceptResult acceptResult = AcceptResult.valueOf(requestsProcessDto.getAcceptResult());
+    public ResponseDto<String> processingRequests(RequestsProcessRequestDto requestsProcessRequestDto) {
+        Requests request = getRequest(requestsProcessRequestDto.getRequestId());
+        AcceptResult acceptResult = AcceptResult.valueOf(requestsProcessRequestDto.getAcceptResult());
         checkAcceptResult(acceptResult, request.getRequestType());
-        request.processingRequest(acceptResult, requestsProcessDto.getComment());
+        request.processingRequest(acceptResult, requestsProcessRequestDto.getComment());
 
         String message = request.getRequestType().getKorean();
         if (acceptResult.equals(AcceptResult.DECLINE)) {
-            checkNullComment(requestsProcessDto.getComment());
+            checkNullComment(requestsProcessRequestDto.getComment());
             return ResponseDto.success(message + "거절 완료.");
         }
 
@@ -97,8 +119,8 @@ public class RequestsService {
         }
 
         if (request.getRequestType().equals(RequestType.SUPPLY)) {
-            checkSupplyId(requestsProcessDto.getSupplyId());
-            supply = getSupply(requestsProcessDto.getSupplyId());
+            checkSupplyId(requestsProcessRequestDto.getSupplyId());
+            supply = getSupply(requestsProcessRequestDto.getSupplyId());
             supply.allocateSupply(request.getUser());
         } else if (request.getRequestType().equals(RequestType.REPAIR)) {
             supply.repairSupply();
@@ -133,10 +155,5 @@ public class RequestsService {
     private Supply getSupply(Long supplyId) {
         return supplyRepository.findById(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply));
-    }
-
-    private Requests getRequest(RequestsProcessDto requestsProcessDto) {
-        return requestsRepository.findById(requestsProcessDto.getRequestId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundRequest));
     }
 }
