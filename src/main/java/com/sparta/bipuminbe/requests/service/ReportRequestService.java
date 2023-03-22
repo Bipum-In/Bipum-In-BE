@@ -10,6 +10,7 @@ import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.requests.dto.ReportProcessRequestDto;
 import com.sparta.bipuminbe.requests.dto.ReportRequestResponseDto;
+import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

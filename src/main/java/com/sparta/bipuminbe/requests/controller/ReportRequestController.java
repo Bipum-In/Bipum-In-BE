@@ -5,6 +5,7 @@ import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.requests.dto.ReportProcessRequestDto;
 import com.sparta.bipuminbe.requests.dto.ReportRequestResponseDto;
+import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
 import com.sparta.bipuminbe.requests.service.ReportRequestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -33,5 +36,4 @@ public class ReportRequestController {
     public ResponseDto<String> processingReportRequest(@RequestBody ReportProcessRequestDto reportProcessRequestDto) {
         return reportRequestService.processingReportRequest(reportProcessRequestDto);
     }
-
 }

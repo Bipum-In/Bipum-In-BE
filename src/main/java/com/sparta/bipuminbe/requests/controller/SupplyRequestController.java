@@ -46,11 +46,4 @@ public class SupplyRequestController {
 
         return supplyRequestService.processingSupplyRequest(requestId, AcceptResult.valueOf(acceptResult), supplyId);
     }
-
-    @PostMapping("/requests/supply")
-    @Operation(summary = "유저의 비품 요청", description = "필요 값 = categoryId, requestType, content")
-    public ResponseDto<String> supplyRequest(@RequestBody RequestsRequestDto requestsRequestDto,
-                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return supplyRequestService.supplyRequest(requestsRequestDto, userDetails.getUser());
-    }
 }
