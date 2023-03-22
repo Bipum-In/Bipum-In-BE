@@ -98,7 +98,7 @@ public class WebSecurityConfig {
 //        config.addAllowedOrigin("*");
         config.addAllowedOrigin("http://localhost:3000");
 //        config.addAllowedOrigin("http://localhost:3001");
-
+        config.addAllowedOrigin("http://hanghae77.s3-website.ap-northeast-2.amazonaws.com");
         config.addAllowedOrigin("http://hanghae1teamwork.s3-website.ap-northeast-2.amazonaws.com/");
 //        config.addAllowedOrigin("http://rolling-rolling.s3-website.ap-northeast-2.amazonaws.com/");
 
