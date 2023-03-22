@@ -50,7 +50,7 @@ public class SupplyService {
         Optional<Category> category = categoryRepository.findByCategoryName(supplyRequestDto.getCategoryName());
 
         Category newCategory = null;
-        if(category.isPresent()) {
+        if (category.isPresent()) {
             newCategory = category.get();
         } else {
             newCategory = Category.builder().largeCategory(supplyRequestDto.getLargeCategory())
@@ -201,4 +201,13 @@ public class SupplyService {
                 () -> new CustomException(ErrorCode.NotFoundUsers));
     }
 
+    @Transactional(readOnly = true)
+    public ResponseDto<List<StockSupplyResponseDto>> getStockSupply(Long categoryId) {
+        List<Supply> stockSupplyList = supplyRepository.findByCategory_Id(categoryId);
+        List<StockSupplyResponseDto> stockSupplyResponseDtoList = new ArrayList<>();
+        for (Supply supply : stockSupplyList) {
+            stockSupplyResponseDtoList.add(StockSupplyResponseDto.of(supply));
+        }
+        return ResponseDto.success(stockSupplyResponseDtoList);
+    }
 }
