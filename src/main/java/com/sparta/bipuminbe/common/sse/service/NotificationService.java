@@ -93,11 +93,7 @@ public class NotificationService {
                 .forEach(entry -> sendNotification(emitter, entry.getKey(), emitterId, entry.getValue()));
     }
 
-    //알림을 구성하고, 알림에 대한 이벤트를 발생시킴. 유저이름. 요청 카테고리. 요청 uri
-    // content는 send하는 곳에서 만들어서 전달함.
-    // ~님이 ~를 요청하셨습니다. (관리자) or ~님의 ~ 요청이 처리되었습니다. (유저)
-
-    @Async
+    @Transactional
 //    public void send(User receiver, String content, String url) {
     public void send(Long requestsId, String isAccepted, String uri) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
@@ -106,7 +102,7 @@ public class NotificationService {
 
         User receiver = request.getUser();
 
-        String content =createMessage(request, receiver, isAccepted);
+        String content = createMessage(request, receiver, isAccepted);
 
         uri = uri + requestsId;
 
@@ -147,7 +143,8 @@ public class NotificationService {
         }
         // 수리 요청 >> 폐기 처리 건
         return receiver.getEmpName() +" 님의 "
-                + request.getSupply().getModelName()
+                + request.getSupply().getModelName() + " "
+                + request.getCategory().getCategoryName()
                 + " 수리 요청 건이 폐기 승인되었습니다.";
     }
 }
