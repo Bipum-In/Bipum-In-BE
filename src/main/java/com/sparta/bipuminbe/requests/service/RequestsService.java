@@ -6,8 +6,6 @@ import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
-import com.sparta.bipuminbe.common.entity.Supply;
-import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
@@ -15,10 +13,7 @@ import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
 import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
-import com.sparta.bipuminbe.requests.dto.RequestsResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
-import com.sparta.bipuminbe.common.exception.CustomException;
-import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.requests.dto.RequestsDetailsResponseDto;
 import com.sparta.bipuminbe.requests.dto.RequestsProcessRequestDto;
 import com.sparta.bipuminbe.requests.dto.RequestsPageResponseDto;
@@ -99,7 +94,6 @@ public class RequestsService {
                 requestsRequestDto.getRequestType().getKorean() + " 완료";
         return ResponseDto.success(message);
     }
-    private final SupplyRepository supplyRepository;
 
     @Transactional(readOnly = true)
     public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, String type, String status, int page, int size) {
@@ -144,7 +138,7 @@ public class RequestsService {
     private List<RequestsPageResponseDto> convertToDto(List<Requests> requestsList) {
         List<RequestsPageResponseDto> requestsDtoList = new ArrayList<>();
         for (Requests requests : requestsList) {
-            requestsDtoList.add(RequestsResponseDto.of(requests));
+            requestsDtoList.add(RequestsPageResponseDto.of(requests));
         }
         return requestsDtoList;
     }
