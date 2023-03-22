@@ -28,20 +28,4 @@ public class NotificationController {
                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
         return notificationService.subscribe(userDetails.getUser().getId(), lastEventId);
     }
-
-//    @GetMapping("/sse")
-//    public void sse(HttpServletResponse response) {
-//        response.setContentType("text/event-stream");
-//        response.setCharacterEncoding("UTF-8");
-//        try {
-//            for (int i = 0; i < 10; i++) {
-//                String data = "data: " + i + "\n\n";
-//                response.getWriter().write(data);
-//                response.flushBuffer();
-//                Thread.sleep(1000);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 }
