@@ -36,7 +36,8 @@ dependencies {
 
 	// h2
 	runtimeOnly 'com.h2database:h2'
-
+	//json
+	implementation group: 'org.json', name: 'json', version: '20220924'
 	//Swagger
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
 	//MySql AWS Rds기준 적용
