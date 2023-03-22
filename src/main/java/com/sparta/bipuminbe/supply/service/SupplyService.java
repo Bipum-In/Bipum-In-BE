@@ -11,16 +11,24 @@ import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.repository.UserRepository;
+import io.swagger.v3.core.util.Json;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SupplyService {
     private final SupplyRepository supplyRepository;
     private final UserRepository userRepository;
@@ -28,6 +36,10 @@ public class SupplyService {
     private final RequestsRepository requestsRepository;
     private final CategoryRepository categoryRepository;
 
+    @Value("${Naver.Client.ID}")
+    private String naverClientId;
+    @Value("${Naver.Client.Secret}")
+    private String naverClientSecret;
 
     //비품 등록
     @Transactional
@@ -50,7 +62,7 @@ public class SupplyService {
         Optional<Category> category = categoryRepository.findByCategoryName(supplyRequestDto.getCategoryName());
 
         Category newCategory = null;
-        if(category.isPresent()) {
+        if (category.isPresent()) {
             newCategory = category.get();
         } else {
             newCategory = Category.builder().largeCategory(supplyRequestDto.getLargeCategory())
@@ -201,4 +213,40 @@ public class SupplyService {
                 () -> new CustomException(ErrorCode.NotFoundUsers));
     }
 
+    @Transactional(readOnly = true)
+    public ResponseDto<List<StockSupplyResponseDto>> getStockSupply(Long categoryId) {
+        List<Supply> stockSupplyList = supplyRepository.findByCategory_IdAndStatus(categoryId, SupplyStatusEnum.STOCK);
+        List<StockSupplyResponseDto> stockSupplyResponseDtoList = new ArrayList<>();
+        for (Supply supply : stockSupplyList) {
+            stockSupplyResponseDtoList.add(StockSupplyResponseDto.of(supply));
+        }
+        return ResponseDto.success(stockSupplyResponseDtoList);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<ImageResponseDto> getImageByNaver(String modelName) {
+        RestTemplate rest = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.add("X-Naver-Client-Id", naverClientId);
+        headers.add("X-Naver-Client-Secret", naverClientSecret);
+        String body = "";
+
+        HttpEntity<String> requestEntity = new HttpEntity<String>(body, headers);
+        ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
+
+        HttpStatus httpStatus = responseEntity.getStatusCode();
+        int status = httpStatus.value();
+        log.info("NAVER API Status Code : " + status);
+
+        String response = responseEntity.getBody();
+
+        return ResponseDto.success(fromJSONtoItems(response));
+    }
+
+    private ImageResponseDto fromJSONtoItems(String response) {
+        JSONObject rjson = new JSONObject(response);
+        JSONArray items = rjson.getJSONArray("items");
+        return ImageResponseDto.of(items.getJSONObject(0));
+    }
 }
