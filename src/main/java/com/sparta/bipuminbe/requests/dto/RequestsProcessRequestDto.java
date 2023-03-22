@@ -5,7 +5,7 @@ import lombok.Getter;
 import javax.validation.constraints.NotNull;
 
 @Getter
-public class RequestsProcessDto {
+public class RequestsProcessRequestDto {
     @NotNull
     private Long requestId;
     @NotNull
