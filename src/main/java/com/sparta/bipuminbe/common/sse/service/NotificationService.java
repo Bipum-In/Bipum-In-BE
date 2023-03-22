@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.common.sse.service;
 
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseDto;
@@ -18,7 +19,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -31,6 +31,7 @@ public class NotificationService {
     private final RequestsRepository requestsRepository;
 
     //시간이 포함된 아이디 생성. SseEmitter 구분을 위함
+    @Transactional
     public SseEmitter subscribe(Long userId, String lastEventId) {
         String emitterId = makeTimeIncludeId(userId);
         // lastEventId가 있을 경우, userId와 비교해서 유실된 데이터일 경우 재전송할 수 있다.
@@ -72,7 +73,8 @@ public class NotificationService {
             log.info("data" + data);
             emitter.send(SseEmitter.event()
                     .id(eventId)
-                    .data(data));
+                    .data(String.valueOf(data)));
+            log.info("send 지남");
         } catch (IOException exception) {
             log.info("예외 발생해서 emitter 삭제됨");
             emitterRepository.deleteById(emitterId);
@@ -97,16 +99,14 @@ public class NotificationService {
 
     @Async
 //    public void send(User receiver, String content, String url) {
-    public void send(Long requestsId, Boolean isAccepted, String uri) {
+    public void send(Long requestsId, String isAccepted, String uri) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest)
         );
 
         User receiver = request.getUser();
 
-        String content = isAccepted ?
-                receiver.getEmpName() + " 님의 " + request.getRequestType() + "이 수락되었습니다.":
-                receiver.getEmpName() +" 님의 " + request.getRequestType() + "이 거부되었습니다.";
+        String content =createMessage(request, receiver, isAccepted);
 
         uri = uri + requestsId;
 
@@ -130,5 +130,24 @@ public class NotificationService {
                 .url(url)
                 .isRead(false)
                 .build();
+    }
+
+    private String createMessage(Requests request, User receiver, String isAccepted){
+        // 승인 건
+        if(isAccepted.equals("ACCEPT")){
+            return receiver.getEmpName() + " 님의 "
+                    + request.getCategory().getCategoryName() + " "
+                    + request.getRequestType().getKorean() + " 이 승인되었습니다.";
+        }
+        // 거부 건
+        if(isAccepted.equals("DECLINE")){
+            return receiver.getEmpName() + " 님의 "
+                    + request.getCategory().getCategoryName() + " "
+                    + request.getRequestType().getKorean() + " 이 반려되었습니다.";
+        }
+        // 수리 요청 >> 폐기 처리 건
+        return receiver.getEmpName() +" 님의 "
+                + request.getSupply().getModelName()
+                + " 수리 요청 건이 폐기 승인되었습니다.";
     }
 }
