@@ -46,20 +46,9 @@ public class Requests extends TimeStamped {
     private Category category;
 
 
-    public void processingRequest(AcceptResult acceptResult, String comment) {
-        // 처리중 상태 처리.
-        if (this.requestStatus.equals(RequestStatus.UNPROCESSED) && acceptResult.equals(AcceptResult.ACCEPT)) {
-            this.requestStatus = RequestStatus.PROCESSING;
-        } else {
-            this.acceptResult = acceptResult;
-            this.requestStatus = RequestStatus.PROCESSED;
-            this.comment = comment;
-        }
-    }
-
     @Builder
     public Requests(String content, String image, RequestType requestType, RequestStatus requestStatus,
-                    Supply supply, User user, Category category){
+                    Supply supply, User user, Category category) {
         this.content = content;
         this.image = image;
         this.requestType = requestType;
@@ -67,5 +56,18 @@ public class Requests extends TimeStamped {
         this.supply = supply;
         this.user = user;
         this.category = supply.getCategory();
+    }
+
+    public void processingRequest(AcceptResult acceptResult, String comment) {
+        // 처리중 상태 처리.
+        if (this.requestType.equals(RequestType.REPAIR) && acceptResult.equals(AcceptResult.ACCEPT)
+                && this.requestStatus.equals(RequestStatus.UNPROCESSED)) {
+            this.requestStatus = RequestStatus.PROCESSING;
+            return;
+        }
+
+        this.acceptResult = acceptResult;
+        this.requestStatus = RequestStatus.PROCESSED;
+        this.comment = comment;
     }
 }

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class RequestsResponseDto {
+public class RequestsPageResponseDto {
     private Long requestId;
     private String requestType;
     private String empName;
@@ -22,10 +22,10 @@ public class RequestsResponseDto {
     private String status;
     private String acceptResult;
 
-    public static RequestsResponseDto of(Requests requests) {
+    public static RequestsPageResponseDto of(Requests requests) {
         User user = requests.getUser();
 
-        RequestsResponseDtoBuilder builder = RequestsResponseDto.builder()
+        RequestsPageResponseDtoBuilder builder = RequestsPageResponseDto.builder()
                 .requestId(requests.getRequestId())
                 .requestType(requests.getRequestType().getKorean())
                 .empName(user.getEmpName())

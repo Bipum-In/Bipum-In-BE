@@ -1,15 +1,12 @@
 package com.sparta.bipuminbe.supply.service;
 
-import com.sparta.bipuminbe.category.dto.CategoryDto;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
-import com.sparta.bipuminbe.requests.dto.RequestsResponseDto;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -50,11 +47,18 @@ public class SupplyService {
             );
         }
 
-        Category category = categoryRepository.findById(supplyRequestDto.getCategoryId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundCategory)
-        );
+        Optional<Category> category = categoryRepository.findByCategoryName(supplyRequestDto.getCategoryName());
 
-        Supply newSupply = new Supply(supplyRequestDto, partners, category, user);
+        Category newCategory = null;
+        if(category.isPresent()) {
+            newCategory = category.get();
+        } else {
+            newCategory = Category.builder().largeCategory(supplyRequestDto.getLargeCategory())
+                    .categoryName(supplyRequestDto.getCategoryName()).build();
+            categoryRepository.save(newCategory);
+        }
+
+        Supply newSupply = new Supply(supplyRequestDto, partners, newCategory, user);
         supplyRepository.save(newSupply);
 
         return ResponseDto.success("비품 등록 성공");

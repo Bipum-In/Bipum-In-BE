@@ -1,11 +1,13 @@
 //package com.sparta.bipuminbe.requests.dto;
 //
+//import lombok.Builder;
 //import lombok.Getter;
 //
 //import javax.validation.constraints.NotNull;
 //
 //@Getter
-//public class ReportProcessRequestDto {
+//@Builder
+//public class RepairProcessRequestDto {
 //    @NotNull
 //    private Long requestId;
 //    @NotNull
