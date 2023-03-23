@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.user.dto.LoginRequestDto;
 import com.sparta.bipuminbe.user.dto.UserResponseDto;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -46,4 +48,12 @@ public class UserController {
         return userService.getUserByDept(deptId);
     }
 
+    @Operation(summary = "카카오 연결 끊기", description = "앱과 연결된 카카오 계정 연결 끊기")
+    @PostMapping("/unlink")
+    public ResponseDto<String> unlink(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                      HttpServletRequest request) throws JsonProcessingException {
+        String bearerToken = request.getHeader("Authorization");
+
+        return userService.unlink(userDetails.getUser(), bearerToken);
+    }
 }
