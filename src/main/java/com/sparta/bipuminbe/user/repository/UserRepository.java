@@ -13,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByDepartment(Department department);
 
     Optional<User> findById(Long id);
+
+    void deleteByKakaoId(Long kakaoId);
 }
