@@ -40,8 +40,6 @@ public class RequestsService {
 
     @Transactional
     public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws IOException {
-        // s3 폴더 이름
-        String dirName = requestsRequestDto.getRequestType().name() + "images";
 
 //
 //        //아래 코드 중복되는 것 합치기
@@ -62,8 +60,7 @@ public class RequestsService {
 //        );
 
         if(requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)){
-            Category category = categoryRepository.findById(requestsRequestDto.getCategoryId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.NotFoundCategory));
+            Category category = getCategory(requestsRequestDto.getCategoryId());
 
             requestsRepository.save(Requests.builder()
                     .content(requestsRequestDto.getContent())
@@ -73,8 +70,9 @@ public class RequestsService {
                     .user(user)
                     .build());
         }else{
-            Supply supply = supplyRepository.findById(requestsRequestDto.getSupplyId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
+            Supply supply = getSupply(requestsRequestDto.getSupplyId());
+            // s3 폴더 이름
+            String dirName = requestsRequestDto.getRequestType().name() + "images";
 
             String image = s3Uploader.uploadFiles(requestsRequestDto.getMultipartFile(), dirName);
 
@@ -93,6 +91,48 @@ public class RequestsService {
                 "보고서 제출 완료" :
                 requestsRequestDto.getRequestType().getKorean() + " 완료";
         return ResponseDto.success(message);
+    }
+
+    @Transactional
+    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto) throws IOException {
+        Requests requests = getRequests(requestId);
+        Category category = getCategory(requestsRequestDto.getCategoryId());
+
+        // 처리 전 요청인지 확인
+        checkProcessing(requests);
+
+        if(requests.getRequestType().name().equals("SUPPLY")){
+            Requests.builder()
+                    .content(requestsRequestDto.getContent())
+                    .category(category)
+                    .build();
+        }else{
+            Supply supply = getSupply(requestsRequestDto.getSupplyId());
+            String dirName = requestsRequestDto.getRequestType().name() + "images";
+
+            String image = s3Uploader.uploadFiles(requestsRequestDto.getMultipartFile(), dirName);
+
+            Requests.builder()
+                    .content(requestsRequestDto.getContent())
+                    .supply(supply)
+                    .category(supply.getCategory())
+                    .image(image)
+                    .build();
+        }
+
+        return ResponseDto.success("요청 수정 완료");
+    }
+
+    @Transactional
+    public ResponseDto<String> deleteRequests(Long requestId) {
+        Requests requests = getRequests(requestId);
+
+        // 처리 전 요청인지 확인
+        checkProcessing(requests);
+
+        requestsRepository.deleteById(requestId);
+
+        return ResponseDto.success("요청 삭제 완료");
     }
 
     @Transactional(readOnly = true)
@@ -196,20 +236,21 @@ public class RequestsService {
     }
 
     // 거절시 거절 사유 작성은 필수다.
+
     private void checkNullComment(String comment) {
         if (comment == null || comment.equals("")) {
             throw new CustomException(ErrorCode.NullComment);
         }
     }
-
     // 폐기는 수리 요청에만 존재해야 한다.
+
     private void checkAcceptResult(AcceptResult acceptResult, RequestType requestType) {
         if (acceptResult.equals(AcceptResult.DISPOSE) && !requestType.equals(RequestType.REPAIR)) {
             throw new CustomException(ErrorCode.NotAllowedMethod);
         }
     }
-
     // 비품 요청에는 supplyId도 같이 넘겨줘야 한다.
+
     private void checkSupplyId(Long supplyId) {
         if (supplyId == null) {
             throw new CustomException(ErrorCode.NotAllowedMethod);
@@ -219,5 +260,21 @@ public class RequestsService {
     private Supply getSupply(Long supplyId) {
         return supplyRepository.findById(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply));
+    }
+
+    private Requests getRequests(Long requestId){
+        return requestsRepository.findById(requestId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundRequest));
+    }
+
+    private Category getCategory(Long categoryId){
+        return categoryRepository.findById(categoryId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundCategory));
+    }
+
+    private void checkProcessing(Requests requests){
+        if(!(requests.getRequestStatus().name().equals("UNPROCESSED"))){
+            throw new CustomException(ErrorCode.NotUnProcessedRequest);
+        }
     }
 }
