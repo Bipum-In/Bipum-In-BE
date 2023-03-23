@@ -97,7 +97,7 @@ public class RequestsService {
 
     @Transactional
     public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto) throws IOException {
-        Requests requests = getRequests(requestId);
+        Requests requests = getRequest(requestId);
         Category category = getCategory(requestsRequestDto.getCategoryId());
 
         // 처리 전 요청인지 확인
@@ -127,7 +127,7 @@ public class RequestsService {
 
     @Transactional
     public ResponseDto<String> deleteRequests(Long requestId) {
-        Requests requests = getRequests(requestId);
+        Requests requests = getRequest(requestId);
 
         // 처리 전 요청인지 확인
         checkProcessing(requests);
