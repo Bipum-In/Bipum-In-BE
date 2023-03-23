@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -49,7 +50,7 @@ public class RequestsDetailsResponseDto {
                 .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
 
                 .content(request.getContent())
-                .image(request.getImage())
+//                .image(request.getImageList())
 
                 .userImage(user.getImage())
                 .deptName(department.getDeptName())

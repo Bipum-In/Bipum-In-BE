@@ -18,6 +18,8 @@ import java.util.Set;
 public interface RequestsRepository extends JpaRepository<Requests, Long> {
     List<Requests> findBySupply(Supply supply);
 
+    boolean existsBySupply_SupplyIdAndRequestStatusNot(Long supplyId, RequestStatus requestStatus);
+
     @Query(value = "SELECT r FROM Requests r " +
             "INNER JOIN users u ON r.user = u " +
             "INNER JOIN Department d ON u.department = d " +

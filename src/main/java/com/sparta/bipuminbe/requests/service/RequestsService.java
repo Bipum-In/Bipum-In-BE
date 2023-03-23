@@ -2,10 +2,7 @@ package com.sparta.bipuminbe.requests.service;
 
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.Category;
-import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.entity.Supply;
-import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
@@ -18,12 +15,14 @@ import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.requests.dto.RequestsDetailsResponseDto;
 import com.sparta.bipuminbe.requests.dto.RequestsProcessRequestDto;
 import com.sparta.bipuminbe.requests.dto.RequestsPageResponseDto;
+import com.sparta.bipuminbe.requests.repository.ImageRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +36,7 @@ public class RequestsService {
     private final RequestsRepository requestsRepository;
     private final CategoryRepository categoryRepository;
     private final SupplyRepository supplyRepository;
+    private final ImageRepository imageRepository;
     private final S3Uploader s3Uploader;
     private final SmsUtil smsUtil;
 
@@ -73,20 +73,38 @@ public class RequestsService {
                     .build());
         }else{
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
+
+            // 요청 중인 건이면 예외 발생
+            if(requestsRepository.existsBySupply_SupplyIdAndRequestStatusNot(supply.getSupplyId(), RequestStatus.PROCESSED)){
+               throw new CustomException(ErrorCode.isProcessingRequest);
+            }
             // s3 폴더 이름
-            String dirName = requestsRequestDto.getRequestType().name() + "images";
+            String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
 
-            String image = s3Uploader.uploadFiles(requestsRequestDto.getMultipartFile(), dirName);
+            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
-            requestsRepository.save(Requests.builder()
+            // image Null check
+            checkNullImageList(multipartFiles);
+
+            Requests requests = Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .requestType(requestsRequestDto.getRequestType())
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .user(user)
                     .supply(supply)
                     .category(supply.getCategory())
-                    .image(image)
-                    .build());
+                    .build();
+
+            requestsRepository.save(requests);
+
+            //s3에 저장
+            for (MultipartFile multipartFile : multipartFiles) {
+                String image = s3Uploader.uploadFiles(multipartFile, dirName);
+                imageRepository.save(Image.builder()
+                        .image(image)
+                        .requests(requests)
+                        .build());
+            }
         }
 
         String message = requestsRequestDto.getRequestType().equals(RequestType.REPORT) ?
@@ -95,35 +113,35 @@ public class RequestsService {
         return ResponseDto.success(message);
     }
 
-    @Transactional
-    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto) throws IOException {
-        Requests requests = getRequest(requestId);
-        Category category = getCategory(requestsRequestDto.getCategoryId());
-
-        // 처리 전 요청인지 확인
-        checkProcessing(requests);
-
-        if(requests.getRequestType().name().equals("SUPPLY")){
-            Requests.builder()
-                    .content(requestsRequestDto.getContent())
-                    .category(category)
-                    .build();
-        }else{
-            Supply supply = getSupply(requestsRequestDto.getSupplyId());
-            String dirName = requestsRequestDto.getRequestType().name() + "images";
-
-            String image = s3Uploader.uploadFiles(requestsRequestDto.getMultipartFile(), dirName);
-
-            Requests.builder()
-                    .content(requestsRequestDto.getContent())
-                    .supply(supply)
-                    .category(supply.getCategory())
-                    .image(image)
-                    .build();
-        }
-
-        return ResponseDto.success("요청 수정 완료");
-    }
+//    @Transactional
+//    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto) throws IOException {
+//        Requests requests = getRequests(requestId);
+//        Category category = getCategory(requestsRequestDto.getCategoryId());
+//
+//        // 처리 전 요청인지 확인
+//        checkProcessing(requests);
+//
+//        if(requests.getRequestType().name().equals("SUPPLY")){
+//            Requests.builder()
+//                    .content(requestsRequestDto.getContent())
+//                    .category(category)
+//                    .build();
+//        }else{
+//            Supply supply = getSupply(requestsRequestDto.getSupplyId());
+//            String dirName = requestsRequestDto.getRequestType().name() + "images";
+//
+//            String image = s3Uploader.uploadFiles(requestsRequestDto.getMultipartFile(), dirName);
+//
+//            Requests.builder()
+//                    .content(requestsRequestDto.getContent())
+//                    .supply(supply)
+//                    .category(supply.getCategory())
+//                    .image(image)
+//                    .build();
+//        }
+//
+//        return ResponseDto.success("요청 수정 완료");
+//    }
 
     @Transactional
     public ResponseDto<String> deleteRequests(Long requestId) {
@@ -277,6 +295,12 @@ public class RequestsService {
     private void checkProcessing(Requests requests){
         if(!(requests.getRequestStatus().name().equals("UNPROCESSED"))){
             throw new CustomException(ErrorCode.NotUnProcessedRequest);
+        }
+    }
+
+    private void checkNullImageList(List<MultipartFile> multipartFiles){
+        if (multipartFiles == null) {
+            throw new CustomException(ErrorCode.NullImageList);
         }
     }
 }
