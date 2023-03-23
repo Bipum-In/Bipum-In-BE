@@ -49,7 +49,6 @@ public class UserService {
     private String redirectUrl;
 
 
-
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
     public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
@@ -76,7 +75,7 @@ public class UserService {
     }
 
 
-//     1. "인가 코드"로 "액세스 토큰" 요청
+    //     1. "인가 코드"로 "액세스 토큰" 요청
     private String getToken(String code) throws JsonProcessingException {
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
@@ -175,8 +174,8 @@ public class UserService {
                 () -> new CustomException(ErrorCode.NotFoundUser));
         Department department = getDepartment(loginRequestDto.getDepartmentId());
 
-        if(foundUser.getEmpName() == null || foundUser.getDepartment() == null){
-            foundUser.update(loginRequestDto.getEmpName(), department);
+        if (foundUser.getEmpName() == null || foundUser.getDepartment() == null || foundUser.getPhone() == null) {
+            foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone());
         }
 
         return ResponseDto.success("회원정보 수정 완료");

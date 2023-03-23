@@ -10,4 +10,6 @@ public class LoginRequestDto {
 
     @Pattern(regexp = "^[a-zA-Zㄱ-ㅎ가-힣 ]*${4,30}")
     private String empName;
+
+    private String phone;
 }
