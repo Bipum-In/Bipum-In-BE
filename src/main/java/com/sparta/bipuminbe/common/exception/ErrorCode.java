@@ -20,6 +20,8 @@ public enum ErrorCode {
     NotFoundSupply(HttpStatus.NOT_FOUND, "해당 비품이 존재하지 않습니다."),
     NullComment(HttpStatus.BAD_REQUEST, "거절 사유를 작성해 주세요."),
     NotStockSupply(HttpStatus.BAD_REQUEST, "사용 중인 비품입니다."),
+    isProcessingRequest(HttpStatus.BAD_REQUEST, "처리 중인 요청이 있습니다."),
+    NullImageList(HttpStatus.BAD_REQUEST, "저장된 이미지가 없습니다."),
     NotUnProcessedRequest(HttpStatus.BAD_REQUEST, "처리 전 요청만 수정/삭제가 가능합니다."),
     UnAuthorized(HttpStatus.UNAUTHORIZED, "로그인을 해주세요."),
     NotFoundUser(HttpStatus.BAD_REQUEST, "아이디가 존재하지 않습니다."),

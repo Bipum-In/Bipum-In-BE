@@ -7,6 +7,8 @@ import lombok.Setter;
 import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Setter
 @Getter
 @NoArgsConstructor
@@ -16,5 +18,5 @@ public class RequestsRequestDto {
     private String content;
     private RequestType requestType;
     @Nullable
-    private MultipartFile multipartFile;
+    private List<MultipartFile> multipartFile;
 }

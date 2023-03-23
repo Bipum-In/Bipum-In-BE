@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,8 +25,6 @@ public class Requests extends TimeStamped {
     @Column(nullable = false)
     private String content;
 
-    private String image;
-
     private String comment;
 
     @Enumerated(EnumType.STRING)
@@ -32,6 +32,9 @@ public class Requests extends TimeStamped {
 
     @Enumerated(EnumType.STRING)
     private RequestStatus requestStatus;
+
+    @OneToMany(mappedBy = "requests", cascade = CascadeType.ALL)
+    private List<Image> imageList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplyId")
@@ -47,10 +50,10 @@ public class Requests extends TimeStamped {
 
 
     @Builder
-    public Requests(String content, String image, RequestType requestType, RequestStatus requestStatus,
+    public Requests(String content, List<Image> imageList, RequestType requestType, RequestStatus requestStatus,
                     Supply supply, User user, Category category) {
         this.content = content;
-        this.image = image;
+        this.imageList = imageList;
         this.requestType = requestType;
         this.requestStatus = requestStatus;
         this.supply = supply;
