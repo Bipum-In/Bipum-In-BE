@@ -196,4 +196,33 @@ public class UserService {
         return departmentRepository.findById(deptId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundDepartment));
     }
+
+    // 카카오와 연결된 계정의 연결 끊기
+    // 저장된 액세스토큰 어떻게 가져오지
+    public ResponseDto<String> unlink(User user, String bearerToken) throws JsonProcessingException {
+        //HTTP 헤더 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", bearerToken);
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> kakaoUserUnlinkRequest = new HttpEntity<>(headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://kapi.kakao.com/v1/user/unlink",
+                HttpMethod.POST,
+                kakaoUserUnlinkRequest,
+                String.class
+        );
+
+        String responseBody = response.getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+        Long id = jsonNode.get("id").asLong();
+
+        // DB의 회원정보 삭제
+        userRepository.deleteById(id);
+
+        return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
+    }
 }
