@@ -21,6 +21,7 @@ public class RequestsDetailsResponseDto {
     private Long categoryId;
     private String categoryName;
     private String modelName;
+    private String serialNum;
     private String content;
     private String image;
 
@@ -65,7 +66,8 @@ public class RequestsDetailsResponseDto {
         } else {
             category = supply.getCategory();
             builder.categoryName(category.getCategoryName())
-                    .modelName(supply.getModelName());
+                    .modelName(supply.getModelName())
+                    .serialNum(supply.getSerialNum());
         }
 
         return builder.build();
