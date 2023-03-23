@@ -12,6 +12,7 @@ import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
+import com.sparta.bipuminbe.common.util.sms.SmsUtil;
 import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.requests.dto.RequestsDetailsResponseDto;
@@ -25,6 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +41,7 @@ public class RequestsService {
     private final CategoryRepository categoryRepository;
     private final SupplyRepository supplyRepository;
     private final S3Uploader s3Uploader;
+    private final SmsUtil smsUtil;
 
     @Transactional
     public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws IOException {
@@ -61,7 +66,7 @@ public class RequestsService {
 //                .user(user).build()
 //        );
 
-        if(requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)){
+        if (requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)) {
             Category category = categoryRepository.findById(requestsRequestDto.getCategoryId())
                     .orElseThrow(() -> new CustomException(ErrorCode.NotFoundCategory));
 
@@ -72,7 +77,7 @@ public class RequestsService {
                     .category(category)
                     .user(user)
                     .build());
-        }else{
+        } else {
             Supply supply = supplyRepository.findById(requestsRequestDto.getSupplyId())
                     .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
 
@@ -163,36 +168,42 @@ public class RequestsService {
     }
 
     @Transactional
-    public ResponseDto<String> processingRequests(RequestsProcessRequestDto requestsProcessRequestDto) {
+    public ResponseDto<String> processingRequests(RequestsProcessRequestDto requestsProcessRequestDto) throws Exception {
         Requests request = getRequest(requestsProcessRequestDto.getRequestId());
         AcceptResult acceptResult = AcceptResult.valueOf(requestsProcessRequestDto.getAcceptResult());
         checkAcceptResult(acceptResult, request.getRequestType());
+
+        // 요청 상태 처리.
         request.processingRequest(acceptResult, requestsProcessRequestDto.getComment());
 
-        String message = request.getRequestType().getKorean();
-        if (acceptResult.equals(AcceptResult.DECLINE)) {
-            checkNullComment(requestsProcessRequestDto.getComment());
-            return ResponseDto.success(message + "거절 완료.");
-        }
-
+        String message = "요청 하신" + request.getRequestType().getKorean();
         Supply supply = request.getSupply();
 
-        if (acceptResult.equals(AcceptResult.DISPOSE)) {
+        // 비품 상태 처리.
+        if (acceptResult.equals(AcceptResult.DECLINE)) {
+            checkNullComment(requestsProcessRequestDto.getComment());
+            message += " 건이 거부 처리 되었습니다.";
+        } else if (acceptResult.equals(AcceptResult.DISPOSE)) {
             supplyRepository.delete(supply);
-            return ResponseDto.success("비품 폐기 처리 완료.");
+            message += " 건의 비품이 폐기 처리 되었습니다.";
+        } else {
+            if (request.getRequestType().equals(RequestType.SUPPLY)) {
+                checkSupplyId(requestsProcessRequestDto.getSupplyId());
+                supply = getSupply(requestsProcessRequestDto.getSupplyId());
+                supply.allocateSupply(request.getUser());
+            } else if (request.getRequestType().equals(RequestType.REPAIR)) {
+                supply.repairSupply();
+            } else if (request.getRequestType().equals(RequestType.RETURN)) {
+                supply.returnSupply();
+            }
+            message += " 건이 승인 처리 되었습니다.";
         }
 
-        if (request.getRequestType().equals(RequestType.SUPPLY)) {
-            checkSupplyId(requestsProcessRequestDto.getSupplyId());
-            supply = getSupply(requestsProcessRequestDto.getSupplyId());
-            supply.allocateSupply(request.getUser());
-        } else if (request.getRequestType().equals(RequestType.REPAIR)) {
-            supply.repairSupply();
-        } else if (request.getRequestType().equals(RequestType.RETURN)) {
-            supply.returnSupply();
-        }
-
-        return ResponseDto.success(message + "처리 완료.");
+        String phone = request.getUser().getPhone();
+        List<String> phoneList = new ArrayList<>();
+        phoneList.add(phone);
+        smsUtil.sendMail(message, phoneList);
+        return ResponseDto.success(message);
     }
 
     // 거절시 거절 사유 작성은 필수다.
