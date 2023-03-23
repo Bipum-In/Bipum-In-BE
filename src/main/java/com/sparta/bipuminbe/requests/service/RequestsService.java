@@ -2,10 +2,7 @@ package com.sparta.bipuminbe.requests.service;
 
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.Category;
-import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.entity.Supply;
-import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
@@ -116,35 +113,6 @@ public class RequestsService {
         return ResponseDto.success(message);
     }
 
-    @Transactional
-    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto) throws IOException {
-        Requests requests = getRequest(requestId);
-        Category category = getCategory(requestsRequestDto.getCategoryId());
-
-        // 처리 전 요청인지 확인
-        checkProcessing(requests);
-
-        if(requests.getRequestType().name().equals("SUPPLY")){
-            Requests.builder()
-                    .content(requestsRequestDto.getContent())
-                    .category(category)
-                    .build();
-        }else{
-            Supply supply = getSupply(requestsRequestDto.getSupplyId());
-            String dirName = requestsRequestDto.getRequestType().name() + "images";
-
-            String image = s3Uploader.uploadFiles(requestsRequestDto.getMultipartFile(), dirName);
-
-            Requests.builder()
-                    .content(requestsRequestDto.getContent())
-                    .supply(supply)
-                    .category(supply.getCategory())
-                    .image(image)
-                    .build();
-        }
-
-        return ResponseDto.success("요청 수정 완료");
-    }
 //    @Transactional
 //    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto) throws IOException {
 //        Requests requests = getRequests(requestId);
