@@ -52,9 +52,9 @@ public class RequestsController {
 
 //         관리자의 요청 처리 >> 요청자에게 알림 전송.
 //         uri는 해당 알림을 클릭하면 이동할 상세페이지 uri이다.
-        String uri = "/api/requests/";
-        notificationService.send(requestsProcessRequestDto.getRequestId(),
-                requestsProcessRequestDto.getAcceptResult(), uri);
+//        String uri = "/api/requests/";
+//        notificationService.send(requestsProcessRequestDto.getRequestId(),
+//                requestsProcessRequestDto.getAcceptResult(), uri);
 
         return requestsService.processingRequests(requestsProcessRequestDto);
     }

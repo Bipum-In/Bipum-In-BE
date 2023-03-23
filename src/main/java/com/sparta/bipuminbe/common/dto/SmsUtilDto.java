@@ -1,11 +1,13 @@
 package com.sparta.bipuminbe.common.dto;
 
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Builder
+@Getter
 public class SmsUtilDto {
     private String type;
     private String from;
