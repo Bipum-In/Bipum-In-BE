@@ -26,9 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -176,7 +173,7 @@ public class RequestsService {
         // 요청 상태 처리.
         request.processingRequest(acceptResult, requestsProcessRequestDto.getComment());
 
-        String message = "요청 하신" + request.getRequestType().getKorean();
+        String message = "요청 하신 " + request.getRequestType().getKorean();
         Supply supply = request.getSupply();
 
         // 비품 상태 처리.
@@ -202,7 +199,7 @@ public class RequestsService {
         String phone = request.getUser().getPhone();
         List<String> phoneList = new ArrayList<>();
         phoneList.add(phone);
-        smsUtil.sendMail(message, phoneList);
+//        smsUtil.sendMail(message, phoneList);
         return ResponseDto.success(message);
     }
 

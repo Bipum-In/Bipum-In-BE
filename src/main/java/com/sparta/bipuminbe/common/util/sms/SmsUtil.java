@@ -1,24 +1,16 @@
 package com.sparta.bipuminbe.common.util.sms;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.bipuminbe.common.dto.SmsTo;
 import com.sparta.bipuminbe.common.dto.SmsUtilDto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.tomcat.util.json.JSONParser;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -52,7 +44,7 @@ public class SmsUtil {
 
         SmsUtilDto body = SmsUtilDto.of(content, fromPhone, toPhoneList);
 
-        HttpEntity<SmsUtilDto> requestEntity = new HttpEntity<SmsUtilDto>(body, headers);
+        HttpEntity<SmsUtilDto> requestEntity = new HttpEntity<>(body, headers);
         String url = "https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages";
 
         ResponseEntity<String> responseEntity = rest.exchange(url, HttpMethod.POST, requestEntity, String.class);
@@ -88,7 +80,7 @@ public class SmsUtil {
         byte[] rawHmac = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
         String encodeBase64String = Base64.encodeBase64String(rawHmac);
         log.info("SMS makeSignature Success");
-        System.out.println(encodeBase64String);
+
         return encodeBase64String;
     }
 }
