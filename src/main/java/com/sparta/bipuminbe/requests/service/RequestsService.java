@@ -42,8 +42,6 @@ public class RequestsService {
 
     @Transactional
     public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws IOException {
-        // s3 폴더 이름
-        String dirName = requestsRequestDto.getRequestType().name() + "images";
 
 //
 //        //아래 코드 중복되는 것 합치기
@@ -63,9 +61,8 @@ public class RequestsService {
 //                .user(user).build()
 //        );
 
-        if (requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)) {
-            Category category = categoryRepository.findById(requestsRequestDto.getCategoryId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.NotFoundCategory));
+        if(requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)){
+            Category category = getCategory(requestsRequestDto.getCategoryId());
 
             requestsRepository.save(Requests.builder()
                     .content(requestsRequestDto.getContent())
@@ -74,9 +71,10 @@ public class RequestsService {
                     .category(category)
                     .user(user)
                     .build());
-        } else {
-            Supply supply = supplyRepository.findById(requestsRequestDto.getSupplyId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
+        }else{
+            Supply supply = getSupply(requestsRequestDto.getSupplyId());
+            // s3 폴더 이름
+            String dirName = requestsRequestDto.getRequestType().name() + "images";
 
             String image = s3Uploader.uploadFiles(requestsRequestDto.getMultipartFile(), dirName);
 
@@ -95,6 +93,48 @@ public class RequestsService {
                 "보고서 제출 완료" :
                 requestsRequestDto.getRequestType().getKorean() + " 완료";
         return ResponseDto.success(message);
+    }
+
+    @Transactional
+    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto) throws IOException {
+        Requests requests = getRequests(requestId);
+        Category category = getCategory(requestsRequestDto.getCategoryId());
+
+        // 처리 전 요청인지 확인
+        checkProcessing(requests);
+
+        if(requests.getRequestType().name().equals("SUPPLY")){
+            Requests.builder()
+                    .content(requestsRequestDto.getContent())
+                    .category(category)
+                    .build();
+        }else{
+            Supply supply = getSupply(requestsRequestDto.getSupplyId());
+            String dirName = requestsRequestDto.getRequestType().name() + "images";
+
+            String image = s3Uploader.uploadFiles(requestsRequestDto.getMultipartFile(), dirName);
+
+            Requests.builder()
+                    .content(requestsRequestDto.getContent())
+                    .supply(supply)
+                    .category(supply.getCategory())
+                    .image(image)
+                    .build();
+        }
+
+        return ResponseDto.success("요청 수정 완료");
+    }
+
+    @Transactional
+    public ResponseDto<String> deleteRequests(Long requestId) {
+        Requests requests = getRequests(requestId);
+
+        // 처리 전 요청인지 확인
+        checkProcessing(requests);
+
+        requestsRepository.deleteById(requestId);
+
+        return ResponseDto.success("요청 삭제 완료");
     }
 
     @Transactional(readOnly = true)
@@ -227,5 +267,16 @@ public class RequestsService {
     private Supply getSupply(Long supplyId) {
         return supplyRepository.findById(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply));
+    }
+
+    private Category getCategory(Long categoryId){
+        return categoryRepository.findById(categoryId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundCategory));
+    }
+
+    private void checkProcessing(Requests requests){
+        if(!(requests.getRequestStatus().name().equals("UNPROCESSED"))){
+            throw new CustomException(ErrorCode.NotUnProcessedRequest);
+        }
     }
 }

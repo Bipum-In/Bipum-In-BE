@@ -75,6 +75,7 @@ public class NotificationService {
                     .id(eventId)
                     .data(String.valueOf(data)));
             log.info("send 지남");
+
         } catch (IOException exception) {
             log.info("예외 발생해서 emitter 삭제됨");
             emitterRepository.deleteById(emitterId);

@@ -127,6 +127,7 @@ public class UserService {
                 String.class
         );
 
+
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
@@ -217,10 +218,10 @@ public class UserService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
-        Long id = jsonNode.get("id").asLong();
+        Long kakaoId = jsonNode.get("id").asLong();
 
         // DB의 회원정보 삭제
-        userRepository.deleteById(id);
+        userRepository.deleteByKakaoId(kakaoId);
 
         return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
     }
