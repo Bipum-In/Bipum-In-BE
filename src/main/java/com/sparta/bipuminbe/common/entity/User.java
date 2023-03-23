@@ -28,6 +28,7 @@ public class User extends TimeStamped{
     private String password;
 
     private String empName;
+    private String phone;
     private String image;
 
     @Enumerated(value = EnumType.STRING)
@@ -52,9 +53,10 @@ public class User extends TimeStamped{
         this.alarm = alarm;
     }
 
-    public void update(String empName, Department department) {
+    public void update(String empName, Department department, String phone) {
         this.empName = empName;
         this.department = department;
+        this.phone = phone;
     }
 
     public void switchAlarm(Boolean alarm) {
