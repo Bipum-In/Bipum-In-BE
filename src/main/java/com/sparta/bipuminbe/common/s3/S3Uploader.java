@@ -1,8 +1,13 @@
 package com.sparta.bipuminbe.common.s3;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.sparta.bipuminbe.common.entity.Image;
+import com.sparta.bipuminbe.common.exception.CustomException;
+import com.sparta.bipuminbe.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +28,9 @@ public class S3Uploader {
     private final AmazonS3Client amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    @Value("${cloud.aws.region.static}")
+    private String region;
 
     public String uploadFiles(MultipartFile multipartFile, String dirName) throws IOException {
         File uploadFile = convert(multipartFile) // 파일 변환할 수 없으면 에러
@@ -34,6 +44,18 @@ public class S3Uploader {
         String uploadImageUrl = putS3(uploadFile, fileName); // s3로 업로드
         removeNewFile(uploadFile);
         return uploadImageUrl;
+    }
+
+    public void deleteFile(Image image){
+        try{
+            //URL에서 파일명 가져오기
+            String targetName = String.format("https://%s.s3.%s.amazonaws.com/", bucket, region);
+            String fileName = image.getImage().replace(targetName,"");
+
+            amazonS3Client.deleteObject(this.bucket, fileName);
+        }catch (AmazonServiceException e){
+            throw new CustomException(ErrorCode.NotFoundFileInS3);
+        }
     }
 
     // S3로 업로드
