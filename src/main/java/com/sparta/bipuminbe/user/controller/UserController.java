@@ -2,7 +2,6 @@ package com.sparta.bipuminbe.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.user.dto.LoginRequestDto;
 import com.sparta.bipuminbe.user.dto.UserResponseDto;
@@ -15,7 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
