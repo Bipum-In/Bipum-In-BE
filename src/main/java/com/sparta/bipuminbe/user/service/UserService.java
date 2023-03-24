@@ -79,6 +79,7 @@ public class UserService {
     //     1. "인가 코드"로 "액세스 토큰" 요청
     private String getToken(String code) throws JsonProcessingException {
         // HTTP Header 생성
+        log.info("왜안돼");
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
@@ -88,6 +89,7 @@ public class UserService {
         body.add("client_id", apiKey); // 본인의 발급받은 API 키 넣기
         body.add("redirect_uri", redirectUrl);
 
+        log.info("왜안돼2");
 //        https://bipum-in.shop/api/user/kakao/callback
 //        http://localhost:8080/api/user/kakao/callback
 //        http://localhost:3000/api/user/kakao/callback
@@ -104,10 +106,14 @@ public class UserService {
                 String.class
         );
 
+        log.info("왜안돼3");
+
         // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper(); // 받은 것을 Json형태로 파싱
         JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+        log.info("왜안돼4");
         return jsonNode.get("access_token").asText();
     }
 
@@ -127,7 +133,7 @@ public class UserService {
                 kakaoUserInfoRequest,
                 String.class
         );
-
+        log.info("왜안돼5");
 
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
