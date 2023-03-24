@@ -72,7 +72,7 @@ public class RequestsController {
             "**반납/수리/보고서 일 경우**, 필요값 = supplyId, requestType, content, multipartFile(이미지)<br>" +
             "requestType = SUPPLY / REPAIR / RETURN / REPORT")
     public ResponseDto<String> createRequests(@ModelAttribute RequestsRequestDto requestsRequestDto,
-                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
         return requestsService.createRequests(requestsRequestDto, userDetails.getUser());
     }
 

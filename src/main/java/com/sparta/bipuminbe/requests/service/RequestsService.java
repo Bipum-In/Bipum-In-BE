@@ -18,13 +18,13 @@ import com.sparta.bipuminbe.requests.dto.RequestsPageResponseDto;
 import com.sparta.bipuminbe.requests.repository.ImageRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
+import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,9 +39,10 @@ public class RequestsService {
     private final ImageRepository imageRepository;
     private final S3Uploader s3Uploader;
     private final SmsUtil smsUtil;
+    private final UserRepository userRepository;
 
     @Transactional
-    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws IOException {
+    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws Exception {
 
 //
 //        //아래 코드 중복되는 것 합치기
@@ -61,7 +62,7 @@ public class RequestsService {
 //                .user(user).build()
 //        );
 
-        if(requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)){
+        if (requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
 
             requestsRepository.save(Requests.builder()
@@ -71,12 +72,12 @@ public class RequestsService {
                     .category(category)
                     .user(user)
                     .build());
-        }else{
+        } else {
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
 
             // 요청 중인 건이면 예외 발생
-            if(requestsRepository.existsBySupply_SupplyIdAndRequestStatusNot(supply.getSupplyId(), RequestStatus.PROCESSED)){
-               throw new CustomException(ErrorCode.isProcessingRequest);
+            if (requestsRepository.existsBySupply_SupplyIdAndRequestStatusNot(supply.getSupplyId(), RequestStatus.PROCESSED)) {
+                throw new CustomException(ErrorCode.isProcessingRequest);
             }
             // s3 폴더 이름
             String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
@@ -110,6 +111,17 @@ public class RequestsService {
         String message = requestsRequestDto.getRequestType().equals(RequestType.REPORT) ?
                 "보고서 제출 완료" :
                 requestsRequestDto.getRequestType().getKorean() + " 완료";
+
+        List<User> adminList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
+        if (adminList != null) {
+            List<String> phoneList = new ArrayList<>();
+            for (User admin : adminList) {
+                phoneList.add(admin.getPhone());
+            }
+            String mail = "[비품인]\n" + requestsRequestDto.getRequestType() + " 건이 도착했습니다.";
+//            smsUtil.sendMail(mail, phoneList);
+        }
+
         return ResponseDto.success(message);
     }
 
@@ -263,7 +275,8 @@ public class RequestsService {
         // 요청 상태 처리.
         request.processingRequest(acceptResult, requestsProcessRequestDto.getComment());
 
-        String message = "요청 하신 " + request.getRequestType().getKorean();
+        String message = "[비품인]\n" + request.getUser().getEmpName() +
+                " 님이 요청 하신 " + request.getRequestType().getKorean();
         Supply supply = request.getSupply();
 
         // 비품 상태 처리.
@@ -286,10 +299,11 @@ public class RequestsService {
             message += " 건이 승인 처리 되었습니다.";
         }
 
-        String phone = request.getUser().getPhone();
-        List<String> phoneList = new ArrayList<>();
-        phoneList.add(phone);
-//        smsUtil.sendMail(message, phoneList);
+        if (request.getUser().getAlarm()) {
+            List<String> phoneList = new ArrayList<>();
+            phoneList.add(request.getUser().getPhone());
+//            smsUtil.sendMail(message, phoneList);
+        }
         return ResponseDto.success(message);
     }
 
@@ -319,18 +333,18 @@ public class RequestsService {
                 () -> new CustomException(ErrorCode.NotFoundSupply));
     }
 
-    private Category getCategory(Long categoryId){
+    private Category getCategory(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundCategory));
     }
 
-    private void checkProcessing(Requests requests){
-        if(!(requests.getRequestStatus().name().equals("UNPROCESSED"))){
+    private void checkProcessing(Requests requests) {
+        if (!(requests.getRequestStatus().name().equals("UNPROCESSED"))) {
             throw new CustomException(ErrorCode.NotUnProcessedRequest);
         }
     }
 
-    private void checkNullImageList(List<MultipartFile> multipartFiles){
+    private void checkNullImageList(List<MultipartFile> multipartFiles) {
         if (multipartFiles == null) {
             throw new CustomException(ErrorCode.NullImageList);
         }

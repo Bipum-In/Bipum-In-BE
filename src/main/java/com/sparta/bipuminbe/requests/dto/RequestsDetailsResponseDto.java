@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,7 +25,7 @@ public class RequestsDetailsResponseDto {
     private String modelName;
     private String serialNum;
     private String content;
-    private String image;
+    private List<String> imageList;
 
     private String userImage;
     private String deptName;
@@ -41,6 +42,11 @@ public class RequestsDetailsResponseDto {
         Supply supply = request.getSupply();
         Category category = request.getCategory();
 
+        List<String> imageList = new ArrayList<>();
+        for (Image image : request.getImageList()) {
+            imageList.add(image.getImage());
+        }
+
         RequestsDetailsResponseDtoBuilder builder = RequestsDetailsResponseDto.builder()
                 .requestId(request.getRequestId())
                 .isAdmin(role.equals(UserRoleEnum.ADMIN))
@@ -50,7 +56,7 @@ public class RequestsDetailsResponseDto {
                 .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
 
                 .content(request.getContent())
-//                .image(request.getImageList())
+                .imageList(imageList)
 
                 .userImage(user.getImage())
                 .deptName(department.getDeptName())
