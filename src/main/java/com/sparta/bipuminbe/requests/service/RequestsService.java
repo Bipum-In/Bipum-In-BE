@@ -61,7 +61,7 @@ public class RequestsService {
 //                .user(user).build()
 //        );
 
-        if(requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)){
+        if (requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
 
             requestsRepository.save(Requests.builder()
@@ -71,12 +71,12 @@ public class RequestsService {
                     .category(category)
                     .user(user)
                     .build());
-        }else{
+        } else {
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
 
             // 요청 중인 건이면 예외 발생
-            if(requestsRepository.existsBySupply_SupplyIdAndRequestStatusNot(supply.getSupplyId(), RequestStatus.PROCESSED)){
-               throw new CustomException(ErrorCode.isProcessingRequest);
+            if (requestsRepository.existsBySupply_SupplyIdAndRequestStatusNot(supply.getSupplyId(), RequestStatus.PROCESSED)) {
+                throw new CustomException(ErrorCode.isProcessingRequest);
             }
             // s3 폴더 이름
             String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
@@ -231,7 +231,8 @@ public class RequestsService {
         // 요청 상태 처리.
         request.processingRequest(acceptResult, requestsProcessRequestDto.getComment());
 
-        String message = "요청 하신 " + request.getRequestType().getKorean();
+        String message = "[비품인]\n" + request.getUser().getEmpName() +
+                " 님이 요청 하신 " + request.getRequestType().getKorean();
         Supply supply = request.getSupply();
 
         // 비품 상태 처리.
@@ -287,18 +288,18 @@ public class RequestsService {
                 () -> new CustomException(ErrorCode.NotFoundSupply));
     }
 
-    private Category getCategory(Long categoryId){
+    private Category getCategory(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundCategory));
     }
 
-    private void checkProcessing(Requests requests){
-        if(!(requests.getRequestStatus().name().equals("UNPROCESSED"))){
+    private void checkProcessing(Requests requests) {
+        if (!(requests.getRequestStatus().name().equals("UNPROCESSED"))) {
             throw new CustomException(ErrorCode.NotUnProcessedRequest);
         }
     }
 
-    private void checkNullImageList(List<MultipartFile> multipartFiles){
+    private void checkNullImageList(List<MultipartFile> multipartFiles) {
         if (multipartFiles == null) {
             throw new CustomException(ErrorCode.NullImageList);
         }
