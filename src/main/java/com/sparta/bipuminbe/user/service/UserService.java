@@ -88,6 +88,7 @@ public class UserService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", apiKey); // 본인의 발급받은 API 키 넣기
         body.add("redirect_uri", redirectUrl);
+        body.add("code", code);
 
         log.info("왜안돼2");
 //        https://bipum-in.shop/api/user/kakao/callback
