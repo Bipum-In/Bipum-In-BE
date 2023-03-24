@@ -18,6 +18,7 @@ import com.sparta.bipuminbe.requests.dto.RequestsPageResponseDto;
 import com.sparta.bipuminbe.requests.repository.ImageRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
+import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,9 +42,10 @@ public class RequestsService {
     private final ImageRepository imageRepository;
     private final S3Uploader s3Uploader;
     private final SmsUtil smsUtil;
+    private final UserRepository userRepository;
 
     @Transactional
-    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws IOException {
+    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws Exception {
 
 //
 //        //아래 코드 중복되는 것 합치기
@@ -110,6 +114,17 @@ public class RequestsService {
         String message = requestsRequestDto.getRequestType().equals(RequestType.REPORT) ?
                 "보고서 제출 완료" :
                 requestsRequestDto.getRequestType().getKorean() + " 완료";
+
+        List<User> adminList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
+        if (adminList != null) {
+            List<String> phoneList = new ArrayList<>();
+            for (User admin : adminList) {
+                phoneList.add(admin.getPhone());
+            }
+            String mail = "[비품인]\n" + requestsRequestDto.getRequestType() + " 건이 도착했습니다.";
+//            smsUtil.sendMail(mail, phoneList);
+        }
+
         return ResponseDto.success(message);
     }
 
@@ -255,10 +270,11 @@ public class RequestsService {
             message += " 건이 승인 처리 되었습니다.";
         }
 
-        String phone = request.getUser().getPhone();
-        List<String> phoneList = new ArrayList<>();
-        phoneList.add(phone);
-//        smsUtil.sendMail(message, phoneList);
+        if (request.getUser().getAlarm()) {
+            List<String> phoneList = new ArrayList<>();
+            phoneList.add(request.getUser().getPhone());
+//            smsUtil.sendMail(message, phoneList);
+        }
         return ResponseDto.success(message);
     }
 

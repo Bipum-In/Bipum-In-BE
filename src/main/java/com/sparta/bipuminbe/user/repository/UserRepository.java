@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.user.repository;
 
 import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findById(Long id);
 
     void deleteByKakaoId(Long kakaoId);
+
+    List<User> findByRoleAndAlarm(UserRoleEnum role, Boolean alarm);
 }
