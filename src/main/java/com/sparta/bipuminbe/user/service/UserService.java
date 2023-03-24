@@ -53,7 +53,7 @@ public class UserService {
 
 
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
-    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -69,12 +69,6 @@ public class UserService {
         HttpHeaders responseHeader = new HttpHeaders();
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
         responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
-
-        //쿠키 SameSite 처리
-        Collection<String> headers = response.getHeaders(HttpHeaders.SET_COOKIE);
-        for(String header : headers){
-            response.setHeader(HttpHeaders.SET_COOKIE, header+"; " + "SameSite=None; Secure");
-        }
 
         Boolean isInput = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null;
 
@@ -188,7 +182,7 @@ public class UserService {
             foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone());
         }
 
-        return ResponseDto.success("회원정보 수정 완료");
+        return ResponseDto.success("추가정보 입력 완료");
     }
 
     @Transactional(readOnly = true)
