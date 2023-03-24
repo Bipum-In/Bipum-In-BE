@@ -297,7 +297,12 @@ public class RequestsService {
             } else if (request.getRequestType().equals(RequestType.RETURN)) {
                 supply.returnSupply();
             }
-            message += " 건이 승인 처리 되었습니다.";
+
+            if (request.getRequestType().equals(RequestType.REPAIR) && request.getRequestStatus().equals(RequestStatus.PROCESSED)) {
+                message += " 건의 비품이 수리 완료 되었습니다.";
+            } else {
+                message += " 건이 승인 처리 되었습니다.";
+            }
         }
 
         if (request.getUser().getAlarm()) {
