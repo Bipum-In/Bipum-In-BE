@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -27,10 +28,10 @@ public class UserController {
 
     @Operation(summary = "로그인 처리", description = "카카오 계정정보 담은 Jwt토큰 발급")
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         // code: 카카오 서버로부터 받은 인가 코드
 
-        return userService.kakaoLogin(code);
+        return userService.kakaoLogin(code, response);
     }
 
     //로그인 시, 부서와 유저이름이 없는 경우 반드시 추가입력하게 유도

@@ -22,6 +22,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,7 +53,7 @@ public class UserService {
 
 
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
-    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -66,6 +69,12 @@ public class UserService {
         HttpHeaders responseHeader = new HttpHeaders();
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
         responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
+
+        //쿠키 SameSite 처리
+        Collection<String> headers = response.getHeaders(HttpHeaders.SET_COOKIE);
+        for(String header : headers){
+            response.setHeader(HttpHeaders.SET_COOKIE, header+"; " + "SameSite=None; Secure");
+        }
 
         Boolean isInput = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null;
 
