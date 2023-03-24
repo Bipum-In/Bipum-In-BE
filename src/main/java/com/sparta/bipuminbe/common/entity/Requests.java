@@ -76,7 +76,6 @@ public class Requests extends TimeStamped {
 
     public void update(Requests requests) {
         this.content = requests.getContent();
-        this.imageList = new ArrayList<>();
         this.supply = requests.getSupply();
         this.category = requests.getSupply().getCategory();
     }

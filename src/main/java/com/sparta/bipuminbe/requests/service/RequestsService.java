@@ -43,7 +43,8 @@ public class RequestsService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws Exception {
+    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto,
+                                              List<MultipartFile> multipartFiles, User user) throws Exception {
 
 //
 //        //아래 코드 중복되는 것 합치기
@@ -83,10 +84,8 @@ public class RequestsService {
             // s3 폴더 이름
             String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
 
-            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
+//            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
-            // image Null check
-            checkNullImageList(multipartFiles);
 
             Requests requests = Requests.builder()
                     .content(requestsRequestDto.getContent())
@@ -99,6 +98,10 @@ public class RequestsService {
 
             requestsRepository.save(requests);
 
+            // image Null check. 요청 등록 시에는 이미지가 필수이다.
+            if(checkNullImageList(multipartFiles)){
+                throw new CustomException(ErrorCode.NullImageList);
+            }
             //s3에 저장
             for (MultipartFile multipartFile : multipartFiles) {
                 String image = s3Uploader.uploadFiles(multipartFile, dirName);
@@ -127,7 +130,8 @@ public class RequestsService {
     }
 
     @Transactional
-    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto, User user) throws IOException {
+    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto,
+                                              List<MultipartFile> multipartFiles, User user) throws IOException {
         Requests requests = getRequest(requestId);
         Category category = getCategory(requestsRequestDto.getCategoryId());
 
@@ -147,11 +151,16 @@ public class RequestsService {
             List<Image> imageList = imageRepository.findImagesByRequests(requests).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundImages));
 
+            List<String> storedImageURLs = requestsRequestDto.getStoredImageURLs();
+
             // 이미지들 삭제
             for(Image image : imageList){
+                // DB에 들어있는 이미지 URL은 삭제하지 않는다.
+                if(storedImageURLs.contains(image.getImage())){
+                    continue;
+                }
 //                //S3 내 이미지 파일 삭제
 //                s3Uploader.deleteFile(image);
-
                 // DB 내 이미지 삭제
                 imageRepository.deleteById(image.getId());
             }
@@ -159,10 +168,7 @@ public class RequestsService {
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
             String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
 
-            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
-
-            // image Null check
-            checkNullImageList(multipartFiles);
+//            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
             requests.update(Requests.builder()
                     .content(requestsRequestDto.getContent())
@@ -170,16 +176,18 @@ public class RequestsService {
                     .category(supply.getCategory())
                     .build());
 
-            //s3에 저장
-            for (MultipartFile multipartFile : multipartFiles) {
-                String image = s3Uploader.uploadFiles(multipartFile, dirName);
-                imageRepository.save(Image.builder()
-                        .image(image)
-                        .requests(requests)
-                        .build());
+            // 추가하는 이미지가 있을 경우에만 s3에 저장한다.
+            if(!(checkNullImageList(multipartFiles))){
+                //s3에 저장
+                for (MultipartFile multipartFile : multipartFiles) {
+                    String image = s3Uploader.uploadFiles(multipartFile, dirName);
+                    imageRepository.save(Image.builder()
+                            .image(image)
+                            .requests(requests)
+                            .build());
+                }
             }
         }
-
         return ResponseDto.success("요청 수정 완료");
     }
 
@@ -350,9 +358,10 @@ public class RequestsService {
         }
     }
 
-    private void checkNullImageList(List<MultipartFile> multipartFiles) {
+    private boolean checkNullImageList(List<MultipartFile> multipartFiles) {
         if (multipartFiles == null) {
-            throw new CustomException(ErrorCode.NullImageList);
+            return true;
         }
+        return false;
     }
 }
