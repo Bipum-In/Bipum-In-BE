@@ -12,15 +12,18 @@ import com.sparta.bipuminbe.requests.service.RequestsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -72,8 +75,9 @@ public class RequestsController {
             "**반납/수리/보고서 일 경우**, 필요값 = supplyId, requestType, content, multipartFile(이미지)<br>" +
             "requestType = SUPPLY / REPAIR / RETURN / REPORT")
     public ResponseDto<String> createRequests(@ModelAttribute RequestsRequestDto requestsRequestDto,
+                                              @RequestParam(required = false) List<MultipartFile> multipartFiles,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
-        return requestsService.createRequests(requestsRequestDto, userDetails.getUser());
+        return requestsService.createRequests(requestsRequestDto, multipartFiles, userDetails.getUser());
     }
 
     @PutMapping(value = "/requests/{requestId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -83,8 +87,9 @@ public class RequestsController {
             "**처리 전의 요청**에 한해서만 수정 가능")
     public ResponseDto<String> updateRequests(@PathVariable Long requestId,
                                               @ModelAttribute RequestsRequestDto requestsRequestDto,
+                                              @RequestParam(required = false) List<MultipartFile> multipartFiles,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-        return requestsService.updateRequests(requestId, requestsRequestDto, userDetails.getUser());
+        return requestsService.updateRequests(requestId, requestsRequestDto, multipartFiles, userDetails.getUser());
     }
 
     @DeleteMapping("/requests/{requestId}")
