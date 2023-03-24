@@ -113,39 +113,69 @@ public class RequestsService {
         return ResponseDto.success(message);
     }
 
-//    @Transactional
-//    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto) throws IOException {
-//        Requests requests = getRequests(requestId);
-//        Category category = getCategory(requestsRequestDto.getCategoryId());
-//
-//        // 처리 전 요청인지 확인
-//        checkProcessing(requests);
-//
-//        if(requests.getRequestType().name().equals("SUPPLY")){
-//            Requests.builder()
-//                    .content(requestsRequestDto.getContent())
-//                    .category(category)
-//                    .build();
-//        }else{
-//            Supply supply = getSupply(requestsRequestDto.getSupplyId());
-//            String dirName = requestsRequestDto.getRequestType().name() + "images";
-//
-//            String image = s3Uploader.uploadFiles(requestsRequestDto.getMultipartFile(), dirName);
-//
-//            Requests.builder()
-//                    .content(requestsRequestDto.getContent())
-//                    .supply(supply)
-//                    .category(supply.getCategory())
-//                    .image(image)
-//                    .build();
-//        }
-//
-//        return ResponseDto.success("요청 수정 완료");
-//    }
+    @Transactional
+    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto, User user) throws IOException {
+        Requests requests = getRequest(requestId);
+        Category category = getCategory(requestsRequestDto.getCategoryId());
+
+        // 본인의 요청인지 확인
+        checkPermission(requests, user);
+
+        // 처리 전 요청인지 확인
+        checkProcessing(requests);
+
+        if(requests.getRequestType().name().equals("SUPPLY")){
+            Requests.builder()
+                    .content(requestsRequestDto.getContent())
+                    .category(category)
+                    .build();
+        }else{
+            // 해당 요청의 이미지 리스트 가져오기
+            List<Image> imageList = imageRepository.findImagesByRequests(requests).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundImages));
+
+            // 이미지들 삭제
+            for(Image image : imageList){
+//                //S3 내 이미지 파일 삭제
+//                s3Uploader.deleteFile(image);
+
+                // DB 내 이미지 삭제
+                imageRepository.deleteById(image.getId());
+            }
+
+            Supply supply = getSupply(requestsRequestDto.getSupplyId());
+            String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
+
+            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
+
+            // image Null check
+            checkNullImageList(multipartFiles);
+
+            requests.update(Requests.builder()
+                    .content(requestsRequestDto.getContent())
+                    .supply(supply)
+                    .category(supply.getCategory())
+                    .build());
+
+            //s3에 저장
+            for (MultipartFile multipartFile : multipartFiles) {
+                String image = s3Uploader.uploadFiles(multipartFile, dirName);
+                imageRepository.save(Image.builder()
+                        .image(image)
+                        .requests(requests)
+                        .build());
+            }
+        }
+
+        return ResponseDto.success("요청 수정 완료");
+    }
 
     @Transactional
-    public ResponseDto<String> deleteRequests(Long requestId) {
+    public ResponseDto<String> deleteRequests(Long requestId, User user) {
         Requests requests = getRequest(requestId);
+
+        // 본인의 요청인지 확인
+        checkPermission(requests, user);
 
         // 처리 전 요청인지 확인
         checkProcessing(requests);
@@ -216,6 +246,8 @@ public class RequestsService {
             throw new CustomException(ErrorCode.NoPermission);
         }
     }
+
+    // 해당 요청이 본인의 요청인지 확인.
 
     private Requests getRequest(Long requestId) {
         return requestsRepository.findById(requestId).orElseThrow(

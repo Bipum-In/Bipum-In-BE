@@ -73,4 +73,11 @@ public class Requests extends TimeStamped {
         this.requestStatus = RequestStatus.PROCESSED;
         this.comment = comment;
     }
+
+    public void update(Requests requests) {
+        this.content = requests.getContent();
+        this.imageList = new ArrayList<>();
+        this.supply = requests.getSupply();
+        this.category = requests.getSupply().getCategory();
+    }
 }
