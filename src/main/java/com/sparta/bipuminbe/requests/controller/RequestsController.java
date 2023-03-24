@@ -76,20 +76,22 @@ public class RequestsController {
         return requestsService.createRequests(requestsRequestDto, userDetails.getUser());
     }
 
-//    @PutMapping(value = "/requests/{requestId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-//    @Operation(summary = "유저 요청 수정 페이지", description = "**비품 요청**일 경우, 필요값 = categoryId, requestType, content<br>" +
-//            "**반납/수리/보고서 일 경우**, 필요값 = supplyId, requestType, content, multipartFile(이미지)<br>" +
-//            "requestType = SUPPLY / REPAIR / RETURN / REPORT<br>" +
-//            "**처리 전의 요청**에 한해서만 수정 가능")
-//    public ResponseDto<String> updateRequests(@PathVariable Long requestId,
-//                                              @ModelAttribute RequestsRequestDto requestsRequestDto) throws IOException {
-//        return requestsService.updateRequests(requestId, requestsRequestDto);
-//    }
+    @PutMapping(value = "/requests/{requestId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "유저 요청 수정 페이지", description = "**비품 요청**일 경우, 필요값 = categoryId, requestType, content<br>" +
+            "**반납/수리/보고서 일 경우**, 필요값 = supplyId, requestType, content, multipartFile(이미지)<br>" +
+            "requestType = SUPPLY / REPAIR / RETURN / REPORT<br>" +
+            "**처리 전의 요청**에 한해서만 수정 가능")
+    public ResponseDto<String> updateRequests(@PathVariable Long requestId,
+                                              @ModelAttribute RequestsRequestDto requestsRequestDto,
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        return requestsService.updateRequests(requestId, requestsRequestDto, userDetails.getUser());
+    }
 
     @DeleteMapping("/requests/{requestId}")
     @Operation(summary = "유저 요청 삭제 페이지", description = "**처리 전의 요청**에 한해서만 삭제 가능")
-    public ResponseDto<String> deleteRequests(@PathVariable Long requestId){
+    public ResponseDto<String> deleteRequests(@PathVariable Long requestId,
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
 
-        return requestsService.deleteRequests(requestId);
+        return requestsService.deleteRequests(requestId, userDetails.getUser());
     }
 }
