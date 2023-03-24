@@ -51,6 +51,7 @@ public class UserService {
 
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
     public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code) throws JsonProcessingException {
+        log.info("토큰 요청 전");
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -81,16 +82,19 @@ public class UserService {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
+        log.info("@@@@@@@@@@@@@@@code : " + code);
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", apiKey); // 본인의 발급받은 API 키 넣기
         body.add("redirect_uri", redirectUrl);
 
+        log.info("@@@@@@@@@@@@@@@@redirect_uri : " + redirectUrl);
 //        https://bipum-in.shop/api/user/kakao/callback
 //        http://localhost:8080/api/user/kakao/callback
 //        http://localhost:3000/api/user/kakao/callback
         body.add("code", code);
+
 
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
@@ -102,6 +106,7 @@ public class UserService {
                 kakaoTokenRequest,
                 String.class
         );
+        log.info("액세스 토큰 요청 보냄");
 
         // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         String responseBody = response.getBody();
