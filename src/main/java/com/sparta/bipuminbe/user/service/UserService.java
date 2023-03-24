@@ -51,7 +51,7 @@ public class UserService {
 
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
     public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code) throws JsonProcessingException {
-        log.info("토큰 요청 전");
+        log.info("code : " + code);
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
