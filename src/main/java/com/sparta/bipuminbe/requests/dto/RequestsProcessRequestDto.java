@@ -9,7 +9,6 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class RequestsProcessRequestDto {
     @NotNull
-    @NotBlank
     private AcceptResult acceptResult;
     private Long supplyId;
     private String comment;

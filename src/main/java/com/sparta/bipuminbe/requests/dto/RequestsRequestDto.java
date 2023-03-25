@@ -17,7 +17,6 @@ public class RequestsRequestDto {
     @NotBlank
     private String content;
     @NotNull
-    @NotBlank
     private RequestType requestType;
     private List<String> storedImageURLs;
     private List<MultipartFile> multipartFile;
