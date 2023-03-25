@@ -165,7 +165,7 @@ public class SupplyService {
 
     //비품 상세
     @Transactional(readOnly = true)
-    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId) {
+    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId, int size) {
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply)
@@ -178,7 +178,13 @@ public class SupplyService {
             historyList.add(SupplyHistoryResponseDto.of(request));
             repairHistoryList.add(new SupplyRepairHistoryResponseDto(request.getSupply()));
         }
-        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, historyList, repairHistoryList);
+//        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, historyList, repairHistoryList);
+
+        // Todo 여기 좀 힘들어 하실 것 같아서 page처리 해봤습니다.
+        // 1페이지를 가져오는 것은 고정이다.
+        Page<SupplyHistoryResponseDto> userHistory = getUserHistory(supplyId, 1, size).getData();
+        Page<SupplyHistoryResponseDto> repairHistory = getRepairHistory(supplyId, 1, size).getData();
+        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, userHistory, repairHistory);
         return ResponseDto.success(supplyWhole);
     }
 
@@ -314,11 +320,11 @@ public class SupplyService {
 
 
     // 비품 상세 history Dto 변환
-    private List<SupplyHistoryResponseDto> convertToHistoryDto(List<Requests> userHistoryList) {
-        List<SupplyHistoryResponseDto> userHistoryDtoPage = new ArrayList<>();
-        for (Requests request : userHistoryList) {
-            userHistoryDtoPage.add(SupplyHistoryResponseDto.of(request));
+    private List<SupplyHistoryResponseDto> convertToHistoryDto(List<Requests> historyList) {
+        List<SupplyHistoryResponseDto> historyDtoPage = new ArrayList<>();
+        for (Requests request : historyList) {
+            historyDtoPage.add(SupplyHistoryResponseDto.of(request));
         }
-        return userHistoryDtoPage;
+        return historyDtoPage;
     }
 }

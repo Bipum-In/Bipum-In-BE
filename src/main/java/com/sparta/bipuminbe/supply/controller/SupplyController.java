@@ -53,9 +53,10 @@ public class SupplyController {
     @GetMapping("/supply/{supplyId}")
     @Operation(summary = "비품 상세", description = "관리자 권한 필요.")
     public ResponseDto<SupplyWholeResponseDto> getSupply(
-            @PathVariable Long supplyId
+            @PathVariable Long supplyId,
+            @RequestParam(defaultValue = "6") int size
     ) {
-        return supplyService.getSupply(supplyId);
+        return supplyService.getSupply(supplyId, size);
     }
 
     //유저 할당
