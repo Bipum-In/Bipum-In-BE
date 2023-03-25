@@ -31,16 +31,32 @@ public class RequestsController {
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/requests")
-    @Operation(summary = "요청 현황 페이지", description = "keyword는 필수 x.<br> " +
+    @Operation(summary = "요청 현황 페이지(ADMIN)", description = "keyword는 필수 x.<br> " +
             "type은 **ALL/SUPPLY/REPAIR/RETURN/REPORT**.<br> " +
             "status는 **ALL/UNPROCESSED/PROCESSING/PROCESSED**.<br> " +
-            "ALL(전체조회) or 키워드x 일 때는 쿼리 안날려도 되긴함. 관리자 권한 필요.")
+            "ALL(전체조회) or 키워드x 일 때는 쿼리 안날려도 되긴함.<br> " +
+            "관리자 권한 필요.")
+    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsAdminPage(@RequestParam(defaultValue = "") String keyword,
+                                                                           @RequestParam(defaultValue = "ALL") String type,
+                                                                           @RequestParam(defaultValue = "ALL") String status,
+                                                                           @RequestParam(defaultValue = "1") int page,
+                                                                           @RequestParam(defaultValue = "10") int size,
+                                                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return requestsService.getRequestsPage(keyword, type, status, page, size, userDetails.getUser());
+    }
+
+    @GetMapping("/requests")
+    @Operation(summary = "요청 현황 페이지(USER)", description = "keyword는 필수 x.<br> " +
+            "type은 **ALL/SUPPLY/REPAIR/RETURN/REPORT**.<br> " +
+            "status는 **ALL/UNPROCESSED/PROCESSING/PROCESSED**.<br> " +
+            "ALL(전체조회) or 키워드x 일 때는 쿼리 안날려도 되긴함.")
     public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(@RequestParam(defaultValue = "") String keyword,
-                                                                  @RequestParam(defaultValue = "ALL") String type,
-                                                                  @RequestParam(defaultValue = "ALL") String status,
-                                                                  @RequestParam(defaultValue = "1") int page,
-                                                                  @RequestParam (defaultValue = "10") int size) {
-        return requestsService.getRequestsPage(keyword, type, status, page, size);
+                                                                      @RequestParam(defaultValue = "ALL") String type,
+                                                                      @RequestParam(defaultValue = "ALL") String status,
+                                                                      @RequestParam(defaultValue = "1") int page,
+                                                                      @RequestParam(defaultValue = "10") int size,
+                                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return requestsService.getRequestsPage(keyword, type, status, page, size, userDetails.getUser());
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
@@ -59,12 +75,21 @@ public class RequestsController {
         return requestsService.processingRequests(requestsProcessRequestDto);
     }
 
-    @GetMapping("/requests/{requestId}")
-    @Operation(summary = "요청서 상세 페이지",
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @GetMapping("/admin/requests/{requestId}")
+    @Operation(summary = "요청서 상세 페이지(ADMIN)",
             description = "isAdmin/requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
     public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(@PathVariable Long requestId,
-                                                                     @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return requestsService.getRequestsDetails(requestId, userDetails.getUser());
+                                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return requestsService.getRequestsDetails(requestId, userDetails.getUser(), UserRoleEnum.ADMIN);
+    }
+
+    @GetMapping("/requests/{requestId}")
+    @Operation(summary = "요청서 상세 페이지(USER)",
+            description = "isAdmin/requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
+    public ResponseDto<RequestsDetailsResponseDto> getRequestsAdminDetails(@PathVariable Long requestId,
+                                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return requestsService.getRequestsDetails(requestId, userDetails.getUser(), UserRoleEnum.USER);
     }
 
     @PostMapping(value = "/requests", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -72,7 +97,7 @@ public class RequestsController {
             "**반납/수리/보고서 일 경우**, 필요값 = supplyId, requestType, content, multipartFile(이미지)<br>" +
             "requestType = SUPPLY / REPAIR / RETURN / REPORT")
     public ResponseDto<String> createRequests(@ModelAttribute RequestsRequestDto requestsRequestDto,
-                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
         return requestsService.createRequests(requestsRequestDto, userDetails.getUser());
     }
 
@@ -90,7 +115,7 @@ public class RequestsController {
     @DeleteMapping("/requests/{requestId}")
     @Operation(summary = "유저 요청 삭제 페이지", description = "**처리 전의 요청**에 한해서만 삭제 가능")
     public ResponseDto<String> deleteRequests(@PathVariable Long requestId,
-                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         return requestsService.deleteRequests(requestId, userDetails.getUser());
     }

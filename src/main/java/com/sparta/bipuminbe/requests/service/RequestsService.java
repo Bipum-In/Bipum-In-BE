@@ -137,18 +137,18 @@ public class RequestsService {
         // 처리 전 요청인지 확인
         checkProcessing(requests);
 
-        if(requests.getRequestType().name().equals("SUPPLY")){
+        if (requests.getRequestType().name().equals("SUPPLY")) {
             Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .category(category)
                     .build();
-        }else{
+        } else {
             // 해당 요청의 이미지 리스트 가져오기
             List<Image> imageList = imageRepository.findImagesByRequests(requests).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundImages));
 
             // 이미지들 삭제
-            for(Image image : imageList){
+            for (Image image : imageList) {
 //                //S3 내 이미지 파일 삭제
 //                s3Uploader.deleteFile(image);
 
@@ -199,16 +199,32 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, String type, String status, int page, int size) {
+    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, String type, String status, int page, int size, User user) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
+        Set<Long> userIdQuery = getUserIdSet(user);
         Pageable pageable = getPageable(page, size);
+
         Page<Requests> requestsList = requestsRepository.
-                getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, pageable);
+                getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, userIdQuery, pageable);
 
         List<RequestsPageResponseDto> requestsDtoList = convertToDto(requestsList.getContent());
 
         return ResponseDto.success(new PageImpl<>(requestsDtoList, requestsList.getPageable(), requestsList.getTotalElements()));
+    }
+
+    // 유저가 admin이면 전체 조회, user라면 자기꺼만 조회.
+    private Set<Long> getUserIdSet(User user) {
+        Set<Long> userIdQuery = new HashSet<>();
+        if (user.getRole().equals(UserRoleEnum.ADMIN)) {
+            List<User> userList = userRepository.findAll();
+            for (User user1 : userList) {
+                userIdQuery.add(user1.getId());
+            }
+        } else {
+            userIdQuery.add(user.getId());
+        }
+        return userIdQuery;
     }
 
     // list 추출 조건용 requestType Set 리스트.
@@ -247,10 +263,10 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(Long requestId, User user) {
+    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(Long requestId, User user, UserRoleEnum role) {
         Requests request = getRequest(requestId);
         checkPermission(request, user);
-        return ResponseDto.success(RequestsDetailsResponseDto.of(request, user.getRole()));
+        return ResponseDto.success(RequestsDetailsResponseDto.of(request, role));
     }
 
     // 해당 요청을 볼 권한 확인.
