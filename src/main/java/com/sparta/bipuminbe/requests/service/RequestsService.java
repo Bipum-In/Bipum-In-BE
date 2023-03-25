@@ -131,8 +131,7 @@ public class RequestsService {
     }
 
     @Transactional
-    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto,
-                                              List<MultipartFile> multipartFiles, User user) throws IOException {
+    public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto, User user) throws IOException {
         Requests requests = getRequest(requestId);
         Category category = getCategory(requestsRequestDto.getCategoryId());
 
@@ -171,7 +170,7 @@ public class RequestsService {
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
             String dirName = requestType.name().toLowerCase() + "images";
 
-//            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
+            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
             requests.update(Requests.builder()
                     .content(requestsRequestDto.getContent())

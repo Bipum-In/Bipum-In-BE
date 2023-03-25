@@ -91,7 +91,7 @@ public class RequestsController {
     @Operation(summary = "요청서 상세 페이지(USER)",
             description = "isAdmin/requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
     public ResponseDto<RequestsDetailsResponseDto> getRequestsAdminDetails(@PathVariable Long requestId,
-                                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return requestsService.getRequestsDetails(requestId, userDetails.getUser(), UserRoleEnum.USER);
     }
 
@@ -100,7 +100,7 @@ public class RequestsController {
             "**반납/수리/보고서 일 경우**, 필요값 = supplyId, requestType, content, multipartFile(이미지)<br>" +
             "requestType = SUPPLY / REPAIR / RETURN / REPORT")
     public ResponseDto<String> createRequests(@ModelAttribute RequestsRequestDto requestsRequestDto,
-                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
         return requestsService.createRequests(requestsRequestDto, userDetails.getUser());
     }
 
@@ -111,9 +111,8 @@ public class RequestsController {
             "**처리 전의 요청**에 한해서만 수정 가능")
     public ResponseDto<String> updateRequests(@PathVariable Long requestId,
                                               @ModelAttribute RequestsRequestDto requestsRequestDto,
-                                              @RequestParam(required = false) List<MultipartFile> multipartFiles,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-        return requestsService.updateRequests(requestId, requestsRequestDto, multipartFiles, userDetails.getUser());
+        return requestsService.updateRequests(requestId, requestsRequestDto, userDetails.getUser());
     }
 
     @DeleteMapping("/requests/{requestId}")
