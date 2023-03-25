@@ -62,7 +62,7 @@ public class RequestsService {
 //                .requestStatus(RequestStatus.UNPROCESSED)
 //                .user(user).build()
 //        );
-        RequestType requestType = RequestType.valueOf(requestsRequestDto.getRequestType());
+        RequestType requestType = requestsRequestDto.getRequestType();
         if (requestType.equals(RequestType.SUPPLY)) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
 
@@ -100,7 +100,7 @@ public class RequestsService {
             requestsRepository.save(requests);
 
             // image Null check. 요청 등록 시에는 이미지가 필수이다.
-            if(checkNullImageList(multipartFiles)){
+            if (checkNullImageList(multipartFiles)) {
                 throw new CustomException(ErrorCode.NullImageList);
             }
             //s3에 저장
@@ -141,7 +141,7 @@ public class RequestsService {
         // 처리 전 요청인지 확인
         checkProcessing(requests);
 
-        RequestType requestType = RequestType.valueOf(requestsRequestDto.getRequestType());
+        RequestType requestType = requestsRequestDto.getRequestType();
         if (requestType.equals("SUPPLY")) {
             Requests.builder()
                     .content(requestsRequestDto.getContent())
@@ -155,9 +155,9 @@ public class RequestsService {
             List<String> storedImageURLs = requestsRequestDto.getStoredImageURLs();
 
             // 이미지들 삭제
-            for(Image image : imageList){
+            for (Image image : imageList) {
                 // DB에 들어있는 이미지 URL은 삭제하지 않는다.
-                if(storedImageURLs.contains(image.getImage())){
+                if (storedImageURLs.contains(image.getImage())) {
                     continue;
                 }
 //                //S3 내 이미지 파일 삭제
@@ -179,7 +179,7 @@ public class RequestsService {
                     .build());
 
             // 추가하는 이미지가 있을 경우에만 s3에 저장한다.
-            if(!(checkNullImageList(multipartFiles))){
+            if (!(checkNullImageList(multipartFiles))) {
                 //s3에 저장
                 for (MultipartFile multipartFile : multipartFiles) {
                     String image = s3Uploader.uploadFiles(multipartFile, dirName);
@@ -210,7 +210,7 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, String type, String status, int page, int size, User user) {
+    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, RequestType type, RequestStatus status, int page, int size, User user) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
         Set<Long> userIdQuery = getUserIdSet(user);
@@ -239,23 +239,23 @@ public class RequestsService {
     }
 
     // list 추출 조건용 requestType Set 리스트.
-    private Set<RequestType> getTypeSet(String type) {
+    private Set<RequestType> getTypeSet(RequestType type) {
         Set<RequestType> requestTypeQuery = new HashSet<>();
-        if (type.equals("ALL")) {
+        if (type == null) {
             requestTypeQuery.addAll(List.of(RequestType.values()));
         } else {
-            requestTypeQuery.add(RequestType.valueOf(type));
+            requestTypeQuery.add(type);
         }
         return requestTypeQuery;
     }
 
     // list 추출 조건용 requestStatus Set 리스트.
-    private Set<RequestStatus> getStatusSet(String status) {
+    private Set<RequestStatus> getStatusSet(RequestStatus status) {
         Set<RequestStatus> requestStatusQuery = new HashSet<>();
-        if (status.equals("ALL")) {
+        if (status == null) {
             requestStatusQuery.addAll(List.of(RequestStatus.values()));
         } else {
-            requestStatusQuery.add(RequestStatus.valueOf(status));
+            requestStatusQuery.add(status);
         }
         return requestStatusQuery;
     }
@@ -295,9 +295,9 @@ public class RequestsService {
     }
 
     @Transactional
-    public ResponseDto<String> processingRequests(RequestsProcessRequestDto requestsProcessRequestDto) throws Exception {
-        Requests request = getRequest(requestsProcessRequestDto.getRequestId());
-        AcceptResult acceptResult = AcceptResult.valueOf(requestsProcessRequestDto.getAcceptResult());
+    public ResponseDto<String> processingRequests(Long requestId, RequestsProcessRequestDto requestsProcessRequestDto) throws Exception {
+        Requests request = getRequest(requestId);
+        AcceptResult acceptResult = requestsProcessRequestDto.getAcceptResult();
         checkAcceptResult(acceptResult, request.getRequestType());
 
         // 요청 상태 처리.

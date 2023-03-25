@@ -33,8 +33,6 @@ public class Supply extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private SupplyStatusEnum status;
 
-    private LocalDateTime createdAt;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partnersId")
     private Partners partners;
@@ -54,7 +52,6 @@ public class Supply extends TimeStamped {
         this.image = image;
         this.partners = partners;
         this.status = user == null ? STOCK : USING;
-//        this.createdAt = supplyRequestDto.getCreatedAt();
         this.category = category;
         this.user = user;
     }
