@@ -43,8 +43,7 @@ public class RequestsService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto,
-                                              List<MultipartFile> multipartFiles, User user) throws Exception {
+    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws Exception {
 
 //
 //        //아래 코드 중복되는 것 합치기
@@ -63,13 +62,13 @@ public class RequestsService {
 //                .requestStatus(RequestStatus.UNPROCESSED)
 //                .user(user).build()
 //        );
-
-        if (requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)) {
+        RequestType requestType = RequestType.valueOf(requestsRequestDto.getRequestType());
+        if (requestType.equals(RequestType.SUPPLY)) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
 
             requestsRepository.save(Requests.builder()
                     .content(requestsRequestDto.getContent())
-                    .requestType(requestsRequestDto.getRequestType())
+                    .requestType(requestType)
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .category(category)
                     .user(user)
@@ -82,16 +81,16 @@ public class RequestsService {
                 throw new CustomException(ErrorCode.isProcessingRequest);
             }
             // s3 폴더 이름
-            String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
+            String dirName = requestType.name().toLowerCase() + "images";
 
-//            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
+            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
             // image Null check
             checkNullImageList(multipartFiles);
 
             Requests requests = Requests.builder()
                     .content(requestsRequestDto.getContent())
-                    .requestType(requestsRequestDto.getRequestType())
+                    .requestType(requestType)
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .user(user)
                     .supply(supply)
@@ -116,7 +115,7 @@ public class RequestsService {
 
         String message = requestsRequestDto.getRequestType().equals(RequestType.REPORT) ?
                 "보고서 제출 완료" :
-                requestsRequestDto.getRequestType().getKorean() + " 완료";
+                requestType.getKorean() + " 완료";
 
         List<User> adminList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
         if (adminList != null) {
@@ -143,7 +142,8 @@ public class RequestsService {
         // 처리 전 요청인지 확인
         checkProcessing(requests);
 
-        if (requests.getRequestType().name().equals("SUPPLY")) {
+        RequestType requestType = RequestType.valueOf(requestsRequestDto.getRequestType());
+        if (requestType.equals("SUPPLY")) {
             Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .category(category)
@@ -169,7 +169,7 @@ public class RequestsService {
             }
 
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
-            String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
+            String dirName = requestType.name().toLowerCase() + "images";
 
 //            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 

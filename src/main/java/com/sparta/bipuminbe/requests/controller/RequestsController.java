@@ -100,9 +100,8 @@ public class RequestsController {
             "**반납/수리/보고서 일 경우**, 필요값 = supplyId, requestType, content, multipartFile(이미지)<br>" +
             "requestType = SUPPLY / REPAIR / RETURN / REPORT")
     public ResponseDto<String> createRequests(@ModelAttribute RequestsRequestDto requestsRequestDto,
-                                              @RequestParam(required = false) List<MultipartFile> multipartFiles,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
-        return requestsService.createRequests(requestsRequestDto, multipartFiles, userDetails.getUser());
+        return requestsService.createRequests(requestsRequestDto, userDetails.getUser());
     }
 
     @PutMapping(value = "/requests/{requestId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})

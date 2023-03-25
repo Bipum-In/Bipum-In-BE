@@ -2,9 +2,7 @@ package com.sparta.bipuminbe.requests.dto;
 
 import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sun.istack.Nullable;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -16,8 +14,7 @@ public class RequestsRequestDto {
     private Long supplyId;
     private Long categoryId;
     private String content;
-    private RequestType requestType;
+    private String requestType;
     private List<String> storedImageURLs;
-
-//    private List<MultipartFile> multipartFile;
+    private List<MultipartFile> multipartFile;
 }
