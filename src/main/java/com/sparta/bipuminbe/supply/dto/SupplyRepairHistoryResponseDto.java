@@ -1,8 +1,6 @@
 package com.sparta.bipuminbe.supply.dto;
 
-import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
-import com.sparta.bipuminbe.common.enums.RequestType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,21 +8,19 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
-public class SupplyHistoryResponseDto {
+public class SupplyRepairHistoryResponseDto {
 
     private LocalDateTime modifiedAt;
 //    private String username;
     private String empName;
     private String deptName;
+    private String partnersName;
 
-    private String content;
-
-    public SupplyHistoryResponseDto(Requests request){
-        Supply supply = request.getSupply();
+    public SupplyRepairHistoryResponseDto(Supply supply){
         this.modifiedAt = supply.getModifiedAt();
 //        this.username = supply.getUser().getUsername();
         this.empName = supply.getUser() == null ? null : supply.getUser().getEmpName();
         this.deptName = supply.getUser() == null ? null : supply.getUser().getDepartment().getDeptName();
-        this.content = request.getRequestType()== RequestType.SUPPLY ? "사용" : "반납";
+        this.partnersName = supply.getPartners() == null ? null : supply.getPartners().getPartnersName();
     }
 }

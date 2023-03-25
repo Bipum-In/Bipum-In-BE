@@ -48,13 +48,13 @@ public class Supply extends TimeStamped {
     private Category category;
 
 
-    public Supply(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user) {
+    public Supply(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user, String image) {
         this.serialNum = supplyRequestDto.getSerialNum();
         this.modelName = supplyRequestDto.getModelName();
-        this.image = supplyRequestDto.getImage();
+        this.image = image;
         this.partners = partners;
         this.status = user == null ? STOCK : USING;
-        this.createdAt = supplyRequestDto.getCreatedAt();
+//        this.createdAt = supplyRequestDto.getCreatedAt();
         this.category = category;
         this.user = user;
     }
