@@ -1,6 +1,9 @@
 package com.sparta.bipuminbe.supply.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.entity.Image;
+import com.sparta.bipuminbe.common.entity.Requests;
+import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.supply.dto.*;
@@ -9,11 +12,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -25,12 +31,13 @@ public class SupplyController {
 
     //비품 등록
     @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PostMapping("/supply")
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, value="/supply")
     @Operation(summary = "비품 등록", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가), 반납 날짜(null 가능), 협력업체(null 가능), 유저 아이디(null 불가), 관리자 권한 필요.")
     public ResponseDto<String> createSupply(
-            @RequestBody @Valid SupplyRequestDto supplyRequestDto) {
+            @ModelAttribute @Valid SupplyRequestDto supplyRequestDto) throws IOException {
         return supplyService.createSupply(supplyRequestDto);
     }
+
 
 
     //비품 조회

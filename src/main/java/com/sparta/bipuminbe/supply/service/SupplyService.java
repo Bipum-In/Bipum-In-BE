@@ -1,11 +1,17 @@
 package com.sparta.bipuminbe.supply.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.common.s3.S3Uploader;
+import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
@@ -22,7 +28,11 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 
@@ -41,9 +51,11 @@ public class SupplyService {
     @Value("${Naver.Client.Secret}")
     private String naverClientSecret;
 
+    private final S3Uploader s3Uploader;
+
     //비품 등록
     @Transactional
-    public ResponseDto<String> createSupply(SupplyRequestDto supplyRequestDto) {
+    public ResponseDto<String> createSupply(SupplyRequestDto supplyRequestDto) throws IOException {
 
         Partners partners = null;
         if (supplyRequestDto.getPartnersId() != null) {
@@ -59,6 +71,8 @@ public class SupplyService {
             );
         }
 
+        String fileImg = s3Uploader.uploadFiles(supplyRequestDto.getMultipartFile(), supplyRequestDto.getCategoryName());
+
         Optional<Category> category = categoryRepository.findByCategoryName(supplyRequestDto.getCategoryName());
 
         Category newCategory = null;
@@ -70,11 +84,12 @@ public class SupplyService {
             categoryRepository.save(newCategory);
         }
 
-        Supply newSupply = new Supply(supplyRequestDto, partners, newCategory, user);
+        Supply newSupply = new Supply(supplyRequestDto, partners, newCategory, user, fileImg);
         supplyRepository.save(newSupply);
 
         return ResponseDto.success("비품 등록 성공");
     }
+
 
     //비품 조회
     @Transactional(readOnly = true)
@@ -155,11 +170,13 @@ public class SupplyService {
         );
         SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply);
         List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
+        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
         List<Requests> requests = requestsRepository.findBySupply(supply);
         for (Requests request : requests) {
-            historyList.add(new SupplyHistoryResponseDto(request.getSupply()));
+            historyList.add(new SupplyHistoryResponseDto(request));
+            repairHistoryList.add(new SupplyRepairHistoryResponseDto(request.getSupply()));
         }
-        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, historyList);
+        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, historyList, repairHistoryList);
         return ResponseDto.success(supplyWhole);
     }
 
