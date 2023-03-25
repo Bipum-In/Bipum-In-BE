@@ -12,6 +12,7 @@ public class SupplyDetailResponseDto {
 
     private Long supplyId;
     private String image;
+    private String largeCategory;
     private String category;
     private String modelName;
     private String serialNum;
@@ -24,6 +25,7 @@ public class SupplyDetailResponseDto {
     public SupplyDetailResponseDto(Supply supply){
         this.supplyId = supply.getSupplyId();
         this.image = supply.getImage();
+        this.largeCategory = supply.getCategory().getLargeCategory().getKorean();
         this.category = supply.getCategory().getCategoryName();
         this.modelName = supply.getModelName();
         this.serialNum = supply.getSerialNum();

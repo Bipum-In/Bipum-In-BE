@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -58,4 +59,6 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
 
     @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_status = 'REPAIRING'", nativeQuery = true)
     Long userCountInRepair(@Param("userId") Long id);
+
+    Page<Requests> findBySupply_SupplyIdAndRequestTypeIn(Long supplyId, Set<RequestType> requestTypeQuery, Pageable pageable);
 }

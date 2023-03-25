@@ -301,7 +301,7 @@ public class RequestsService {
         checkAcceptResult(acceptResult, request.getRequestType());
 
         // 요청 상태 처리.
-        request.processingRequest(acceptResult, requestsProcessRequestDto.getComment());
+        request.processingRequest(acceptResult, requestsProcessRequestDto.getComment(), getSupply(requestsProcessRequestDto.getSupplyId()));
 
         String message = "[비품인]\n" + request.getUser().getEmpName() +
                 " 님이 요청 하신 " + request.getRequestType().getKorean();
