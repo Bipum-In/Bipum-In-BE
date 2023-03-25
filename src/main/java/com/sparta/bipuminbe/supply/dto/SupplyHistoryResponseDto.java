@@ -2,29 +2,31 @@ package com.sparta.bipuminbe.supply.dto;
 
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
+import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.RequestType;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
 @Getter
+@Builder
 public class SupplyHistoryResponseDto {
-
-    private LocalDateTime modifiedAt;
-//    private String username;
+    private Long requestId;
     private String empName;
     private String deptName;
+    private String history;
+    private LocalDateTime modifiedAt;
 
-    private String content;
-
-    public SupplyHistoryResponseDto(Requests request){
-        Supply supply = request.getSupply();
-        this.modifiedAt = supply.getModifiedAt();
-//        this.username = supply.getUser().getUsername();
-        this.empName = supply.getUser() == null ? null : supply.getUser().getEmpName();
-        this.deptName = supply.getUser() == null ? null : supply.getUser().getDepartment().getDeptName();
-        this.content = request.getRequestType()== RequestType.SUPPLY ? "사용" : "반납";
+    public static SupplyHistoryResponseDto of(Requests request) {
+        User user = request.getUser();
+        return SupplyHistoryResponseDto.builder()
+                .requestId(request.getRequestId())
+                .empName(user == null ? null : user.getEmpName())
+                .deptName(user == null ? null : user.getDepartment().getDeptName())
+                .history(request.getRequestType() == RequestType.SUPPLY ? "사용" : "반납")
+                .modifiedAt(request.getModifiedAt())
+                .build();
     }
 }
