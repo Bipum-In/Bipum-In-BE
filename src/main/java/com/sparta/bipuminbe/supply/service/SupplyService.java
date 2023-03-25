@@ -171,13 +171,13 @@ public class SupplyService {
                 () -> new CustomException(ErrorCode.NotFoundSupply)
         );
         SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply);
-        List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
-        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
-        List<Requests> requests = requestsRepository.findBySupply(supply);
-        for (Requests request : requests) {
-            historyList.add(SupplyHistoryResponseDto.of(request));
-            repairHistoryList.add(new SupplyRepairHistoryResponseDto(request.getSupply()));
-        }
+//        List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
+//        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
+//        List<Requests> requests = requestsRepository.findBySupply(supply);
+//        for (Requests request : requests) {
+//            historyList.add(SupplyHistoryResponseDto.of(request));
+//            repairHistoryList.add(new SupplyRepairHistoryResponseDto(request.getSupply()));
+//        }
 //        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, historyList, repairHistoryList);
 
         // Todo 여기 좀 힘들어 하실 것 같아서 page처리 해봤습니다.
