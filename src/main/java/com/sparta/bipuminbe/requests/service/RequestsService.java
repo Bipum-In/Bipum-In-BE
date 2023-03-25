@@ -43,8 +43,7 @@ public class RequestsService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto,
-                                              List<MultipartFile> multipartFiles, User user) throws Exception {
+    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws Exception {
 
 //
 //        //아래 코드 중복되는 것 합치기
@@ -63,13 +62,13 @@ public class RequestsService {
 //                .requestStatus(RequestStatus.UNPROCESSED)
 //                .user(user).build()
 //        );
-
-        if (requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)) {
+        RequestType requestType = RequestType.valueOf(requestsRequestDto.getRequestType());
+        if (requestType.equals(RequestType.SUPPLY)) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
 
             requestsRepository.save(Requests.builder()
                     .content(requestsRequestDto.getContent())
-                    .requestType(requestsRequestDto.getRequestType())
+                    .requestType(requestType)
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .category(category)
                     .user(user)
@@ -82,14 +81,16 @@ public class RequestsService {
                 throw new CustomException(ErrorCode.isProcessingRequest);
             }
             // s3 폴더 이름
-            String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
+            String dirName = requestType.name().toLowerCase() + "images";
 
-//            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
+            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
+            // image Null check
+            checkNullImageList(multipartFiles);
 
             Requests requests = Requests.builder()
                     .content(requestsRequestDto.getContent())
-                    .requestType(requestsRequestDto.getRequestType())
+                    .requestType(requestType)
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .user(user)
                     .supply(supply)
@@ -114,7 +115,7 @@ public class RequestsService {
 
         String message = requestsRequestDto.getRequestType().equals(RequestType.REPORT) ?
                 "보고서 제출 완료" :
-                requestsRequestDto.getRequestType().getKorean() + " 완료";
+                requestType.getKorean() + " 완료";
 
         List<User> adminList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
         if (adminList != null) {
@@ -141,12 +142,13 @@ public class RequestsService {
         // 처리 전 요청인지 확인
         checkProcessing(requests);
 
-        if(requests.getRequestType().name().equals("SUPPLY")){
+        RequestType requestType = RequestType.valueOf(requestsRequestDto.getRequestType());
+        if (requestType.equals("SUPPLY")) {
             Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .category(category)
                     .build();
-        }else{
+        } else {
             // 해당 요청의 이미지 리스트 가져오기
             List<Image> imageList = imageRepository.findImagesByRequests(requests).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundImages));
@@ -161,12 +163,13 @@ public class RequestsService {
                 }
 //                //S3 내 이미지 파일 삭제
 //                s3Uploader.deleteFile(image);
+
                 // DB 내 이미지 삭제
                 imageRepository.deleteById(image.getId());
             }
 
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
-            String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
+            String dirName = requestType.name().toLowerCase() + "images";
 
 //            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
@@ -188,6 +191,7 @@ public class RequestsService {
                 }
             }
         }
+
         return ResponseDto.success("요청 수정 완료");
     }
 
@@ -207,16 +211,32 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, String type, String status, int page, int size) {
+    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, String type, String status, int page, int size, User user) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
+        Set<Long> userIdQuery = getUserIdSet(user);
         Pageable pageable = getPageable(page, size);
+
         Page<Requests> requestsList = requestsRepository.
-                getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, pageable);
+                getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, userIdQuery, pageable);
 
         List<RequestsPageResponseDto> requestsDtoList = convertToDto(requestsList.getContent());
 
         return ResponseDto.success(new PageImpl<>(requestsDtoList, requestsList.getPageable(), requestsList.getTotalElements()));
+    }
+
+    // 유저가 admin이면 전체 조회, user라면 자기꺼만 조회.
+    private Set<Long> getUserIdSet(User user) {
+        Set<Long> userIdQuery = new HashSet<>();
+        if (user.getRole().equals(UserRoleEnum.ADMIN)) {
+            List<User> userList = userRepository.findAll();
+            for (User user1 : userList) {
+                userIdQuery.add(user1.getId());
+            }
+        } else {
+            userIdQuery.add(user.getId());
+        }
+        return userIdQuery;
     }
 
     // list 추출 조건용 requestType Set 리스트.
@@ -255,10 +275,10 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(Long requestId, User user) {
+    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(Long requestId, User user, UserRoleEnum role) {
         Requests request = getRequest(requestId);
         checkPermission(request, user);
-        return ResponseDto.success(RequestsDetailsResponseDto.of(request, user.getRole()));
+        return ResponseDto.success(RequestsDetailsResponseDto.of(request, role));
     }
 
     // 해당 요청을 볼 권한 확인.

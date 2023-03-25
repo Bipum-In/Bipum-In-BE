@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -28,9 +27,10 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
             "WHERE (u.empName LIKE :keyword OR d.deptName LIKE :keyword OR c.categoryName LIKE :keyword " +
             "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
             "AND r.requestType IN :requestTypeQuery " +
-            "AND r.requestStatus IN :requestStatusQuery")
+            "AND r.requestStatus IN :requestStatusQuery " +
+            "AND u.id IN :userIdQuery")
     Page<Requests> getRequestsList(@Param("keyword") String keyword, @Param("requestTypeQuery") Set<RequestType> requestTypeQuery,
-                                   @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery, Pageable pageable);
+                                   @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery, Set<Long> userIdQuery, Pageable pageable);
 
     @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.request_type = 'SUPPLY'", nativeQuery = true)
     Long countSupply();

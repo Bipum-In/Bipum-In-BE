@@ -58,7 +58,7 @@ public class Requests extends TimeStamped {
         this.requestStatus = requestStatus;
         this.supply = supply;
         this.user = user;
-        this.category = supply.getCategory();
+        this.category = supply == null ? category : supply.getCategory();
     }
 
     public void processingRequest(AcceptResult acceptResult, String comment) {

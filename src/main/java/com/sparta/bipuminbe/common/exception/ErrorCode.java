@@ -25,6 +25,8 @@ public enum ErrorCode {
     isProcessingRequest(HttpStatus.BAD_REQUEST, "처리 중인 요청이 있습니다."),
     NullImageList(HttpStatus.BAD_REQUEST, "저장된 이미지가 없습니다."),
     NotUnProcessedRequest(HttpStatus.BAD_REQUEST, "처리 전 요청만 수정/삭제가 가능합니다."),
+    InValidRequest(HttpStatus.BAD_REQUEST, "해당 키워드의 이미지를 검색할 수 없습니다."),
+
     UnAuthorized(HttpStatus.UNAUTHORIZED, "로그인을 해주세요."),
     NotFoundUser(HttpStatus.BAD_REQUEST, "아이디가 존재하지 않습니다."),
     NotMatchPassword(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
