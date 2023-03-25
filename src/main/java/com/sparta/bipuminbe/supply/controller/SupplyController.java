@@ -51,7 +51,8 @@ public class SupplyController {
 
     //비품 상세
     @GetMapping("/supply/{supplyId}")
-    @Operation(summary = "비품 상세", description = "관리자 권한 필요.")
+    @Operation(summary = "비품 상세", description = "관리자 권한 필요." +
+            "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
     public ResponseDto<SupplyWholeResponseDto> getSupply(
             @PathVariable Long supplyId,
             @RequestParam(defaultValue = "6") int size
