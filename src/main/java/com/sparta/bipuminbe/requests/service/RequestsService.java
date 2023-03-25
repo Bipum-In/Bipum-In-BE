@@ -210,7 +210,7 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, String type, String status, int page, int size, User user) {
+    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, RequestType type, RequestStatus status, int page, int size, User user) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
         Set<Long> userIdQuery = getUserIdSet(user);
@@ -239,23 +239,23 @@ public class RequestsService {
     }
 
     // list 추출 조건용 requestType Set 리스트.
-    private Set<RequestType> getTypeSet(String type) {
+    private Set<RequestType> getTypeSet(RequestType type) {
         Set<RequestType> requestTypeQuery = new HashSet<>();
-        if (type.equals("ALL")) {
+        if (type == null) {
             requestTypeQuery.addAll(List.of(RequestType.values()));
         } else {
-            requestTypeQuery.add(RequestType.valueOf(type));
+            requestTypeQuery.add(type);
         }
         return requestTypeQuery;
     }
 
     // list 추출 조건용 requestStatus Set 리스트.
-    private Set<RequestStatus> getStatusSet(String status) {
+    private Set<RequestStatus> getStatusSet(RequestStatus status) {
         Set<RequestStatus> requestStatusQuery = new HashSet<>();
-        if (status.equals("ALL")) {
+        if (status == null) {
             requestStatusQuery.addAll(List.of(RequestStatus.values()));
         } else {
-            requestStatusQuery.add(RequestStatus.valueOf(status));
+            requestStatusQuery.add(status);
         }
         return requestStatusQuery;
     }

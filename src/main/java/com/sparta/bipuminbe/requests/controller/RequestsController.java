@@ -1,6 +1,8 @@
 package com.sparta.bipuminbe.requests.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.enums.RequestStatus;
+import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.common.sse.service.NotificationService;
@@ -37,8 +39,8 @@ public class RequestsController {
             "ALL(전체조회) or 키워드x 일 때는 쿼리 안날려도 되긴함.<br> " +
             "관리자 권한 필요.")
     public ResponseDto<Page<RequestsPageResponseDto>> getRequestsAdminPage(@RequestParam(defaultValue = "") String keyword,
-                                                                           @RequestParam(defaultValue = "") String type,
-                                                                           @RequestParam(defaultValue = "") String status,
+                                                                           @RequestParam(defaultValue = "") RequestType type,
+                                                                           @RequestParam(defaultValue = "") RequestStatus status,
                                                                            @RequestParam(defaultValue = "1") int page,
                                                                            @RequestParam(defaultValue = "10") int size,
                                                                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -51,8 +53,8 @@ public class RequestsController {
             "status는 **ALL/UNPROCESSED/PROCESSING/PROCESSED**.<br> " +
             "ALL(전체조회) or 키워드x 일 때는 쿼리 안날려도 되긴함.")
     public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(@RequestParam(defaultValue = "") String keyword,
-                                                                      @RequestParam(defaultValue = "") String type,
-                                                                      @RequestParam(defaultValue = "") String status,
+                                                                      @RequestParam(defaultValue = "") RequestType type,
+                                                                      @RequestParam(defaultValue = "") RequestStatus status,
                                                                       @RequestParam(defaultValue = "1") int page,
                                                                       @RequestParam(defaultValue = "10") int size,
                                                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
