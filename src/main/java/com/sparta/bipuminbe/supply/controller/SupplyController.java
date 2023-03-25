@@ -103,7 +103,8 @@ public class SupplyController {
 
     // 비품 리스트 UserPage
     @GetMapping("/supply")
-    @Operation(summary = "재고 현황 페이지(USER)")
+    @Operation(summary = "재고 현황 페이지(USER)", description = "데이터 골라서 집어가주실 수 있을까요 ㅋㅋㅋㅋ <br>" +
+            "supplyId / image / modelName / ")
     public ResponseDto<Page<SupplyResponseDto>> getStockList(@RequestParam(defaultValue = "") String keyword,
                                                           @RequestParam(defaultValue = "") Long categoryId,
                                                           @RequestParam(defaultValue = "1") int page,
