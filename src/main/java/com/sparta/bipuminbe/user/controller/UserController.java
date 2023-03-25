@@ -2,7 +2,6 @@ package com.sparta.bipuminbe.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.user.dto.LoginRequestDto;
 import com.sparta.bipuminbe.user.dto.UserResponseDto;

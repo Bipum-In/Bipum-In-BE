@@ -86,11 +86,11 @@ public class UserService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", apiKey); // 본인의 발급받은 API 키 넣기
         body.add("redirect_uri", redirectUrl);
+        body.add("code", code);
 
 //        https://bipum-in.shop/api/user/kakao/callback
 //        http://localhost:8080/api/user/kakao/callback
 //        http://localhost:3000/api/user/kakao/callback
-        body.add("code", code);
 
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
@@ -107,6 +107,7 @@ public class UserService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper(); // 받은 것을 Json형태로 파싱
         JsonNode jsonNode = objectMapper.readTree(responseBody);
+
         return jsonNode.get("access_token").asText();
     }
 
@@ -126,7 +127,6 @@ public class UserService {
                 kakaoUserInfoRequest,
                 String.class
         );
-
 
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -179,7 +179,7 @@ public class UserService {
             foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone());
         }
 
-        return ResponseDto.success("회원정보 수정 완료");
+        return ResponseDto.success("추가정보 입력 완료");
     }
 
     @Transactional(readOnly = true)
