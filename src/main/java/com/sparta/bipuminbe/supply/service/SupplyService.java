@@ -247,7 +247,7 @@ public class SupplyService {
     private ImageResponseDto fromJSONtoItems(String response) {
         JSONObject rjson = new JSONObject(response);
         JSONArray items = rjson.getJSONArray("items");
-        if (items.getJSONObject(0) == null) {
+        if (items.length() == 0) {
             throw new CustomException(ErrorCode.InValidRequest);
         }
         return ImageResponseDto.of(items.getJSONObject(0));

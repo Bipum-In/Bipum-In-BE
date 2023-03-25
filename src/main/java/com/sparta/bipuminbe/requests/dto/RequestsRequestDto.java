@@ -1,7 +1,5 @@
 package com.sparta.bipuminbe.requests.dto;
 
-import com.sparta.bipuminbe.common.enums.RequestType;
-import com.sun.istack.Nullable;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
