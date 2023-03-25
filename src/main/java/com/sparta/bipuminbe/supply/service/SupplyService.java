@@ -8,6 +8,7 @@ import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
@@ -93,7 +94,7 @@ public class SupplyService {
 
     //비품 조회
     @Transactional(readOnly = true)
-    public ResponseDto<Page<SupplyResponseDto>> getSupplyList(String keyword, String categoryId, String status, int page, int size) {
+    public ResponseDto<Page<SupplyResponseDto>> getSupplyList(String keyword, Long categoryId, SupplyStatusEnum status, int page, int size) {
         Set<Long> categoryQuery = getCategoryQuerySet(categoryId);
         Set<SupplyStatusEnum> statusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page, size);
@@ -103,15 +104,15 @@ public class SupplyService {
         return ResponseDto.success(new PageImpl<>(supplyResponseDtoList, supplies.getPageable(), supplies.getTotalElements()));
     }
 
-    private Set<Long> getCategoryQuerySet(String categoryId) {
+    private Set<Long> getCategoryQuerySet(Long categoryId) {
         Set<Long> categoryQuerySet = new HashSet<>();
-        if (categoryId.equals("")) {
+        if (categoryId == null) {
             List<Category> categoryList = categoryRepository.findAll();
             for (Category category : categoryList) {
                 categoryQuerySet.add(category.getId());
             }
         } else {
-            Category category = categoryRepository.findById(Long.parseLong(categoryId)).orElseThrow(
+            Category category = categoryRepository.findById(categoryId).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundCategory));
             categoryQuerySet.add(category.getId());
         }
@@ -119,12 +120,12 @@ public class SupplyService {
     }
 
     // list 추출 조건용 requestStatus Set 리스트.
-    private Set<SupplyStatusEnum> getStatusSet(String status) {
+    private Set<SupplyStatusEnum> getStatusSet(SupplyStatusEnum status) {
         Set<SupplyStatusEnum> requestStatusQuery = new HashSet<>();
-        if (status.equals("ALL")) {
+        if (status == null) {
             requestStatusQuery.addAll(List.of(SupplyStatusEnum.values()));
         } else {
-            requestStatusQuery.add(SupplyStatusEnum.valueOf(status));
+            requestStatusQuery.add(status);
         }
         return requestStatusQuery;
     }
@@ -268,5 +269,10 @@ public class SupplyService {
             throw new CustomException(ErrorCode.InValidRequest);
         }
         return ImageResponseDto.of(items.getJSONObject(0));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<Page<SupplyResponseDto>> getStockList(String keyword, Long categoryId, int page, int size) {
+        return getSupplyList(keyword, categoryId, SupplyStatusEnum.STOCK, page, size);
     }
 }

@@ -1,9 +1,7 @@
 package com.sparta.bipuminbe.supply.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.Image;
-import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
+import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.supply.dto.*;
@@ -16,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -41,12 +38,12 @@ public class SupplyController {
 
 
     //비품 조회
-    @GetMapping("/supply")
+    @GetMapping("/admin/supply")
     @Operation(summary = "비품 조회", description = "SelectBox용(카테고리), 관리자 권한 필요. status ALL/USING/STOCK/REPAIRING")
     public ResponseDto<Page<SupplyResponseDto>> getSupplyList(
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "") String categoryId,
-            @RequestParam(defaultValue = "ALL") String status,
+            @RequestParam(defaultValue = "") Long categoryId,
+            @RequestParam(defaultValue = "") SupplyStatusEnum status,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -102,5 +99,15 @@ public class SupplyController {
     @Operation(summary = "naver Api를 통한 이미지 서치")
     public ResponseDto<ImageResponseDto> getImageByNaver(@RequestParam String modelName) {
         return supplyService.getImageByNaver(modelName);
+    }
+
+    // 비품 리스트 UserPage
+    @GetMapping("/supply")
+    @Operation(summary = "재고 현황 페이지(USER)")
+    public ResponseDto<Page<SupplyResponseDto>> getStockList(@RequestParam(defaultValue = "") String keyword,
+                                                          @RequestParam(defaultValue = "") Long categoryId,
+                                                          @RequestParam(defaultValue = "1") int page,
+                                                          @RequestParam(defaultValue = "10") int size) {
+        return supplyService.getStockList(keyword, categoryId, page, size);
     }
 }
