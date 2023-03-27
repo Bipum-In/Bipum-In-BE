@@ -51,7 +51,7 @@ public class Requests extends TimeStamped {
 
     @Builder
     public Requests(String content, List<Image> imageList, RequestType requestType, RequestStatus requestStatus,
-                    Supply supply, User user, Category category) {
+                    Supply supply, User user, Category category, AcceptResult acceptResult) {
         this.content = content;
         this.imageList = imageList;
         this.requestType = requestType;
@@ -59,6 +59,7 @@ public class Requests extends TimeStamped {
         this.supply = supply;
         this.user = user;
         this.category = supply == null ? category : supply.getCategory();
+        this.acceptResult = acceptResult;
     }
 
     public void processingRequest(AcceptResult acceptResult, String comment, Supply supply) {

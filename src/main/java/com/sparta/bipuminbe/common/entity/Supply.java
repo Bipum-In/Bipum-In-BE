@@ -6,6 +6,8 @@ import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.supply.dto.SupplyRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -31,6 +33,7 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private String modelName;
 
+//    @Column(nullable = false)
     private String image;
 
     @Enumerated(EnumType.STRING)
@@ -51,6 +54,8 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private Boolean deleted;
 
+    private LocalDateTime createdAt;
+
     //Todo Soft Delete 적용 되면 없앨 예정.
     @OneToMany(mappedBy = "supply", cascade = CascadeType.REMOVE)
     private List<Requests> requestsList = new ArrayList<>();
@@ -60,30 +65,42 @@ public class Supply extends TimeStamped {
         this.modelName = supplyRequestDto.getModelName();
         this.image = image;
         this.partners = partners;
-        this.status = user == null ? STOCK : USING;
+        this.status = user == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING;
         this.category = category;
         this.user = user;
         this.deleted = false;
     }
 
-    public void allocateSupply(User user) {
-        checkSupplyStatus();
+    public void update(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user, String image) {
+        this.category = category;
+        this.createdAt = supplyRequestDto.getCreatedAt();
+        this.serialNum = supplyRequestDto.getSerialNum();
+        this.modelName = supplyRequestDto.getModelName();
+        this.partners = partners == null ? null : partners;
         this.user = user;
-        this.status = SupplyStatusEnum.USING;
+        this.image = image;
     }
 
-    private void checkSupplyStatus() {
-        if (!this.status.equals(STOCK)) {
-            throw new CustomException(ErrorCode.NotStockSupply);
-        }
+    public void allocateSupply(User user) {
+//        checkSupplyStatus();
+        this.user = user;
+        this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.USING;
     }
+
+//    private void checkSupplyStatus() {
+//        if (this.status == SupplyStatusEnum.USING) {
+//            throw new CustomException(ErrorCode.NotStockSupply);
+//        }
+//    }
 
     public void repairSupply() {
-        status = status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.USING : SupplyStatusEnum.REPAIRING;
+        status = status.equals(SupplyStatusEnum.REPAIRING)
+                ? this.user == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING
+                : SupplyStatusEnum.REPAIRING;
     }
 
     public void returnSupply() {
         this.user = null;
-        this.status = STOCK;
+        this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.USING;
     }
 }
