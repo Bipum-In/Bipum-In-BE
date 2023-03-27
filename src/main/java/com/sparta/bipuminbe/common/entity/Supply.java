@@ -60,6 +60,7 @@ public class Supply extends TimeStamped {
         this.status = user == null ? STOCK : USING;
         this.category = category;
         this.user = user;
+        this.deleted = false;
     }
 
     public void allocateSupply(User user) {
