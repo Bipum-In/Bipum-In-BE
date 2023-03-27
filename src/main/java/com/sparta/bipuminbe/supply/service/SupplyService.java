@@ -68,7 +68,8 @@ public class SupplyService {
             image = s3Uploader.uploadFiles(supplyRequestDto.getMultipartFile(), supplyRequestDto.getCategoryName());
         }
 
-        Optional<Category> category = categoryRepository.findByCategoryName(supplyRequestDto.getCategoryName());
+        Optional<Category> category = categoryRepository.
+                findByCategoryNameAndLargeCategory(supplyRequestDto.getCategoryName(), supplyRequestDto.getLargeCategory());
 
         Category newCategory = null;
         if (category.isPresent()) {
@@ -224,7 +225,8 @@ public class SupplyService {
                 () -> new CustomException(ErrorCode.NotFoundSupply)
         );
 
-        Optional<Category> category = categoryRepository.findByCategoryName(supplyRequestDto.getCategoryName());
+        Optional<Category> category = categoryRepository.
+                findByCategoryNameAndLargeCategory(supplyRequestDto.getCategoryName(), supplyRequestDto.getLargeCategory());
 
         Category newCategory = null;
         if (category.isPresent()) {
