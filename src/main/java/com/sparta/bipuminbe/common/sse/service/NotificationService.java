@@ -63,6 +63,7 @@ public class NotificationService {
             sendLostData(lastEventId, userId, emitterId, emitter);
             log.info("subscribe8");
         }
+        log.info("subscribe9");
         return emitter;
     }
 
@@ -132,24 +133,27 @@ public class NotificationService {
                 .build();
     }
 
-    private String createMessage(Requests request, User receiver, AcceptResult isAccepted){
+    private String createMessage(Requests request, User receiver, AcceptResult isAccepted) {
+        String categoryName = request.getCategory() == null ?
+                request.getSupply().getCategory().getCategoryName() :
+                request.getCategory().getCategoryName();
 
         // 승인 건
-        if(isAccepted.name().equals("ACCEPT")){
+        if (isAccepted.name().equals("ACCEPT")) {
             return receiver.getEmpName() + " 님의 "
-                    + request.getCategory().getCategoryName() + " "
+                    + categoryName + " "
                     + request.getRequestType().getKorean() + " 이 승인되었습니다.";
         }
         // 거부 건
-        if(isAccepted.name().equals("DECLINE")){
+        if (isAccepted.name().equals("DECLINE")) {
             return receiver.getEmpName() + " 님의 "
-                    + request.getCategory().getCategoryName() + " "
+                    + categoryName + " "
                     + request.getRequestType().getKorean() + " 이 반려되었습니다.";
         }
         // 수리 요청 >> 폐기 처리 건
-        return receiver.getEmpName() +" 님의 "
+        return receiver.getEmpName() + " 님의 "
                 + request.getSupply().getModelName() + " "
-                + request.getCategory().getCategoryName()
+                + categoryName
                 + " 수리 요청 건이 폐기 승인되었습니다.";
     }
 }
