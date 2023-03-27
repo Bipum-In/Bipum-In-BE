@@ -52,7 +52,6 @@ public class NotificationService {
         log.info("Timeout 후");
         emitter.onError((e) -> emitterRepository.deleteById(emitterId));
 
-        emitter.complete();
         //Dummy 데이터를 보내 503에러 방지. (SseEmitter 유효시간 동안 어느 데이터도 전송되지 않으면 503에러 발생)
         String eventId = makeTimeIncludeId(userId);
         log.info("subscribe5");
