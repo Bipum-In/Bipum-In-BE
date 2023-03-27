@@ -298,7 +298,10 @@ public class RequestsService {
         AcceptResult acceptResult = requestsProcessRequestDto.getAcceptResult();
         checkAcceptResult(acceptResult, request.getRequestType());
 
-        Supply supply = request.getRequestType().equals(RequestType.SUPPLY) ? getSupply(requestsProcessRequestDto.getSupplyId()) : request.getSupply();
+        Supply supply = request.getRequestType().equals(RequestType.SUPPLY)
+                ? requestsProcessRequestDto.getSupplyId() == null ? null : getSupply(requestsProcessRequestDto.getSupplyId())
+                : request.getSupply();
+
         // 요청 상태 처리.
         request.processingRequest(acceptResult, requestsProcessRequestDto.getComment(), supply);
 
