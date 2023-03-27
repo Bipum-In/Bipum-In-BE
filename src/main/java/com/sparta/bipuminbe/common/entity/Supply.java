@@ -12,8 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.STOCK;
-import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
+import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.*;
 
 @Entity
 @Getter
@@ -60,7 +59,7 @@ public class Supply extends TimeStamped {
         this.modelName = supplyRequestDto.getModelName();
         this.image = image;
         this.partners = partners;
-        this.status = user == null ? STOCK : USING;
+        this.status = user == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING;
         this.category = category;
         this.user = user;
         this.deleted = false;
@@ -69,21 +68,23 @@ public class Supply extends TimeStamped {
     public void allocateSupply(User user) {
         checkSupplyStatus();
         this.user = user;
-        this.status = SupplyStatusEnum.USING;
+        this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.USING;
     }
 
     private void checkSupplyStatus() {
-        if (!this.status.equals(STOCK)) {
+        if (this.status == SupplyStatusEnum.USING) {
             throw new CustomException(ErrorCode.NotStockSupply);
         }
     }
 
     public void repairSupply() {
-        status = status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.USING : SupplyStatusEnum.REPAIRING;
+        status = status.equals(SupplyStatusEnum.REPAIRING)
+                ? this.user == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING
+                : SupplyStatusEnum.REPAIRING;
     }
 
     public void returnSupply() {
         this.user = null;
-        this.status = STOCK;
+        this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.USING;
     }
 }

@@ -76,9 +76,10 @@ public class SupplyController {
     @DeleteMapping("/supply/{supplyId}")
     @Operation(summary = "비품 폐기", description = "관리자 권한 필요.")
     public ResponseDto<String> deleteSupply(
-            @PathVariable Long supplyId
+            @PathVariable Long supplyId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        return supplyService.deleteSupply(supplyId);
+        return supplyService.deleteSupply(supplyId, userDetails.getUser());
     }
 
     //자신의 비품 목록(selectbox용)

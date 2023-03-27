@@ -1,26 +1,17 @@
 package com.sparta.bipuminbe.supply.service;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
-import com.sparta.bipuminbe.common.enums.RequestType;
-import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
-import com.sparta.bipuminbe.common.enums.UserRoleEnum;
+import com.sparta.bipuminbe.common.enums.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
-import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.repository.UserRepository;
-import io.swagger.v3.core.util.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -31,11 +22,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 
@@ -212,6 +200,7 @@ public class SupplyService {
 
         supply.allocateSupply(user);
 
+        //Todo 비품 history에 기록이 남으려면 요청서도 생성해 줘야 한다.
         if (!user.equals(supply.getUser())) {
             String content = "비품의 유저 강제 변경에 의한 기록 생성.";
             // 반납 요청 먼저 생성. (기록용)
@@ -220,6 +209,7 @@ public class SupplyService {
                         .content(content)
                         .requestType(RequestType.RETURN)
                         .requestStatus(RequestStatus.PROCESSED)
+                        .acceptResult(AcceptResult.ACCEPT)
                         .supply(supply)
                         .user(supply.getUser())
                         .build());
@@ -227,11 +217,12 @@ public class SupplyService {
             }
 
             // 다음 유저 비품 요청 생성. (기록용)
-            if(user != null){
+            if (user != null) {
                 requestsRepository.save(Requests.builder()
                         .content(content)
                         .requestType(RequestType.SUPPLY)
                         .requestStatus(RequestStatus.PROCESSED)
+                        .acceptResult(AcceptResult.ACCEPT)
                         .supply(supply)
                         .user(user)
                         //Todo 여기 dto 들어오면 손봐야 함.
@@ -240,17 +231,30 @@ public class SupplyService {
                 supply.allocateSupply(user);
             }
         }
+
         return ResponseDto.success("비품 수정 성공");
     }
 
 
     //비품 폐기
     @Transactional
-    public ResponseDto<String> deleteSupply(Long supplyId) {
+    public ResponseDto<String> deleteSupply(Long supplyId, User user) {
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply)
         );
+
+        // 비품 폐기 처리 기록 생성.
+        String content = "비품의 유저 강제 변경에 의한 기록 생성.";
+        requestsRepository.save(Requests.builder()
+                .content(content)
+                .requestType(RequestType.REPAIR)
+                .requestStatus(RequestStatus.PROCESSED)
+                .acceptResult(AcceptResult.DISPOSE)
+                .supply(supply)
+                .user(user)
+                .build());
+
         supplyRepository.delete(supply);
         return ResponseDto.success("비품 삭제 성공");
     }
