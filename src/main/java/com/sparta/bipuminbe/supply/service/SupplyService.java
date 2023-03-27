@@ -245,6 +245,7 @@ public class SupplyService {
         );
 
         // 비품 폐기 처리 기록 생성.
+        //Todo softDelete 생기면 없어질 예정.
         String content = "비품의 유저 강제 변경에 의한 기록 생성.";
         requestsRepository.save(Requests.builder()
                 .content(content)
