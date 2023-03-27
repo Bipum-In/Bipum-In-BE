@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.*;
+import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.STOCK;
+import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
 
 @Entity
 @Getter
@@ -32,6 +33,7 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private String modelName;
 
+//    @Column(nullable = false)
     private String image;
 
     @Enumerated(EnumType.STRING)
@@ -52,6 +54,8 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private Boolean deleted;
 
+    private LocalDateTime createdAt;
+
     //Todo Soft Delete 적용 되면 없앨 예정.
     @OneToMany(mappedBy = "supply", cascade = CascadeType.REMOVE)
     private List<Requests> requestsList = new ArrayList<>();
@@ -65,6 +69,16 @@ public class Supply extends TimeStamped {
         this.category = category;
         this.user = user;
         this.deleted = false;
+    }
+
+    public void update(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user, String image) {
+        this.category = category;
+        this.createdAt = supplyRequestDto.getCreatedAt();
+        this.serialNum = supplyRequestDto.getSerialNum();
+        this.modelName = supplyRequestDto.getModelName();
+        this.partners = partners == null ? null : partners;
+        this.user = user;
+        this.image = image;
     }
 
     public void allocateSupply(User user) {

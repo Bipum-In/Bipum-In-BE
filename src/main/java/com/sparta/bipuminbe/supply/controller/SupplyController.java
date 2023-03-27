@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.supply.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
@@ -60,15 +61,26 @@ public class SupplyController {
         return supplyService.getSupply(supplyId, size);
     }
 
-    //유저 할당
+//    //유저 할당
+//    @Secured(value = UserRoleEnum.Authority.ADMIN)
+//    @PutMapping("/supply")
+//    @Operation(summary = "유저 할당", description = "SelectBox용(카테고리), 관리자 권한 필요.")
+//    public ResponseDto<String> updateSupply(
+//            @RequestParam("supplyId") Long supplyId,
+//            @RequestParam("userId") Long userId
+//    ) {
+//        return supplyService.updateSupply(supplyId, userId);
+//    }
+
+    //비품 수정
     @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PutMapping("/supply")
-    @Operation(summary = "유저 할당", description = "SelectBox용(카테고리), 관리자 권한 필요.")
-    public ResponseDto<String> updateSupply(
-            @RequestParam("supplyId") Long supplyId,
-            @RequestParam("userId") Long userId
-    ) {
-        return supplyService.updateSupply(supplyId, userId);
+    @PutMapping("/supply/{supplyId}")
+    @Operation(summary = "비품 수정", description = "관리자 권한 필요.")
+    public ResponseDto<String> updateSupplies(
+            @PathVariable Long supplyId,
+            @RequestBody @Valid SupplyRequestDto supplyRequestDto
+    ) throws IOException {
+        return supplyService.updateSupplies(supplyId, supplyRequestDto);
     }
 
     //비품 폐기

@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -26,5 +27,6 @@ public class SupplyRequestDto {
     private Long partnersId;
     private Long userId;
     private String image;
+    private LocalDateTime createdAt;
     private MultipartFile multipartFile;
 }
