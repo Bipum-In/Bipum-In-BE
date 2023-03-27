@@ -110,15 +110,21 @@ public class NotificationService {
         String content = createMessage(request, receiver, isAccepted);
 
         uri = uri + requestsId;
-
+        log.info("uri = " + uri);
         Notification notification = notificationRepository.save(createNotification(receiver, content, uri));
+
+//        log.info("Notification = " + notification.getContent());
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
+
+        log.info("eventId : " + eventId);
+
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
         emitters.forEach(
                 (key, emitter) -> {
                     emitterRepository.saveEventCache(key, notification);
+                    log.info("emitters 안쪽 eventId : " + eventId);
                     sendNotification(emitter, eventId, key, NotificationResponseDto.of(notification));
                 }
         );
