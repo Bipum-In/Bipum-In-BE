@@ -4,6 +4,7 @@ import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor
+@Getter
 @EqualsAndHashCode(of = "id")
 public class Notification {
     @Id
@@ -49,13 +51,5 @@ public class Notification {
         this.content = content;
         this.url = url;
         this.isRead = isRead;
-    }
-
-    public String getContent() {
-        return this.getContent();
-    }
-
-    public String getUrl() {
-        return this.getUrl();
     }
 }

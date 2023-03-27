@@ -113,7 +113,7 @@ public class NotificationService {
         log.info("uri = " + uri);
         Notification notification = notificationRepository.save(createNotification(receiver, content, uri));
 
-        log.info("Notification = " + notification.getContent());
+//        log.info("Notification = " + notification.getContent());
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
