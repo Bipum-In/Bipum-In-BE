@@ -30,7 +30,7 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public ResponseDto<AdminMainResponseDto> getAdminMain(String largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
-        List<Category> categoryList = categoryRepository.findByLargeCategoryIn(categoryQuery);
+        List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
 
         List<SupplyCountDto> responseDtos = new ArrayList();
         // 카테고리별 총 수량, 사용중, 수리중, 재고량 계산

@@ -4,16 +4,14 @@ import com.sparta.bipuminbe.partners.dto.PartnersDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
 @NoArgsConstructor
-@SQLDelete(sql = "UPDATE Partners SET deleted = true WHERE partnersId = ?")
-@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
+//@SQLDelete(sql = "UPDATE Partners SET deleted = true WHERE partnersId = ?")
+//@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class Partners extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

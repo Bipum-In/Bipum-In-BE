@@ -6,8 +6,6 @@ import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.supply.dto.SupplyRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,8 +16,8 @@ import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
 @Entity
 @Getter
 @NoArgsConstructor
-@SQLDelete(sql = "UPDATE Supply SET deleted = true WHERE supplyId = ?")
-@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
+//@SQLDelete(sql = "UPDATE Supply SET deleted = true WHERE supplyId = ?")
+//@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class Supply extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

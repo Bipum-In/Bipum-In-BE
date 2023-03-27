@@ -25,7 +25,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public ResponseDto<List<CategoryDto>> getCategoryList(String largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
-        List<Category> categoryList = categoryRepository.findByLargeCategoryIn(categoryQuery);
+        List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
         List<CategoryDto> categoryDtoList = new ArrayList<>();
         for (Category category : categoryList) {
             categoryDtoList.add(CategoryDto.of(category));

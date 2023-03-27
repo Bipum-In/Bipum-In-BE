@@ -13,6 +13,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByCategoryName(String categoryName);
     boolean existsByCategoryName(String categoryName);
 
-    List<Category> findByLargeCategoryIn(Set<LargeCategory> largeCategories);
+    List<Category> findByLargeCategoryInOrderByCategoryName(Set<LargeCategory> largeCategories);
 
 }
