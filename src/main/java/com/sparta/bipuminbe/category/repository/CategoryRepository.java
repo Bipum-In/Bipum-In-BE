@@ -10,9 +10,9 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    Optional<Category> findByCategoryName(String categoryName);
     boolean existsByCategoryName(String categoryName);
 
     List<Category> findByLargeCategoryInOrderByCategoryName(Set<LargeCategory> largeCategories);
 
+    Optional<Category> findByCategoryNameAndLargeCategory(String categoryName, LargeCategory largeCategory);
 }
