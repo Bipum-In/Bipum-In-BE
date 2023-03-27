@@ -33,8 +33,9 @@ public class DashboardController {
 
     @Operation(summary = "사용자용 대쉬보드")
     @GetMapping("/main")
-    public ResponseDto<UserMainResponseDto> getUserMain(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseDto<UserMainResponseDto> getUserMain(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                        @RequestParam String largeCategory) {
 
-        return dashboardService.getUserMain(userDetails.getUser());
+        return dashboardService.getUserMain(userDetails.getUser(), largeCategory);
     }
 }

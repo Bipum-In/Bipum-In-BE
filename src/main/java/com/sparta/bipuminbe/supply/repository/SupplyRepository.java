@@ -15,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
@@ -47,4 +48,7 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             "AND s.status IN :statusQuery")
     Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Long> categoryQuery,
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
+
+
+    Optional<List<Supply>> findAllByUserIdAndCategoryId(Long id, Long categoryId);
 }

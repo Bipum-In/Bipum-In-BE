@@ -70,23 +70,30 @@ public class DashboardService {
     }
 
     // 사용자 대시보드
-    public ResponseDto<UserMainResponseDto> getUserMain(User user) {
+    public ResponseDto<UserMainResponseDto> getUserMain(User user, String largeCategory) {
+        Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
+        List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
+
         // 요청 현황 조회
         Map<String, Long> userCountMap = new HashMap<>();
-        userCountMap.put("userCountSupply", requestsRepository.userCountInRepair(user.getId()));
-
+        userCountMap.put("userCountSupply", requestsRepository.userCountSupply(user.getId()));
+        userCountMap.put("userCountReturn", requestsRepository.userCountReturn(user.getId()));
+        userCountMap.put("userCountRepair", requestsRepository.userCountRepair(user.getId()));
+        userCountMap.put("userCountReport", requestsRepository.userCountReport(user.getId()));
 
         // 사용 중인 비품 조회
-        List<Supply> supplieList = supplyRepository.findAllByUserId(user.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
-
+        List<Supply> supplies = new ArrayList<>();
         List<UserSupplyDto> userSupplyDtos = new ArrayList<>();
 
-        for(Supply supply : supplieList){
+        for(Category category : categoryList){
+            supplies = supplyRepository.findAllByUserIdAndCategoryId(user.getId(), category.getId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
+        }
+        for(Supply supply : supplies){
             userSupplyDtos.add(UserSupplyDto.of(supply));
         }
 
-
+        // 요청 현황, 사용 중인 비품 현황 합쳐서 리턴
         return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, userCountMap));
     }
 
