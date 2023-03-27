@@ -134,7 +134,7 @@ public class NotificationService {
                 (key, emitter) -> {
                     emitterRepository.saveEventCache(key, notification);
                     log.info("emitters 안쪽 eventId : " + eventId);
-                    sendNotification(emitter, eventId, key, NotificationResponseDto.of(notification));
+                    sendNotification(emitter, eventId, key, NotificationResponseDto.of(notification).getContent());
                 }
         );
     }
