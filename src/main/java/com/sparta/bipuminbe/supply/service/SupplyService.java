@@ -73,7 +73,11 @@ public class SupplyService {
             );
         }
 
-        String fileImg = s3Uploader.uploadFiles(supplyRequestDto.getMultipartFile(), supplyRequestDto.getCategoryName());
+        String image = supplyRequestDto.getImage();
+
+        if (image == null) {
+            image = s3Uploader.uploadFiles(supplyRequestDto.getMultipartFile(), supplyRequestDto.getCategoryName());
+        }
 
         Optional<Category> category = categoryRepository.findByCategoryName(supplyRequestDto.getCategoryName());
 
@@ -86,7 +90,7 @@ public class SupplyService {
             categoryRepository.save(newCategory);
         }
 
-        Supply newSupply = new Supply(supplyRequestDto, partners, newCategory, user, fileImg);
+        Supply newSupply = new Supply(supplyRequestDto, partners, newCategory, user, image);
         supplyRepository.save(newSupply);
 
         return ResponseDto.success("비품 등록 성공");

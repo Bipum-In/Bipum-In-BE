@@ -31,7 +31,7 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private String modelName;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String image;
 
     @Enumerated(EnumType.STRING)
@@ -60,6 +60,7 @@ public class Supply extends TimeStamped {
         this.status = user == null ? STOCK : USING;
         this.category = category;
         this.user = user;
+        this.deleted = false;
     }
 
     public void allocateSupply(User user) {
