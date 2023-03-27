@@ -29,7 +29,8 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
             "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
             "AND r.requestType IN :requestTypeQuery " +
             "AND r.requestStatus IN :requestStatusQuery " +
-            "AND u.id IN :userIdQuery")
+            "AND u.id IN :userIdQuery " +
+            "order by r.createdAt desc")
     Page<Requests> getRequestsList(@Param("keyword") String keyword, @Param("requestTypeQuery") Set<RequestType> requestTypeQuery,
                                    @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery, Set<Long> userIdQuery, Pageable pageable);
 

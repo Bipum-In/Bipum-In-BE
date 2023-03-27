@@ -43,7 +43,8 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             "WHERE (u.empName LIKE :keyword OR d.deptName LIKE :keyword OR c.categoryName LIKE :keyword " +
             "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
             "AND c.id IN :categoryQuery " +
-            "AND s.status IN :statusQuery")
+            "AND s.status IN :statusQuery " +
+            "order by s.createdAt desc")
     Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Long> categoryQuery,
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
 
