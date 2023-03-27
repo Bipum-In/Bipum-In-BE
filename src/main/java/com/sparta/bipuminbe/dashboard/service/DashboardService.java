@@ -28,7 +28,7 @@ public class DashboardService {
 
     // 관리자 대시보드
     @Transactional(readOnly = true)
-    public ResponseDto<AdminMainResponseDto> getAdminMain(String largeCategory) {
+    public ResponseDto<AdminMainResponseDto> getAdminMain(LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
         List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
 
@@ -70,7 +70,7 @@ public class DashboardService {
     }
 
     // 사용자 대시보드
-    public ResponseDto<UserMainResponseDto> getUserMain(User user, String largeCategory) {
+    public ResponseDto<UserMainResponseDto> getUserMain(User user, LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
         List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
 
@@ -82,27 +82,26 @@ public class DashboardService {
         userCountMap.put("userCountReport", requestsRepository.userCountReport(user.getId()));
 
         // 사용 중인 비품 조회
-        List<Supply> supplies = new ArrayList<>();
         List<UserSupplyDto> userSupplyDtos = new ArrayList<>();
 
-        for(Category category : categoryList){
-            supplies = supplyRepository.findAllByUserIdAndCategoryId(user.getId(), category.getId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
-        }
+        List<Supply> supplies = supplyRepository.findByUser_IdAndCategory_LargeCategoryIn(user.getId(), categoryQuery)
+                .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
         for(Supply supply : supplies){
             userSupplyDtos.add(UserSupplyDto.of(supply));
         }
+//        for(Category category : categoryList){
+//        }
 
         // 요청 현황, 사용 중인 비품 현황 합쳐서 리턴
         return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, userCountMap));
     }
 
-    private Set<LargeCategory> getCategoryQuery(String largeCategory) {
+    private Set<LargeCategory> getCategoryQuery(LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = new HashSet<>();
-        if (largeCategory.equals("ALL")) {
+        if (largeCategory == null) {
             categoryQuery.addAll(List.of(LargeCategory.values()));
         } else {
-            categoryQuery.add(LargeCategory.valueOf(largeCategory));
+            categoryQuery.add(largeCategory);
         }
         return categoryQuery;
     }

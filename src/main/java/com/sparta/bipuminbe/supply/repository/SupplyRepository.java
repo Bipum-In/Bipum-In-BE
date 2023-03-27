@@ -4,6 +4,7 @@ import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
@@ -49,6 +50,5 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
     Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Long> categoryQuery,
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
 
-
-    Optional<List<Supply>> findAllByUserIdAndCategoryId(Long id, Long categoryId);
+    Optional<List<Supply>> findByUser_IdAndCategory_LargeCategoryIn(Long id, Set<LargeCategory> categoryQuery);
 }
