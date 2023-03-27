@@ -280,9 +280,9 @@ public class RequestsService {
 
     // 해당 요청을 볼 권한 확인.
     private void checkPermission(Requests request, User user) {
-            if (!user.getRole().equals(UserRoleEnum.ADMIN) && !request.getUser().getId().equals(user.getId())) {
-                throw new CustomException(ErrorCode.NoPermission);
-            }
+        if (!user.getRole().equals(UserRoleEnum.ADMIN) && !request.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.NoPermission);
+        }
     }
 
     // 해당 요청이 본인의 요청인지 확인.
@@ -298,12 +298,12 @@ public class RequestsService {
         AcceptResult acceptResult = requestsProcessRequestDto.getAcceptResult();
         checkAcceptResult(acceptResult, request.getRequestType());
 
+        Supply supply = request.getRequestType().equals(RequestType.SUPPLY) ? getSupply(requestsProcessRequestDto.getSupplyId()) : request.getSupply();
         // 요청 상태 처리.
-        request.processingRequest(acceptResult, requestsProcessRequestDto.getComment(), getSupply(requestsProcessRequestDto.getSupplyId()));
+        request.processingRequest(acceptResult, requestsProcessRequestDto.getComment(), supply);
 
         String message = "[비품인]\n" + request.getUser().getEmpName() +
                 " 님이 요청 하신 " + request.getRequestType().getKorean();
-        Supply supply = request.getSupply();
 
         // 비품 상태 처리.
         if (acceptResult.equals(AcceptResult.DECLINE)) {
