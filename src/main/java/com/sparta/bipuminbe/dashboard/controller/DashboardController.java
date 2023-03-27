@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.dashboard.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.dashboard.dto.AdminMainResponseDto;
@@ -27,14 +28,15 @@ public class DashboardController {
     @Operation(summary = "관리자용 대쉬보드",
             description = "선택한 카테고리 별 조회 ALL / COMPUTER / DIGITAL / ELECTRONICS / FURNITURE / ETC")
     @GetMapping(value = "/admin/main")
-    public ResponseDto<AdminMainResponseDto> getAdminMain(@RequestParam String largeCategory){
+    public ResponseDto<AdminMainResponseDto> getAdminMain(@RequestParam(defaultValue = "") LargeCategory largeCategory){
         return dashboardService.getAdminMain(largeCategory);
     }
 
     @Operation(summary = "사용자용 대쉬보드")
     @GetMapping("/main")
-    public ResponseDto<UserMainResponseDto> getUserMain(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseDto<UserMainResponseDto> getUserMain(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                        @RequestParam(defaultValue = "") LargeCategory largeCategory) {
 
-        return dashboardService.getUserMain(userDetails.getUser());
+        return dashboardService.getUserMain(userDetails.getUser(), largeCategory);
     }
 }

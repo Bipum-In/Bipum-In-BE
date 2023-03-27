@@ -57,8 +57,17 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
     @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_status = 'REPORT'", nativeQuery = true)
     LocalDateTime reportModifiedAt();
 
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_status = 'REPAIRING'", nativeQuery = true)
-    Long userCountInRepair(@Param("userId") Long id);
+    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'SUPPLY' AND request_status != 'PROCESSED'" , nativeQuery = true)
+    Long userCountSupply(@Param("userId") Long id);
+
+    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'RETURN' AND request_status != 'PROCESSED'", nativeQuery = true)
+    Long userCountReturn(@Param("userId") Long id);
+
+    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPAIR' AND request_status != 'PROCESSED'", nativeQuery = true)
+    Long userCountRepair(@Param("userId") Long id);
+
+    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPORT' AND request_status != 'PROCESSED'", nativeQuery = true)
+    Long userCountReport(@Param("userId") Long id);
 
     Page<Requests> findBySupply_SupplyIdAndRequestTypeIn(Long supplyId, Set<RequestType> requestTypeQuery, Pageable pageable);
 }
