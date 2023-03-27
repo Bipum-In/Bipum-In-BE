@@ -57,12 +57,12 @@ public class NotificationService {
         sendNotification(emitter, eventId, emitterId, "EventStream Created. [userId=" + userId + "]");
         log.info("subscribe6");
 
-        // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방한다.
-        if (hasLostData(lastEventId)) {
-            log.info("subscribe7");
-            sendLostData(lastEventId, userId, emitterId, emitter);
-            log.info("subscribe8");
-        }
+//        // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방한다.
+//        if (hasLostData(lastEventId)) {
+//            log.info("subscribe7");
+//            sendLostData(lastEventId, userId, emitterId, emitter);
+//            log.info("subscribe8");
+//        }
         log.info("subscribe9");
         return emitter;
     }
