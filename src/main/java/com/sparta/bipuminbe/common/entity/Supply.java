@@ -27,7 +27,7 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private String modelName;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String image;
 
     @Enumerated(EnumType.STRING)
