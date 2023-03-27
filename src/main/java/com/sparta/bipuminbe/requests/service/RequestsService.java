@@ -62,13 +62,12 @@ public class RequestsService {
 //                .requestStatus(RequestStatus.UNPROCESSED)
 //                .user(user).build()
 //        );
-        RequestType requestType = requestsRequestDto.getRequestType();
-        if (requestType.equals(RequestType.SUPPLY)) {
+        if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
 
             requestsRepository.save(Requests.builder()
                     .content(requestsRequestDto.getContent())
-                    .requestType(requestType)
+                    .requestType(requestsRequestDto.getRequestType())
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .category(category)
                     .user(user)
@@ -81,7 +80,7 @@ public class RequestsService {
                 throw new CustomException(ErrorCode.isProcessingRequest);
             }
             // s3 폴더 이름
-            String dirName = requestType.name().toLowerCase() + "images";
+            String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
 
             List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
@@ -90,7 +89,7 @@ public class RequestsService {
 
             Requests requests = Requests.builder()
                     .content(requestsRequestDto.getContent())
-                    .requestType(requestType)
+                    .requestType(requestsRequestDto.getRequestType())
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .user(user)
                     .supply(supply)
@@ -115,7 +114,7 @@ public class RequestsService {
 
         String message = requestsRequestDto.getRequestType().equals(RequestType.REPORT) ?
                 "보고서 제출 완료" :
-                requestType.getKorean() + " 완료";
+                requestsRequestDto.getRequestType().getKorean() + " 완료";
 
         List<User> adminList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
         if (adminList != null) {
@@ -141,8 +140,7 @@ public class RequestsService {
         // 처리 전 요청인지 확인
         checkProcessing(requests);
 
-        RequestType requestType = requestsRequestDto.getRequestType();
-        if (requestType.equals("SUPPLY")) {
+        if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
             Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .category(category)
@@ -168,7 +166,7 @@ public class RequestsService {
             }
 
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
-            String dirName = requestType.name().toLowerCase() + "images";
+            String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
 
             List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
@@ -282,9 +280,9 @@ public class RequestsService {
 
     // 해당 요청을 볼 권한 확인.
     private void checkPermission(Requests request, User user) {
-        if (!user.getRole().equals(UserRoleEnum.ADMIN) && !request.getUser().getId().equals(user.getId())) {
-            throw new CustomException(ErrorCode.NoPermission);
-        }
+            if (!user.getRole().equals(UserRoleEnum.ADMIN) && !request.getUser().getId().equals(user.getId())) {
+                throw new CustomException(ErrorCode.NoPermission);
+            }
     }
 
     // 해당 요청이 본인의 요청인지 확인.

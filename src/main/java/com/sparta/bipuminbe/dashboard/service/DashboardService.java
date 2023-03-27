@@ -71,6 +71,11 @@ public class DashboardService {
 
     // 사용자 대시보드
     public ResponseDto<UserMainResponseDto> getUserMain(User user) {
+        // 요청 현황 조회
+        Map<String, Long> userCountMap = new HashMap<>();
+        userCountMap.put("userCountSupply", requestsRepository.userCountInRepair(user.getId()));
+
+
         // 사용 중인 비품 조회
         List<Supply> supplieList = supplyRepository.findAllByUserId(user.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
@@ -81,9 +86,6 @@ public class DashboardService {
             userSupplyDtos.add(UserSupplyDto.of(supply));
         }
 
-        // 요청 현황 조회
-        Map<String, Long> userCountMap = new HashMap<>();
-        userCountMap.put("userCountSupply", requestsRepository.userCountInRepair(user.getId()));
 
         return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, userCountMap));
     }

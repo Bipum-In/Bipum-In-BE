@@ -3,6 +3,7 @@ package com.sparta.bipuminbe.common.sse.service;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
+import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseDto;
@@ -51,7 +52,7 @@ public class NotificationService {
         //Dummy 데이터를 보내 503에러 방지. (SseEmitter 유효시간 동안 어느 데이터도 전송되지 않으면 503에러 발생)
         String eventId = makeTimeIncludeId(userId);
         log.info("subscribe5");
-        sendNotification(emitter, eventId, emitterId, "EventStream Created. [userId=" + userId + "]");
+//        sendNotification(emitter, eventId, emitterId, "EventStream Created. [userId=" + userId + "]");
         log.info("subscribe6");
 
         // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방한다.
@@ -96,7 +97,7 @@ public class NotificationService {
 
     @Transactional
 //    public void send(User receiver, String content, String url) {
-    public void send(Long requestsId, String isAccepted, String uri) {
+    public void send(Long requestsId, AcceptResult isAccepted, String uri) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest)
         );
@@ -129,15 +130,16 @@ public class NotificationService {
                 .build();
     }
 
-    private String createMessage(Requests request, User receiver, String isAccepted){
+    private String createMessage(Requests request, User receiver, AcceptResult isAccepted){
+
         // 승인 건
-        if(isAccepted.equals("ACCEPT")){
+        if(isAccepted.name().equals("ACCEPT")){
             return receiver.getEmpName() + " 님의 "
                     + request.getCategory().getCategoryName() + " "
                     + request.getRequestType().getKorean() + " 이 승인되었습니다.";
         }
         // 거부 건
-        if(isAccepted.equals("DECLINE")){
+        if(isAccepted.name().equals("DECLINE")){
             return receiver.getEmpName() + " 님의 "
                     + request.getCategory().getCategoryName() + " "
                     + request.getRequestType().getKorean() + " 이 반려되었습니다.";
