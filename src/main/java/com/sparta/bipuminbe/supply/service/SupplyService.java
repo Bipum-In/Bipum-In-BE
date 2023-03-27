@@ -213,6 +213,48 @@ public class SupplyService {
         return ResponseDto.success("비품 수정 성공");
     }
 
+    //비품 수정
+    @Transactional
+    public ResponseDto<String> updateSupplies(Long supplyId, SupplyRequestDto supplyRequestDto) throws IOException {
+        Partners partners = null;
+        if (supplyRequestDto.getPartnersId() != null) {
+            partners = partnersRepository.findById(supplyRequestDto.getPartnersId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundPartners)
+            );
+        }
+
+        User user = null;
+        if (supplyRequestDto.getUserId() != null) {
+            user = userRepository.findById(supplyRequestDto.getUserId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundUsers)
+            );
+        }
+
+        Supply supply = supplyRepository.findById(supplyId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundSupply)
+        );
+
+        Optional<Category> category = categoryRepository.findByCategoryName(supplyRequestDto.getCategoryName());
+
+        Category newCategory = null;
+        if (category.isPresent()) {
+            newCategory = category.get();
+        } else {
+            newCategory = Category.builder().largeCategory(supplyRequestDto.getLargeCategory())
+                    .categoryName(supplyRequestDto.getCategoryName()).build();
+            categoryRepository.save(newCategory);
+        }
+
+        String image = supplyRequestDto.getImage();
+
+        if (image == null) {
+            image = s3Uploader.uploadFiles(supplyRequestDto.getMultipartFile(), supplyRequestDto.getCategoryName());
+        }
+
+        supply.update(supplyRequestDto, partners, newCategory, user, image);
+        return ResponseDto.success("비품 수정 성공");
+    }
+
 
     //비품 폐기
     @Transactional

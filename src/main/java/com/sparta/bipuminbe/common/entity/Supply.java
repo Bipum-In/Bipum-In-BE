@@ -52,6 +52,8 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private Boolean deleted;
 
+    private LocalDateTime createdAt;
+
     public Supply(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user, String image) {
         this.serialNum = supplyRequestDto.getSerialNum();
         this.modelName = supplyRequestDto.getModelName();
@@ -61,6 +63,16 @@ public class Supply extends TimeStamped {
         this.category = category;
         this.user = user;
         this.deleted = false;
+    }
+
+    public void update(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user, String image) {
+        this.category = category;
+        this.createdAt = supplyRequestDto.getCreatedAt();
+        this.serialNum = supplyRequestDto.getSerialNum();
+        this.modelName = supplyRequestDto.getModelName();
+        this.partners = partners == null ? null : partners;
+        this.user = user;
+        this.image = image;
     }
 
     public void allocateSupply(User user) {
