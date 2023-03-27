@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
+import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
@@ -210,6 +211,35 @@ public class SupplyService {
 //        }
 
         supply.allocateSupply(user);
+
+        if (!user.equals(supply.getUser())) {
+            String content = "비품의 유저 강제 변경에 의한 기록 생성.";
+            // 반납 요청 먼저 생성. (기록용)
+            if (supply.getUser() != null) {
+                requestsRepository.save(Requests.builder()
+                        .content(content)
+                        .requestType(RequestType.RETURN)
+                        .requestStatus(RequestStatus.PROCESSED)
+                        .supply(supply)
+                        .user(supply.getUser())
+                        .build());
+                supply.returnSupply();
+            }
+
+            // 다음 유저 비품 요청 생성. (기록용)
+            if(user != null){
+                requestsRepository.save(Requests.builder()
+                        .content(content)
+                        .requestType(RequestType.SUPPLY)
+                        .requestStatus(RequestStatus.PROCESSED)
+                        .supply(supply)
+                        .user(user)
+                        //Todo 여기 dto 들어오면 손봐야 함.
+                        .category(supply.getCategory())
+                        .build());
+                supply.allocateSupply(user);
+            }
+        }
         return ResponseDto.success("비품 수정 성공");
     }
 
