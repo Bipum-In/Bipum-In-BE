@@ -200,38 +200,6 @@ public class SupplyService {
 
         supply.allocateSupply(user);
 
-        //Todo 비품 history에 기록이 남으려면 요청서도 생성해 줘야 한다.
-        if (!user.equals(supply.getUser())) {
-            String content = "비품의 유저 강제 변경에 의한 기록 생성.";
-            // 반납 요청 먼저 생성. (기록용)
-            if (supply.getUser() != null) {
-                requestsRepository.save(Requests.builder()
-                        .content(content)
-                        .requestType(RequestType.RETURN)
-                        .requestStatus(RequestStatus.PROCESSED)
-                        .acceptResult(AcceptResult.ACCEPT)
-                        .supply(supply)
-                        .user(supply.getUser())
-                        .build());
-                supply.returnSupply();
-            }
-
-            // 다음 유저 비품 요청 생성. (기록용)
-            if (user != null) {
-                requestsRepository.save(Requests.builder()
-                        .content(content)
-                        .requestType(RequestType.SUPPLY)
-                        .requestStatus(RequestStatus.PROCESSED)
-                        .acceptResult(AcceptResult.ACCEPT)
-                        .supply(supply)
-                        .user(user)
-                        //Todo 여기 dto 들어오면 손봐야 함.
-                        .category(supply.getCategory())
-                        .build());
-                supply.allocateSupply(user);
-            }
-        }
-
         return ResponseDto.success("비품 수정 성공");
     }
 
@@ -273,7 +241,39 @@ public class SupplyService {
             image = s3Uploader.uploadFiles(supplyRequestDto.getMultipartFile(), supplyRequestDto.getCategoryName());
         }
 
+        // 비품 history에 기록이 남으려면 요청서도 생성해 줘야 한다.
+        if (user != supply.getUser()) {
+            String content = "비품의 유저 강제 변경에 의한 기록 생성.";
+            // 반납 요청 먼저 생성. (기록용)
+            if (supply.getUser() != null) {
+                requestsRepository.save(Requests.builder()
+                        .content(content)
+                        .requestType(RequestType.RETURN)
+                        .requestStatus(RequestStatus.PROCESSED)
+                        .acceptResult(AcceptResult.ACCEPT)
+                        .supply(supply)
+                        .user(supply.getUser())
+                        .build());
+                supply.returnSupply();
+            }
+
+            // 다음 유저 비품 요청 생성. (기록용)
+            if (user != null) {
+                requestsRepository.save(Requests.builder()
+                        .content(content)
+                        .requestType(RequestType.SUPPLY)
+                        .requestStatus(RequestStatus.PROCESSED)
+                        .acceptResult(AcceptResult.ACCEPT)
+                        .supply(supply)
+                        .user(user)
+                        .category(newCategory)
+                        .build());
+                supply.allocateSupply(user);
+            }
+        }
+
         supply.update(supplyRequestDto, partners, newCategory, user, image);
+
         return ResponseDto.success("비품 수정 성공");
     }
 
