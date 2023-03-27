@@ -6,6 +6,8 @@ import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.supply.dto.SupplyRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -66,16 +68,16 @@ public class Supply extends TimeStamped {
     }
 
     public void allocateSupply(User user) {
-        checkSupplyStatus();
+//        checkSupplyStatus();
         this.user = user;
         this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.USING;
     }
 
-    private void checkSupplyStatus() {
-        if (this.status == SupplyStatusEnum.USING) {
-            throw new CustomException(ErrorCode.NotStockSupply);
-        }
-    }
+//    private void checkSupplyStatus() {
+//        if (this.status == SupplyStatusEnum.USING) {
+//            throw new CustomException(ErrorCode.NotStockSupply);
+//        }
+//    }
 
     public void repairSupply() {
         status = status.equals(SupplyStatusEnum.REPAIRING)

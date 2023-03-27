@@ -1,11 +1,7 @@
 package com.sparta.bipuminbe.supply.repository;
 
-import com.sparta.bipuminbe.common.entity.Category;
-import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
-import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
