@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.STOCK;
 import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
@@ -29,7 +31,6 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private String modelName;
 
-//    @Column(nullable = false)
     private String image;
 
     @Enumerated(EnumType.STRING)
@@ -49,6 +50,10 @@ public class Supply extends TimeStamped {
 
     @Column(nullable = false)
     private Boolean deleted;
+
+    //Todo Soft Delete 적용 되면 없앨 예정.
+    @OneToMany(mappedBy = "supply", cascade = CascadeType.REMOVE)
+    private List<Requests> requestsList = new ArrayList<>();
 
     public Supply(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user, String image) {
         this.serialNum = supplyRequestDto.getSerialNum();
