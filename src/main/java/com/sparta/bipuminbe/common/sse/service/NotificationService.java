@@ -121,6 +121,15 @@ public class NotificationService {
         log.info("eventId : " + eventId);
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
+
+        for(String key : emitters.keySet()){
+            SseEmitter emitter = emitters.get(key);
+            log.info("emitter : " + emitter);
+            log.info("key : " + key);
+            log.info("============");
+
+        }
+
         emitters.forEach(
                 (key, emitter) -> {
                     emitterRepository.saveEventCache(key, notification);
