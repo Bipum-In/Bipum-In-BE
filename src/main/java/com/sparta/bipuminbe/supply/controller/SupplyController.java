@@ -1,9 +1,7 @@
 package com.sparta.bipuminbe.supply.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.Image;
-import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
+import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.supply.dto.*;
@@ -16,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -31,7 +28,7 @@ public class SupplyController {
 
     //비품 등록
     @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, value="/supply")
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, value = "/supply")
     @Operation(summary = "비품 등록", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가), 반납 날짜(null 가능), 협력업체(null 가능), 유저 아이디(null 불가), 관리자 권한 필요.")
     public ResponseDto<String> createSupply(
             @ModelAttribute @Valid SupplyRequestDto supplyRequestDto) throws IOException {
@@ -39,14 +36,13 @@ public class SupplyController {
     }
 
 
-
     //비품 조회
-    @GetMapping("/supply")
+    @GetMapping("/admin/supply")
     @Operation(summary = "비품 조회", description = "SelectBox용(카테고리), 관리자 권한 필요. status ALL/USING/STOCK/REPAIRING")
     public ResponseDto<Page<SupplyResponseDto>> getSupplyList(
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "") String categoryId,
-            @RequestParam(defaultValue = "ALL") String status,
+            @RequestParam(defaultValue = "") Long categoryId,
+            @RequestParam(defaultValue = "") SupplyStatusEnum status,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -55,11 +51,13 @@ public class SupplyController {
 
     //비품 상세
     @GetMapping("/supply/{supplyId}")
-    @Operation(summary = "비품 상세", description = "관리자 권한 필요.")
+    @Operation(summary = "비품 상세", description = "관리자 권한 필요." +
+            "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
     public ResponseDto<SupplyWholeResponseDto> getSupply(
-            @PathVariable Long supplyId
+            @PathVariable Long supplyId,
+            @RequestParam(defaultValue = "6") int size
     ) {
-        return supplyService.getSupply(supplyId);
+        return supplyService.getSupply(supplyId, size);
     }
 
     //유저 할당
@@ -69,7 +67,7 @@ public class SupplyController {
     public ResponseDto<String> updateSupply(
             @RequestParam("supplyId") Long supplyId,
             @RequestParam("userId") Long userId
-            ) {
+    ) {
         return supplyService.updateSupply(supplyId, userId);
     }
 
@@ -102,5 +100,32 @@ public class SupplyController {
     @Operation(summary = "naver Api를 통한 이미지 서치")
     public ResponseDto<ImageResponseDto> getImageByNaver(@RequestParam String modelName) {
         return supplyService.getImageByNaver(modelName);
+    }
+
+    // 비품 리스트 UserPage
+    @GetMapping("/supply")
+    @Operation(summary = "재고 현황 페이지(USER)", description = "데이터 골라서 집어가주실 수 있을까요 ㅋㅋㅋㅋ <br>" +
+            "supplyId / image / modelName / createdAt 가져가시면 될 것 같습니다.")
+    public ResponseDto<Page<SupplyResponseDto>> getStockList(@RequestParam(defaultValue = "") String keyword,
+                                                             @RequestParam(defaultValue = "") Long categoryId,
+                                                             @RequestParam(defaultValue = "1") int page,
+                                                             @RequestParam(defaultValue = "10") int size) {
+        return supplyService.getStockList(keyword, categoryId, page, size);
+    }
+
+    @GetMapping("/supply/history/user/{supplyId}")
+    @Operation(summary = "유저 사용 내역(비품 상세 페이지 무한 스크롤)")
+    public ResponseDto<Page<SupplyHistoryResponseDto>> getUserHistory(@PathVariable Long supplyId,
+                                                                      @RequestParam(defaultValue = "1") int page,
+                                                                      @RequestParam(defaultValue = "6") int size) {
+        return supplyService.getUserHistory(supplyId, page, size);
+    }
+
+    @GetMapping("/supply/history/repair/{supplyId}")
+    @Operation(summary = "수리 내역(비품 상세 페이지 무한 스크롤)")
+    public ResponseDto<Page<SupplyHistoryResponseDto>> getRepairHistory(@PathVariable Long supplyId,
+                                                                      @RequestParam(defaultValue = "1") int page,
+                                                                      @RequestParam(defaultValue = "6") int size) {
+        return supplyService.getRepairHistory(supplyId, page, size);
     }
 }

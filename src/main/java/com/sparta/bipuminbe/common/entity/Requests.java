@@ -61,12 +61,16 @@ public class Requests extends TimeStamped {
         this.category = supply == null ? category : supply.getCategory();
     }
 
-    public void processingRequest(AcceptResult acceptResult, String comment) {
+    public void processingRequest(AcceptResult acceptResult, String comment, Supply supply) {
         // 처리중 상태 처리.
         if (this.requestType.equals(RequestType.REPAIR) && acceptResult.equals(AcceptResult.ACCEPT)
                 && this.requestStatus.equals(RequestStatus.UNPROCESSED)) {
             this.requestStatus = RequestStatus.PROCESSING;
             return;
+        }
+
+        if (this.requestType.equals(RequestType.SUPPLY) && acceptResult.equals(AcceptResult.ACCEPT)) {
+            this.supply = supply;
         }
 
         this.acceptResult = acceptResult;

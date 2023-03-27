@@ -3,6 +3,7 @@ package com.sparta.bipuminbe.common.sse.service;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
+import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseDto;
@@ -33,12 +34,14 @@ public class NotificationService {
     //시간이 포함된 아이디 생성. SseEmitter 구분을 위함
     @Transactional
     public SseEmitter subscribe(Long userId, String lastEventId) {
+
+
         String emitterId = makeTimeIncludeId(userId);
         // lastEventId가 있을 경우, userId와 비교해서 유실된 데이터일 경우 재전송할 수 있다.
         log.info("save 전");
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
-        log.info("save 후");
 
+        log.info("save 후");
         log.info("userId : " + userId);
         log.info("emitterId " + emitterId);
         log.info("lastEventId : " + lastEventId);
@@ -60,6 +63,7 @@ public class NotificationService {
             sendLostData(lastEventId, userId, emitterId, emitter);
             log.info("subscribe8");
         }
+        log.info("subscribe9");
         return emitter;
     }
 
@@ -96,7 +100,7 @@ public class NotificationService {
 
     @Transactional
 //    public void send(User receiver, String content, String url) {
-    public void send(Long requestsId, String isAccepted, String uri) {
+    public void send(Long requestsId, AcceptResult isAccepted, String uri) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest)
         );
@@ -129,23 +133,27 @@ public class NotificationService {
                 .build();
     }
 
-    private String createMessage(Requests request, User receiver, String isAccepted){
+    private String createMessage(Requests request, User receiver, AcceptResult isAccepted) {
+        String categoryName = request.getCategory() == null ?
+                request.getSupply().getCategory().getCategoryName() :
+                request.getCategory().getCategoryName();
+
         // 승인 건
-        if(isAccepted.equals("ACCEPT")){
+        if (isAccepted.name().equals("ACCEPT")) {
             return receiver.getEmpName() + " 님의 "
-                    + request.getCategory().getCategoryName() + " "
+                    + categoryName + " "
                     + request.getRequestType().getKorean() + " 이 승인되었습니다.";
         }
         // 거부 건
-        if(isAccepted.equals("DECLINE")){
+        if (isAccepted.name().equals("DECLINE")) {
             return receiver.getEmpName() + " 님의 "
-                    + request.getCategory().getCategoryName() + " "
+                    + categoryName + " "
                     + request.getRequestType().getKorean() + " 이 반려되었습니다.";
         }
         // 수리 요청 >> 폐기 처리 건
-        return receiver.getEmpName() +" 님의 "
+        return receiver.getEmpName() + " 님의 "
                 + request.getSupply().getModelName() + " "
-                + request.getCategory().getCategoryName()
+                + categoryName
                 + " 수리 요청 건이 폐기 승인되었습니다.";
     }
 }

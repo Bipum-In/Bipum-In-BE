@@ -1,30 +1,41 @@
 package com.sparta.bipuminbe.supply.dto;
 
+import com.sparta.bipuminbe.common.entity.Partners;
 import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.entity.Supply;
+import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.RequestType;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
 @Getter
+@Builder
 public class SupplyHistoryResponseDto {
-
-    private LocalDateTime modifiedAt;
-//    private String username;
+    private Long requestId;
     private String empName;
     private String deptName;
+    private String history;
+    private String partnersName;
+    private LocalDateTime modifiedAt;
 
-    private String content;
+    public static SupplyHistoryResponseDto of(Requests request) {
+        User user = request.getUser();
+        Partners partners = request.getSupply().getPartners();
 
-    public SupplyHistoryResponseDto(Requests request){
-        Supply supply = request.getSupply();
-        this.modifiedAt = supply.getModifiedAt();
-//        this.username = supply.getUser().getUsername();
-        this.empName = supply.getUser() == null ? null : supply.getUser().getEmpName();
-        this.deptName = supply.getUser() == null ? null : supply.getUser().getDepartment().getDeptName();
-        this.content = request.getRequestType()== RequestType.SUPPLY ? "사용" : "반납";
+        SupplyHistoryResponseDtoBuilder builder = SupplyHistoryResponseDto.builder()
+                .requestId(request.getRequestId())
+                .empName(user == null ? null : user.getEmpName())
+                .deptName(user == null ? null : user.getDepartment().getDeptName())
+                .partnersName(partners == null ? null : partners.getPartnersName())
+                .modifiedAt(request.getModifiedAt());
+
+        if (request.getRequestType().equals(RequestType.SUPPLY)) {
+            builder.history("사용");
+        } else if (request.getRequestType().equals(RequestType.RETURN)) {
+            builder.history("반납");
+        }
+
+        return builder.build();
     }
 }

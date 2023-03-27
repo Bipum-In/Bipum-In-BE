@@ -7,7 +7,9 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
+import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
@@ -97,7 +99,7 @@ public class SupplyService {
 
     //비품 조회
     @Transactional(readOnly = true)
-    public ResponseDto<Page<SupplyResponseDto>> getSupplyList(String keyword, String categoryId, String status, int page, int size) {
+    public ResponseDto<Page<SupplyResponseDto>> getSupplyList(String keyword, Long categoryId, SupplyStatusEnum status, int page, int size) {
         Set<Long> categoryQuery = getCategoryQuerySet(categoryId);
         Set<SupplyStatusEnum> statusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page, size);
@@ -107,15 +109,15 @@ public class SupplyService {
         return ResponseDto.success(new PageImpl<>(supplyResponseDtoList, supplies.getPageable(), supplies.getTotalElements()));
     }
 
-    private Set<Long> getCategoryQuerySet(String categoryId) {
+    private Set<Long> getCategoryQuerySet(Long categoryId) {
         Set<Long> categoryQuerySet = new HashSet<>();
-        if (categoryId.equals("")) {
+        if (categoryId == null) {
             List<Category> categoryList = categoryRepository.findAll();
             for (Category category : categoryList) {
                 categoryQuerySet.add(category.getId());
             }
         } else {
-            Category category = categoryRepository.findById(Long.parseLong(categoryId)).orElseThrow(
+            Category category = categoryRepository.findById(categoryId).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundCategory));
             categoryQuerySet.add(category.getId());
         }
@@ -123,12 +125,12 @@ public class SupplyService {
     }
 
     // list 추출 조건용 requestStatus Set 리스트.
-    private Set<SupplyStatusEnum> getStatusSet(String status) {
+    private Set<SupplyStatusEnum> getStatusSet(SupplyStatusEnum status) {
         Set<SupplyStatusEnum> requestStatusQuery = new HashSet<>();
-        if (status.equals("ALL")) {
+        if (status == null) {
             requestStatusQuery.addAll(List.of(SupplyStatusEnum.values()));
         } else {
-            requestStatusQuery.add(SupplyStatusEnum.valueOf(status));
+            requestStatusQuery.add(status);
         }
         return requestStatusQuery;
     }
@@ -167,20 +169,26 @@ public class SupplyService {
 
     //비품 상세
     @Transactional(readOnly = true)
-    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId) {
+    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId, int size) {
 
         Supply supply = supplyRepository.findById(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply)
         );
         SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply);
-        List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
-        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
-        List<Requests> requests = requestsRepository.findBySupply(supply);
-        for (Requests request : requests) {
-            historyList.add(new SupplyHistoryResponseDto(request));
-            repairHistoryList.add(new SupplyRepairHistoryResponseDto(request.getSupply()));
-        }
-        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, historyList, repairHistoryList);
+//        List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
+//        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
+//        List<Requests> requests = requestsRepository.findBySupply(supply);
+//        for (Requests request : requests) {
+//            historyList.add(SupplyHistoryResponseDto.of(request));
+//            repairHistoryList.add(new SupplyRepairHistoryResponseDto(request.getSupply()));
+//        }
+//        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, historyList, repairHistoryList);
+
+        // Todo 여기 좀 힘들어 하실 것 같아서 page처리 해봤습니다.
+        // 1페이지를 가져오는 것은 고정이다.
+        Page<SupplyHistoryResponseDto> userHistory = getUserHistory(supplyId, 1, size).getData();
+        Page<SupplyHistoryResponseDto> repairHistory = getRepairHistory(supplyId, 1, size).getData();
+        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, userHistory, repairHistory);
         return ResponseDto.success(supplyWhole);
     }
 
@@ -229,11 +237,8 @@ public class SupplyService {
         return ResponseDto.success(supplyUserDtoList);
     }
 
-    private User getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundUsers));
-    }
 
+    // 비품 요청 상세 페이지. 재고 SelectBox.
     @Transactional(readOnly = true)
     public ResponseDto<List<StockSupplyResponseDto>> getStockSupply(Long categoryId) {
         List<Supply> stockSupplyList = supplyRepository.findByCategory_IdAndStatus(categoryId, SupplyStatusEnum.STOCK);
@@ -244,6 +249,8 @@ public class SupplyService {
         return ResponseDto.success(stockSupplyResponseDtoList);
     }
 
+
+    // naver 이미지 서치
     @Transactional(readOnly = true)
     public ResponseDto<ImageResponseDto> getImageByNaver(String modelName) {
         RestTemplate rest = new RestTemplate();
@@ -265,6 +272,8 @@ public class SupplyService {
         return ResponseDto.success(fromJSONtoItems(response));
     }
 
+
+    // Naver 이미지 Json 처리.
     private ImageResponseDto fromJSONtoItems(String response) {
         JSONObject rjson = new JSONObject(response);
         JSONArray items = rjson.getJSONArray("items");
@@ -272,5 +281,54 @@ public class SupplyService {
             throw new CustomException(ErrorCode.InValidRequest);
         }
         return ImageResponseDto.of(items.getJSONObject(0));
+    }
+
+
+    // 비품 재고 현황 (User 페이지)
+    @Transactional(readOnly = true)
+    public ResponseDto<Page<SupplyResponseDto>> getStockList(String keyword, Long categoryId, int page, int size) {
+        return getSupplyList(keyword, categoryId, SupplyStatusEnum.STOCK, page, size);
+    }
+
+
+    // 비품 사용 유저 내역
+    @Transactional(readOnly = true)
+    public ResponseDto<Page<SupplyHistoryResponseDto>> getUserHistory(Long supplyId, int page, int size) {
+        Set<RequestType> requestTypeQuery = new HashSet<>();
+        requestTypeQuery.add(RequestType.SUPPLY);
+        requestTypeQuery.add(RequestType.RETURN);
+        Pageable pageable = getPageable(page, size);
+
+        return ResponseDto.success(getHistoryDtoPage(supplyId, requestTypeQuery, pageable));
+    }
+
+
+    // 비품 수리 내역
+    @Transactional(readOnly = true)
+    public ResponseDto<Page<SupplyHistoryResponseDto>> getRepairHistory(Long supplyId, int page, int size) {
+        Set<RequestType> requestTypeQuery = new HashSet<>();
+        requestTypeQuery.add(RequestType.REPAIR);
+        requestTypeQuery.add(RequestType.REPORT);
+        Pageable pageable = getPageable(page, size);
+
+        return ResponseDto.success(getHistoryDtoPage(supplyId, requestTypeQuery, pageable));
+    }
+
+
+    // 비품 history 조회
+    private Page<SupplyHistoryResponseDto> getHistoryDtoPage(Long supplyId, Set<RequestType> requestTypeQuery, Pageable pageable) {
+        Page<Requests> historyPage = requestsRepository.findBySupply_SupplyIdAndRequestTypeIn(supplyId, requestTypeQuery, pageable);
+        List<SupplyHistoryResponseDto> historyDtoPage = convertToHistoryDto(historyPage.getContent());
+        return new PageImpl<>(historyDtoPage, historyPage.getPageable(), historyPage.getTotalElements());
+    }
+
+
+    // 비품 상세 history Dto 변환
+    private List<SupplyHistoryResponseDto> convertToHistoryDto(List<Requests> historyList) {
+        List<SupplyHistoryResponseDto> historyDtoPage = new ArrayList<>();
+        for (Requests request : historyList) {
+            historyDtoPage.add(SupplyHistoryResponseDto.of(request));
+        }
+        return historyDtoPage;
     }
 }
