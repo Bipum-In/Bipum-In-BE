@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Getter
 //@SQLDelete(sql = "UPDATE users SET deleted = true WHERE id = ?")
 //@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
-public class User extends TimeStamped{
+public class User extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,7 +50,7 @@ public class User extends TimeStamped{
 
     @Builder
     public User(Long kakaoId, String encodedPassword,
-                KakaoUserInfoDto kakaoUserInfoDto, UserRoleEnum role, Boolean alarm){
+                KakaoUserInfoDto kakaoUserInfoDto, UserRoleEnum role, Boolean alarm) {
 
         this.kakaoId = kakaoId;
         this.password = encodedPassword;
@@ -67,6 +67,10 @@ public class User extends TimeStamped{
     }
 
     public void switchAlarm(Boolean alarm) {
-        this.alarm =! alarm;
+        this.alarm = !alarm;
+    }
+
+    public void deleteDepartment() {
+        this.department = null;
     }
 }

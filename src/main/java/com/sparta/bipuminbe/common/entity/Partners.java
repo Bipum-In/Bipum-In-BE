@@ -8,11 +8,13 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
-//@SQLDelete(sql = "UPDATE Partners SET deleted = true WHERE partnersId = ?")
+@SQLDelete(sql = "UPDATE partners SET deleted = true WHERE partners_id = ?")
 //@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class Partners extends TimeStamped {
     @Id

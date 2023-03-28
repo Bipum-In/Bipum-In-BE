@@ -50,7 +50,7 @@ public class SupplyService {
 
         Partners partners = null;
         if (supplyRequestDto.getPartnersId() != null) {
-            partners = partnersRepository.findById(supplyRequestDto.getPartnersId()).orElseThrow(
+            partners = partnersRepository.findByPartnersIdAndDeletedFalse(supplyRequestDto.getPartnersId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundPartners)
             );
         }
@@ -160,9 +160,7 @@ public class SupplyService {
     @Transactional(readOnly = true)
     public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId, int size) {
 
-        Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundSupply)
-        );
+        Supply supply = getSupply(supplyId);
         SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply);
 //        List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
 //        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
@@ -181,34 +179,38 @@ public class SupplyService {
         return ResponseDto.success(supplyWhole);
     }
 
-    //유저 할당
-    @Transactional
-    public ResponseDto<String> updateSupply(Long supplyId, Long userId) {
-
-        Supply supply = supplyRepository.findById(supplyId).orElseThrow(
+    private Supply getSupply(Long supplyId) {
+        return supplyRepository.findById(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply)
         );
-
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundUsers)
-        );
-
-        //Todo 여기 관리자 권한을 이미 Controller에서 Secured로 확인 했어서 필요없어 보입니다.
-//        if (supply.getUser() != user) {
-//            throw new CustomException(ErrorCode.NoPermission);
-//        }
-
-        supply.allocateSupply(user);
-
-        return ResponseDto.success("비품 수정 성공");
     }
+
+//    //유저 할당
+//    @Transactional
+//    public ResponseDto<String> updateSupply(Long supplyId, Long userId) {
+//
+//        Supply supply = getSupply(supplyId);
+//
+//        User user = userRepository.findById(userId).orElseThrow(
+//                () -> new CustomException(ErrorCode.NotFoundUsers)
+//        );
+//
+//        //Todo 여기 관리자 권한을 이미 Controller에서 Secured로 확인 했어서 필요없어 보입니다.
+////        if (supply.getUser() != user) {
+////            throw new CustomException(ErrorCode.NoPermission);
+////        }
+//
+//        supply.allocateSupply(user);
+//
+//        return ResponseDto.success("비품 수정 성공");
+//    }
 
     //비품 수정
     @Transactional
     public ResponseDto<String> updateSupplies(Long supplyId, SupplyRequestDto supplyRequestDto) throws IOException {
         Partners partners = null;
         if (supplyRequestDto.getPartnersId() != null) {
-            partners = partnersRepository.findById(supplyRequestDto.getPartnersId()).orElseThrow(
+            partners = partnersRepository.findByPartnersIdAndDeletedFalse(supplyRequestDto.getPartnersId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundPartners)
             );
         }
@@ -220,9 +222,7 @@ public class SupplyService {
             );
         }
 
-        Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundSupply)
-        );
+        Supply supply = getSupply(supplyId);
 
         Optional<Category> category = categoryRepository.findByCategoryName(supplyRequestDto.getCategoryName());
 
@@ -282,9 +282,7 @@ public class SupplyService {
     @Transactional
     public ResponseDto<String> deleteSupply(Long supplyId, User user) {
 
-        Supply supply = supplyRepository.findById(supplyId).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundSupply)
-        );
+        Supply supply = getSupply(supplyId);
 
         // 비품 폐기 처리 기록 생성.
         //Todo softDelete 생기면 없어질 예정.
@@ -306,7 +304,7 @@ public class SupplyService {
     //자신의 비품 목록(selectbox용)
     @Transactional(readOnly = true)
     public ResponseDto<List<SupplyUserDto>> getSupplyUser(User user) {
-        List<Supply> supplyInUserList = supplyRepository.findByUser(user);
+        List<Supply> supplyInUserList = supplyRepository.findByUserAndDeletedFalse(user);
         List<SupplyUserDto> supplyUserDtoList = new ArrayList<>();
         for (Supply supply : supplyInUserList) {
             supplyUserDtoList.add(SupplyUserDto.of(supply));
@@ -318,7 +316,7 @@ public class SupplyService {
     // 비품 요청 상세 페이지. 재고 SelectBox.
     @Transactional(readOnly = true)
     public ResponseDto<List<StockSupplyResponseDto>> getStockSupply(Long categoryId) {
-        List<Supply> stockSupplyList = supplyRepository.findByCategory_IdAndStatus(categoryId, SupplyStatusEnum.STOCK);
+        List<Supply> stockSupplyList = supplyRepository.findByCategory_IdAndStatusAndDeletedFalse(categoryId, SupplyStatusEnum.STOCK);
         List<StockSupplyResponseDto> stockSupplyResponseDtoList = new ArrayList<>();
         for (Supply supply : stockSupplyList) {
             stockSupplyResponseDtoList.add(StockSupplyResponseDto.of(supply));
@@ -394,7 +392,8 @@ public class SupplyService {
 
     // 비품 history 조회
     private Page<SupplyHistoryResponseDto> getHistoryDtoPage(Long supplyId, Set<RequestType> requestTypeQuery, Pageable pageable) {
-        Page<Requests> historyPage = requestsRepository.findBySupply_SupplyIdAndRequestTypeIn(supplyId, requestTypeQuery, pageable);
+        Page<Requests> historyPage = requestsRepository.
+                findBySupply_SupplyIdAndRequestTypeInAndAcceptResult(supplyId, requestTypeQuery, AcceptResult.ACCEPT, pageable);
         List<SupplyHistoryResponseDto> historyDtoPage = convertToHistoryDto(historyPage.getContent());
         return new PageImpl<>(historyDtoPage, historyPage.getPageable(), historyPage.getTotalElements());
     }

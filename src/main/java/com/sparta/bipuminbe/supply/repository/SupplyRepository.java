@@ -17,23 +17,18 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
-    List<Supply> findByCategory_IdAndStatus(Long id, SupplyStatusEnum status);
 
-    List<Supply> findByUser(User user);
-
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND deleted = false", nativeQuery = true)
     Long countTotal(@Param("categoryId") Long categoryId);
 
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'USING'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'USING' AND deleted = false", nativeQuery = true)
     Long countUse(@Param("categoryId") Long categoryId);
 
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'REPAIRING'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'REPAIRING' AND deleted = false", nativeQuery = true)
     Long countRepair(@Param("categoryId") Long categoryId);
 
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'STOCK'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'STOCK' AND deleted = false", nativeQuery = true)
     Long countStock(@Param("categoryId") Long categoryId);
-
-    Optional<List<Supply>> findAllByUserId(Long userId);
 
     @Query(value = "SELECT s FROM Supply s " +
             "inner join Category c on s.category = c " +
@@ -44,9 +39,18 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
             "AND c.id IN :categoryQuery " +
             "AND s.status IN :statusQuery " +
+            "AND s.deleted = false " +
             "order by s.createdAt desc")
     Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Long> categoryQuery,
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
 
     Optional<List<Supply>> findByUser_IdAndCategory_LargeCategoryIn(Long id, Set<LargeCategory> categoryQuery);
+
+    List<Supply> findByPartners_PartnersId(Long partnersId);
+
+    Optional<Supply> findBySupplyIdAndDeletedFalse(Long supplyId);
+
+    List<Supply> findByUserAndDeletedFalse(User user);
+
+    List<Supply> findByCategory_IdAndStatusAndDeletedFalse(Long categoryId, SupplyStatusEnum stock);
 }

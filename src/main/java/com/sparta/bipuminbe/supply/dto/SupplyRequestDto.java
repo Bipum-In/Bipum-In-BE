@@ -27,6 +27,5 @@ public class SupplyRequestDto {
     private Long partnersId;
     private Long userId;
     private String image;
-    private LocalDateTime createdAt;
     private MultipartFile multipartFile;
 }

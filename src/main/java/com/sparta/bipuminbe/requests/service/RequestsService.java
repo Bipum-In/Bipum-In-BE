@@ -299,6 +299,7 @@ public class RequestsService {
     public ResponseDto<String> processingRequests(Long requestId, RequestsProcessRequestDto requestsProcessRequestDto) throws Exception {
         Requests request = getRequest(requestId);
         AcceptResult acceptResult = requestsProcessRequestDto.getAcceptResult();
+        checkProcessedRequest(request);
         checkAcceptResult(acceptResult, request.getRequestType());
 
         Supply supply = request.getRequestType().equals(RequestType.SUPPLY)
@@ -321,7 +322,6 @@ public class RequestsService {
         } else {
             if (request.getRequestType().equals(RequestType.SUPPLY)) {
                 checkSupplyId(requestsProcessRequestDto.getSupplyId());
-                supply = getSupply(requestsProcessRequestDto.getSupplyId());
                 supply.allocateSupply(request.getUser());
             } else if (request.getRequestType().equals(RequestType.REPAIR)) {
                 supply.repairSupply();
@@ -342,6 +342,12 @@ public class RequestsService {
 //            smsUtil.sendMail(message, phoneList);
         }
         return ResponseDto.success(message);
+    }
+
+    private void checkProcessedRequest(Requests request) {
+        if (request.getRequestStatus() == RequestStatus.PROCESSED) {
+            throw new CustomException(ErrorCode.ProcessedRequest);
+        }
     }
 
     // 거절시 거절 사유 작성은 필수다.
@@ -366,7 +372,7 @@ public class RequestsService {
     }
 
     private Supply getSupply(Long supplyId) {
-        return supplyRepository.findById(supplyId).orElseThrow(
+        return supplyRepository.findBySupplyIdAndDeletedFalse(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply));
     }
 

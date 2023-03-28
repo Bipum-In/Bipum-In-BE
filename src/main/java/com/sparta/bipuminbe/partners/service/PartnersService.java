@@ -2,10 +2,12 @@ package com.sparta.bipuminbe.partners.service;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Partners;
+import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.partners.dto.PartnersDto;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
+import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +20,11 @@ import java.util.List;
 public class PartnersService {
 
     private final PartnersRepository partnersRepository;
+    private final SupplyRepository supplyRepository;
 
     @Transactional(readOnly = true)
     public ResponseDto<List<PartnersDto>> getPartnersList() {
-        List<Partners> partnersList = partnersRepository.findAll();
+        List<Partners> partnersList = partnersRepository.findByDeletedFalse();
         List<PartnersDto> partnersDtoList = new ArrayList<>();
         for (Partners partners : partnersList) {
             partnersDtoList.add(PartnersDto.of(partners));
@@ -50,12 +53,17 @@ public class PartnersService {
 
     @Transactional
     public ResponseDto<String> deletePartners(Long partnersId) {
+        // 연관관계 끊기.
+        List<Supply> supplyList = supplyRepository.findByPartners_PartnersId(partnersId);
+        for (Supply supply : supplyList) {
+            supply.deletePartners();
+        }
         partnersRepository.delete(getPartners(partnersId));
         return ResponseDto.success("협력 업체 삭제 완료.");
     }
 
     private Partners getPartners(Long partnersId) {
-        return partnersRepository.findById(partnersId).orElseThrow(
+        return partnersRepository.findByPartnersIdAndDeletedFalse(partnersId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundPartners));
     }
 
