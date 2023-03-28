@@ -13,6 +13,7 @@ import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.jwt.JwtUtil;
 import com.sparta.bipuminbe.user.dto.LoginRequestDto;
+import com.sparta.bipuminbe.user.dto.LoginResponseDto;
 import com.sparta.bipuminbe.user.dto.UserResponseDto;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,7 @@ public class UserService {
 
 
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
-    public ResponseEntity<ResponseDto<Boolean>> kakaoLogin(String code) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -67,11 +68,11 @@ public class UserService {
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
         responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
 
-        Boolean isInput = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null;
+        Boolean checkUser = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null && kakaoUser.getPhone() != null;
 
         return ResponseEntity.ok()
                 .headers(responseHeader)
-                .body(ResponseDto.success(isInput));
+                .body(ResponseDto.success(LoginResponseDto.of(kakaoUser, checkUser)));
     }
 
 

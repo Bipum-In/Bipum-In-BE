@@ -100,6 +100,7 @@ public class WebSecurityConfig {
 //        config.addAllowedOrigin("http://localhost:3001");
         config.addAllowedOrigin("http://hanghae77.s3-website.ap-northeast-2.amazonaws.com");
         config.addAllowedOrigin("http://hanghae1teamwork.s3-website.ap-northeast-2.amazonaws.com/");
+        config.addAllowedOrigin("https://bipum-in-fe-two.vercel.app/");
 //        config.addAllowedOrigin("http://rolling-rolling.s3-website.ap-northeast-2.amazonaws.com/");
 
         // 특정 헤더를 클라이언트 측에서 사용할 수 있게 지정
