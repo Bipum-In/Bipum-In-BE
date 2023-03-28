@@ -171,7 +171,7 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseDto<String> loginAdd(LoginRequestDto loginRequestDto, User user) {
+    public ResponseDto<LoginResponseDto> loginAdd(LoginRequestDto loginRequestDto, User user) {
         User foundUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
         Department department = getDepartment(loginRequestDto.getDepartmentId());
@@ -180,7 +180,7 @@ public class UserService {
             foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone());
         }
 
-        return ResponseDto.success("추가정보 입력 완료");
+        return ResponseDto.success(LoginResponseDto.of(foundUser, true));
     }
 
     @Transactional(readOnly = true)
