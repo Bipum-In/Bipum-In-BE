@@ -61,7 +61,6 @@ public class UserService {
         // 3. 필요시에 회원가입
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
-
         // 4. JWT 토큰 반환
 
         HttpHeaders responseHeader = new HttpHeaders();
@@ -69,6 +68,8 @@ public class UserService {
         responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
 
         Boolean checkUser = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null && kakaoUser.getPhone() != null;
+        log.info("kakaoUser의 부서 : " + kakaoUser.getDepartment().getDeptName());
+        log.info("CheckUser : " + checkUser);
 
         return ResponseEntity.ok()
                 .headers(responseHeader)
