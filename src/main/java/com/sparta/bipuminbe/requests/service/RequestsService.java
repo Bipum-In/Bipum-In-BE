@@ -296,6 +296,7 @@ public class RequestsService {
     public ResponseDto<String> processingRequests(Long requestId, RequestsProcessRequestDto requestsProcessRequestDto) throws Exception {
         Requests request = getRequest(requestId);
         AcceptResult acceptResult = requestsProcessRequestDto.getAcceptResult();
+        checkProcessedRequest(request);
         checkAcceptResult(acceptResult, request.getRequestType());
 
         Supply supply = request.getRequestType().equals(RequestType.SUPPLY)
@@ -338,6 +339,12 @@ public class RequestsService {
 //            smsUtil.sendMail(message, phoneList);
         }
         return ResponseDto.success(message);
+    }
+
+    private void checkProcessedRequest(Requests request) {
+        if (request.getRequestStatus() == RequestStatus.PROCESSED) {
+            throw new CustomException(ErrorCode.ProcessedRequest);
+        }
     }
 
     // 거절시 거절 사유 작성은 필수다.
