@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface RequestsRepository extends JpaRepository<Requests, Long> {
-    List<Requests> findBySupply(Supply supply);
-
     boolean existsBySupply_SupplyIdAndRequestStatusNot(Long supplyId, RequestStatus requestStatus);
 
     @Query(value = "SELECT r FROM Requests r " +

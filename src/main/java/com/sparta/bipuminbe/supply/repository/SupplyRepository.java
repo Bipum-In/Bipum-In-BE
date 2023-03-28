@@ -17,9 +17,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
-    List<Supply> findByCategory_IdAndStatus(Long id, SupplyStatusEnum status);
-
-    List<Supply> findByUser(User user);
 
     @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId", nativeQuery = true)
     Long countTotal(@Param("categoryId") Long categoryId);
@@ -33,8 +30,6 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
     @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'STOCK'", nativeQuery = true)
     Long countStock(@Param("categoryId") Long categoryId);
 
-    Optional<List<Supply>> findAllByUserId(Long userId);
-
     @Query(value = "SELECT s FROM Supply s " +
             "inner join Category c on s.category = c " +
             "left join users u on s.user = u " +
@@ -44,6 +39,7 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
             "AND c.id IN :categoryQuery " +
             "AND s.status IN :statusQuery " +
+            "AND s.deleted = false " +
             "order by s.createdAt desc")
     Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Long> categoryQuery,
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
@@ -52,5 +48,9 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
     List<Supply> findByPartners_PartnersId(Long partnersId);
 
+    Optional<Supply> findBySupplyIdAndDeletedFalse(Long supplyId);
 
+    List<Supply> findByUserAndDeletedFalse(User user);
+
+    List<Supply> findByCategory_IdAndStatusAndDeletedFalse(Long categoryId, SupplyStatusEnum stock);
 }

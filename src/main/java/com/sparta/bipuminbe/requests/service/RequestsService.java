@@ -318,7 +318,6 @@ public class RequestsService {
         } else {
             if (request.getRequestType().equals(RequestType.SUPPLY)) {
                 checkSupplyId(requestsProcessRequestDto.getSupplyId());
-                supply = getSupply(requestsProcessRequestDto.getSupplyId());
                 supply.allocateSupply(request.getUser());
             } else if (request.getRequestType().equals(RequestType.REPAIR)) {
                 supply.repairSupply();
@@ -363,7 +362,7 @@ public class RequestsService {
     }
 
     private Supply getSupply(Long supplyId) {
-        return supplyRepository.findById(supplyId).orElseThrow(
+        return supplyRepository.findBySupplyIdAndDeletedFalse(supplyId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundSupply));
     }
 
