@@ -68,7 +68,8 @@ public class UserService {
         responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
 
         Boolean checkUser = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null && kakaoUser.getPhone() != null;
-        log.info("kakaoUser의 부서 : " + kakaoUser.getDepartment().getDeptName());
+
+        log.info("kakaoUser의 부서 : " + kakaoUser.getDepartment());
         log.info("CheckUser : " + checkUser);
 
         return ResponseEntity.ok()
