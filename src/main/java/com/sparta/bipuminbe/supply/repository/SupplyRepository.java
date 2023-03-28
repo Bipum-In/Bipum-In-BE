@@ -49,4 +49,8 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
 
     Optional<List<Supply>> findByUser_IdAndCategory_LargeCategoryIn(Long id, Set<LargeCategory> categoryQuery);
+
+    List<Supply> findByPartners_PartnersId(Long partnersId);
+
+
 }

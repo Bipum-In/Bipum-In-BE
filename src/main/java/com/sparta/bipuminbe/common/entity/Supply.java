@@ -10,7 +10,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +19,8 @@ import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
 @Entity
 @Getter
 @NoArgsConstructor
-//@SQLDelete(sql = "UPDATE Supply SET deleted = true WHERE supplyId = ?")
-//@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
+@SQLDelete(sql = "UPDATE supply SET deleted = true WHERE supply_Id = ?")
+@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class Supply extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +32,6 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private String modelName;
 
-//    @Column(nullable = false)
     private String image;
 
     @Enumerated(EnumType.STRING)
@@ -99,5 +97,9 @@ public class Supply extends TimeStamped {
     public void returnSupply() {
         this.user = null;
         this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.USING;
+    }
+
+    public void deletePartners() {
+        this.partners = null;
     }
 }
