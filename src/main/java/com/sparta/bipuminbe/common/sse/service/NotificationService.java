@@ -4,6 +4,7 @@ import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestType;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseDto;
@@ -11,6 +12,7 @@ import com.sparta.bipuminbe.common.sse.entity.Notification;
 import com.sparta.bipuminbe.common.sse.repository.EmitterRepository;
 import com.sparta.bipuminbe.common.sse.repository.NotificationRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
+import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -30,6 +33,8 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
     private final RequestsRepository requestsRepository;
+
+    private final UserRepository userRepository;
 
     //시간이 포함된 아이디 생성. SseEmitter 구분을 위함
     @Transactional
@@ -98,18 +103,18 @@ public class NotificationService {
                 .forEach(entry -> sendNotification(emitter, entry.getKey(), emitterId, entry.getValue()));
     }
 
+    // 관리자가 요청을 처리하면, 유저들에게 알림을 보낸다.
     @Transactional
-//    public void send(User receiver, String content, String url) {
-    public void send(Long requestsId, AcceptResult isAccepted, String uri) {
+    public void sendForUser(Long requestsId, AcceptResult isAccepted) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest)
         );
 
+        // 알림에 담을 내용
         User receiver = request.getUser();
+        String content = createForUserMessage(request, receiver, isAccepted);
+        String uri = "/api/requests/" + requestsId;
 
-        String content = createMessage(request, receiver, isAccepted);
-
-        uri = uri + requestsId;
         Notification notification = notificationRepository.save(createNotification(receiver, content, uri));
 
         String receiverId = String.valueOf(receiver.getId());
@@ -117,13 +122,13 @@ public class NotificationService {
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
 
-        for(String key : emitters.keySet()){
-            SseEmitter emitter = emitters.get(key);
-            log.info("============");
-            log.info("emitter : " + emitter);
-            log.info("key : " + key);
-            log.info("============");
-        }
+//        for(String key : emitters.keySet()){
+//            SseEmitter emitter = emitters.get(key);
+//            log.info("============");
+//            log.info("emitter : " + emitter);
+//            log.info("key : " + key);
+//            log.info("============");
+//        }
         emitters.forEach(
                 (key, emitter) -> {
                     emitterRepository.saveEventCache(key, notification);
@@ -131,6 +136,41 @@ public class NotificationService {
                     sendNotification(emitter, eventId, key, NotificationResponseDto.of(notification).getContent());
                 }
         );
+    }
+
+
+
+    // 유저가 요청을 보내면 관리자들에게 알림을 보낸다.
+    @Transactional
+    public void sendForAdmin(Long requestsId, User requestUser) {
+        Requests request = requestsRepository.findById(requestsId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundRequest)
+        );
+
+        // 알림에 담을 내용
+        String content = creatForAdminMessage(request, requestUser);
+        String uri = "/api/requests/" + requestsId;
+
+        // Role이 Admin인 유저를 조회한다.
+        List<User> receiverList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
+
+        // 각 Admin 마다 알림을 전송한다.
+        for(User receiver : receiverList){
+            Notification notification = notificationRepository.save(createNotification(receiver, content, uri));
+            String receiverId = String.valueOf(receiver.getId());
+            String eventId = receiverId + "_" + System.currentTimeMillis();
+
+            // Emitter는 유저가 로그인하면 바로 구독할 것이다. 그럼 Admin 의 Emitter도 있을듯 본인 것만 보내기 때문에 노상관
+            Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
+
+            emitters.forEach(
+                    (key, emitter) -> {
+                        emitterRepository.saveEventCache(key, notification);
+                        log.info("emitters 안쪽 eventId : " + eventId);
+                        sendNotification(emitter, eventId, key, NotificationResponseDto.of(notification).getContent());
+                    }
+            );
+        }
     }
 
     private Notification createNotification(User receiver, String content, String url) {
@@ -142,10 +182,8 @@ public class NotificationService {
                 .build();
     }
 
-    private String createMessage(Requests request, User receiver, AcceptResult isAccepted) {
-        String categoryName = request.getCategory() == null ?
-                request.getSupply().getCategory().getCategoryName() :
-                request.getCategory().getCategoryName();
+    private String createForUserMessage(Requests request, User receiver, AcceptResult isAccepted) {
+        String categoryName = getCategoryName(request);
 
         // 승인 건
         if (isAccepted.name().equals("ACCEPT")) {
@@ -164,5 +202,25 @@ public class NotificationService {
                 + request.getSupply().getModelName() + " "
                 + categoryName
                 + " 수리 요청 건이 폐기 승인되었습니다.";
+    }
+
+    private String creatForAdminMessage(Requests request, User requestUser){
+        String categoryName = getCategoryName(request);
+        String requestType = request.getRequestType().getKorean();
+
+        if(requestType.equals("보고서 결재")){
+            return requestUser + " 님이 " + categoryName + " "
+                    + requestType + "를 요청하셨습니다.";
+        }
+
+        // ~~ 님이 ~~카테고리 ~~를 요청하셨습니다.
+        return requestUser + " 님의 " +
+                categoryName + " " + requestType + " 이 등록되었습니다.";
+    }
+
+    private String getCategoryName(Requests request) {
+        return request.getCategory() == null ?
+                request.getSupply().getCategory().getCategoryName() :
+                request.getCategory().getCategoryName();
     }
 }
