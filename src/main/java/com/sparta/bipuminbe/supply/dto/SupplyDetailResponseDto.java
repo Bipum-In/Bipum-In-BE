@@ -1,6 +1,8 @@
 package com.sparta.bipuminbe.supply.dto;
 
+import com.sparta.bipuminbe.common.entity.Partners;
 import com.sparta.bipuminbe.common.entity.Supply;
+import com.sparta.bipuminbe.common.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,12 +19,17 @@ public class SupplyDetailResponseDto {
     private String modelName;
     private String serialNum;
     private LocalDateTime createdAt;
+    private Long partnersId;
     private String partnersName;
+    private Long userId;
     private String empName;
     private String deptName;
     private String status;
 
-    public SupplyDetailResponseDto(Supply supply){
+    public SupplyDetailResponseDto(Supply supply) {
+        Partners partners = supply.getPartners();
+        User user = supply.getUser();
+
         this.supplyId = supply.getSupplyId();
         this.image = supply.getImage();
         this.largeCategory = supply.getCategory().getLargeCategory().getKorean();
@@ -30,9 +37,11 @@ public class SupplyDetailResponseDto {
         this.modelName = supply.getModelName();
         this.serialNum = supply.getSerialNum();
         this.createdAt = supply.getCreatedAt();
-        this.partnersName = supply.getPartners() == null ? null : supply.getPartners().getPartnersName();
-        this.empName = supply.getUser() == null ? null : supply.getUser().getEmpName();
-        this.deptName = supply.getUser() == null ? null : supply.getUser().getDepartment().getDeptName();
+        this.partnersId = partners == null ? null : partners.getPartnersId();
+        this.partnersName = partners == null ? null : partners.getPartnersName();
+        this.userId = user == null ? null : user.getId();
+        this.empName = user == null ? null : user.getEmpName();
+        this.deptName = user == null ? null : user.getDepartment().getDeptName();
         this.status = supply.getStatus().name();
     }
 }
