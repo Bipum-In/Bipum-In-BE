@@ -18,16 +18,16 @@ import java.util.Set;
 
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND deleted = false", nativeQuery = true)
     Long countTotal(@Param("categoryId") Long categoryId);
 
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'USING'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'USING' AND deleted = false", nativeQuery = true)
     Long countUse(@Param("categoryId") Long categoryId);
 
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'REPAIRING'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'REPAIRING' AND deleted = false", nativeQuery = true)
     Long countRepair(@Param("categoryId") Long categoryId);
 
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'STOCK'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'STOCK' AND deleted = false", nativeQuery = true)
     Long countStock(@Param("categoryId") Long categoryId);
 
     @Query(value = "SELECT s FROM Supply s " +
