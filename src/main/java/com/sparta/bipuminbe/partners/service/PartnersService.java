@@ -24,7 +24,7 @@ public class PartnersService {
 
     @Transactional(readOnly = true)
     public ResponseDto<List<PartnersDto>> getPartnersList() {
-        List<Partners> partnersList = partnersRepository.findAll();
+        List<Partners> partnersList = partnersRepository.findByDeletedFalse();
         List<PartnersDto> partnersDtoList = new ArrayList<>();
         for (Partners partners : partnersList) {
             partnersDtoList.add(PartnersDto.of(partners));
@@ -63,7 +63,7 @@ public class PartnersService {
     }
 
     private Partners getPartners(Long partnersId) {
-        return partnersRepository.findById(partnersId).orElseThrow(
+        return partnersRepository.findByPartnersIdAndDeletedFalse(partnersId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundPartners));
     }
 

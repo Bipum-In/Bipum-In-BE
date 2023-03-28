@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE partners SET deleted = true WHERE partners_id = ?")
-@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
+//@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class Partners extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

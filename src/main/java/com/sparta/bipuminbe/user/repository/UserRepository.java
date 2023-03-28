@@ -18,4 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void deleteByKakaoId(Long kakaoId);
 
     List<User> findByRoleAndAlarm(UserRoleEnum role, Boolean alarm);
+
+    List<User> findByDepartment_Id(Long id);
 }

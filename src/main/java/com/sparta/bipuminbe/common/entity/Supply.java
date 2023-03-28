@@ -1,8 +1,6 @@
 package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
-import com.sparta.bipuminbe.common.exception.CustomException;
-import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.supply.dto.SupplyRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,14 +11,11 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.STOCK;
-import static com.sparta.bipuminbe.common.enums.SupplyStatusEnum.USING;
-
 @Entity
 @Getter
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE supply SET deleted = true WHERE supply_Id = ?")
-@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
+//@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class Supply extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
