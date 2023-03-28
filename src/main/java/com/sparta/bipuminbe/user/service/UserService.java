@@ -175,12 +175,10 @@ public class UserService {
         User foundUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
         Department department = getDepartment(loginRequestDto.getDepartmentId());
+        foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone());
+        Boolean checkUser = foundUser.getEmpName() == null || foundUser.getDepartment() == null || foundUser.getPhone() == null;
 
-        if (foundUser.getEmpName() == null || foundUser.getDepartment() == null || foundUser.getPhone() == null) {
-            foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone());
-        }
-
-        return ResponseDto.success(LoginResponseDto.of(foundUser, true));
+        return ResponseDto.success(LoginResponseDto.of(foundUser, checkUser));
     }
 
     @Transactional(readOnly = true)
