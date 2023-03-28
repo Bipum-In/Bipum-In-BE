@@ -21,7 +21,7 @@ public class SupplyHistoryResponseDto {
 
     public static SupplyHistoryResponseDto of(Requests request) {
         User user = request.getUser();
-        Partners partners = request.getSupply().getPartners();
+        Partners partners = request.getPartners();
 
         SupplyHistoryResponseDtoBuilder builder = SupplyHistoryResponseDto.builder()
                 .requestId(request.getRequestId())
