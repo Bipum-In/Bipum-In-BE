@@ -19,7 +19,7 @@ public class LoginResponseDto {
                 .checkUser(checkUser)
                 .isAdmin(user.getRole().equals(UserRoleEnum.ADMIN))
                 .empName(user.getEmpName())
-                .deptName(user.getDepartment().getDeptName())
+                .deptName(user.getDepartment() == null ? null : user.getDepartment().getDeptName())
                 .image(user.getImage())
                 .build();
     }
