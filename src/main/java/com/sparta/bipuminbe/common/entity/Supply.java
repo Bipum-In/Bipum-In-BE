@@ -87,7 +87,7 @@ public class Supply extends TimeStamped {
 
     public void returnSupply() {
         this.user = null;
-        this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.USING;
+        this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.STOCK;
     }
 
     public void deletePartners() {
