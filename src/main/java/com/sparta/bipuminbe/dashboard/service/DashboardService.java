@@ -41,6 +41,10 @@ public class DashboardService {
             Long repairCount = supplyRepository.countRepair(category.getId());
             Long stockCount = supplyRepository.countStock(category.getId());
 
+            if(totalCount == 0){
+                continue;
+            }
+
             responseDtos.add(SupplyCountDto.of(
                     category, totalCount, useCount, repairCount, stockCount));
         }
