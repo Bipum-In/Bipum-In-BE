@@ -50,6 +50,7 @@ public class UserService {
     private String redirectUrl;
 
 
+    @Transactional
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
     public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(String code) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
@@ -60,7 +61,6 @@ public class UserService {
 
         // 3. 필요시에 회원가입
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
-
 
         // 4. JWT 토큰 반환
 

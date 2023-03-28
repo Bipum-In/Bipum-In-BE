@@ -6,10 +6,7 @@ import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.common.sse.service.NotificationService;
-import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
-import com.sparta.bipuminbe.requests.dto.RequestsDetailsResponseDto;
-import com.sparta.bipuminbe.requests.dto.RequestsProcessRequestDto;
-import com.sparta.bipuminbe.requests.dto.RequestsPageResponseDto;
+import com.sparta.bipuminbe.requests.dto.*;
 import com.sparta.bipuminbe.requests.service.RequestsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -67,12 +64,12 @@ public class RequestsController {
             "비품요청의 승인의 경우 supplyId도 같이 필요. " +
             "거절시 거절 사유(comment) 작성 필수. 관리자 권한 필요.")
     public ResponseDto<String> processingRequests(@PathVariable Long requestId,
-                                                  @RequestBody @Valid RequestsProcessRequestDto requestsProcessRequestDto) throws Exception {
+                                                  @RequestBody @Valid RequestsProcessRequestDto requestsProcessRequestDto,
+                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 //         관리자의 요청 처리 >> 요청자에게 알림 전송.
 //         uri는 해당 알림을 클릭하면 이동할 상세페이지 uri이다.
-        String uri = "/api/requests/";
-        notificationService.send(requestId,
-                requestsProcessRequestDto.getAcceptResult(), uri);
+        notificationService.sendForUser(userDetails.getUser(), requestId,
+                requestsProcessRequestDto.getAcceptResult());
 
         return requestsService.processingRequests(requestId, requestsProcessRequestDto);
     }
@@ -100,7 +97,13 @@ public class RequestsController {
             "requestType = SUPPLY / REPAIR / RETURN / REPORT")
     public ResponseDto<String> createRequests(@ModelAttribute @Valid RequestsRequestDto requestsRequestDto,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
-        return requestsService.createRequests(requestsRequestDto, userDetails.getUser());
+
+        RequestsResponseDto requestsResponseDto =requestsService.createRequests(requestsRequestDto, userDetails.getUser());
+
+        // 글 작성 시점이라 requestId가 없다.
+//        notificationService.sendForAdmin(requestsResponseDto.getRequestsId(), userDetails.getUser());
+
+        return ResponseDto.success(requestsResponseDto.getMessage());
     }
 
     @PutMapping(value = "/requests/{requestId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})

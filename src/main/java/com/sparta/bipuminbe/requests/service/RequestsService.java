@@ -10,11 +10,8 @@ import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
 import com.sparta.bipuminbe.common.util.sms.SmsUtil;
-import com.sparta.bipuminbe.requests.dto.RequestsRequestDto;
+import com.sparta.bipuminbe.requests.dto.*;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
-import com.sparta.bipuminbe.requests.dto.RequestsDetailsResponseDto;
-import com.sparta.bipuminbe.requests.dto.RequestsProcessRequestDto;
-import com.sparta.bipuminbe.requests.dto.RequestsPageResponseDto;
 import com.sparta.bipuminbe.requests.repository.ImageRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -43,8 +40,8 @@ public class RequestsService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ResponseDto<String> createRequests(RequestsRequestDto requestsRequestDto, User user) throws Exception {
-
+    public RequestsResponseDto createRequests(RequestsRequestDto requestsRequestDto, User user) throws Exception {
+        Long requestId;
 //
 //        //아래 코드 중복되는 것 합치기
 //        if(requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)){
@@ -65,13 +62,15 @@ public class RequestsService {
         if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
 
-            requestsRepository.save(Requests.builder()
+            Requests createRequests = requestsRepository.save(Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .requestType(requestsRequestDto.getRequestType())
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .category(category)
                     .user(user)
                     .build());
+
+            requestId = createRequests.getRequestId();
         } else {
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
 
@@ -96,7 +95,8 @@ public class RequestsService {
                     .category(supply.getCategory())
                     .build();
 
-            requestsRepository.save(requests);
+            Requests createRequests = requestsRepository.save(requests);
+            requestId = createRequests.getRequestId();
 
             // image Null check. 요청 등록 시에는 이미지가 필수이다.
             if (checkNullImageList(multipartFiles)) {
@@ -126,7 +126,10 @@ public class RequestsService {
 //            smsUtil.sendMail(mail, phoneList);
         }
 
-        return ResponseDto.success(message);
+        return RequestsResponseDto.builder()
+                .requestsId(requestId)
+                .message(message)
+                .build();
     }
 
     @Transactional

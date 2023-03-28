@@ -1,6 +1,7 @@
-package com.sparta.bipuminbe.common.sse.entity;
+package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.common.entity.Requests;
+import com.sparta.bipuminbe.common.entity.TimeStamped;
 import com.sparta.bipuminbe.common.entity.User;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -15,7 +16,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 @EqualsAndHashCode(of = "id")
-public class Notification {
+public class Notification extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "notification_id")

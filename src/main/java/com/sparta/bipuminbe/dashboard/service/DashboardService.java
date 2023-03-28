@@ -1,6 +1,5 @@
 package com.sparta.bipuminbe.dashboard.service;
 
-import com.sparta.bipuminbe.category.dto.CategoryDto;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Category;
@@ -9,6 +8,8 @@ import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.common.entity.Notification;
+import com.sparta.bipuminbe.common.sse.repository.NotificationRepository;
 import com.sparta.bipuminbe.dashboard.dto.*;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -25,10 +26,11 @@ public class DashboardService {
     private final CategoryRepository categoryRepository;
     private final SupplyRepository supplyRepository;
     private final RequestsRepository requestsRepository;
+    private final NotificationRepository notificationRepository;
 
     // 관리자 대시보드
     @Transactional(readOnly = true)
-    public ResponseDto<AdminMainResponseDto> getAdminMain(LargeCategory largeCategory) {
+    public ResponseDto<AdminMainResponseDto> getAdminMain(Long userId, LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
         List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
 
@@ -40,6 +42,10 @@ public class DashboardService {
             Long useCount = supplyRepository.countUse(category.getId());
             Long repairCount = supplyRepository.countRepair(category.getId());
             Long stockCount = supplyRepository.countStock(category.getId());
+
+            if(totalCount == 0){
+                continue;
+            }
 
             responseDtos.add(SupplyCountDto.of(
                     category, totalCount, useCount, repairCount, stockCount));
@@ -64,8 +70,11 @@ public class DashboardService {
 
         RequestsCountDto requestsCountDto = RequestsCountDto.of
                 (countMap, modifiedAtMap);
+//
+//        // 알림 최신 순으로 4개 가져오기 알림에 검색기준이 되는
+//        List<Notification> notifications = notificationRepository.findTop4ByReceiver_idOrderByCreatedAtDesc(userId);
 
-        // 비품 카테고리, 비품 현황 합쳐서 리턴
+        // 비품 카테고리, 비품 현황, 알림 합쳐서 리턴
         return ResponseDto.success(AdminMainResponseDto.of(responseDtos, requestsCountDto));
     }
 
