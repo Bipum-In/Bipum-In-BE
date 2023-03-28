@@ -392,7 +392,8 @@ public class SupplyService {
 
     // 비품 history 조회
     private Page<SupplyHistoryResponseDto> getHistoryDtoPage(Long supplyId, Set<RequestType> requestTypeQuery, Pageable pageable) {
-        Page<Requests> historyPage = requestsRepository.findBySupply_SupplyIdAndRequestTypeIn(supplyId, requestTypeQuery, pageable);
+        Page<Requests> historyPage = requestsRepository.
+                findBySupply_SupplyIdAndRequestTypeInAndAcceptResult(supplyId, requestTypeQuery, AcceptResult.ACCEPT, pageable);
         List<SupplyHistoryResponseDto> historyDtoPage = convertToHistoryDto(historyPage.getContent());
         return new PageImpl<>(historyDtoPage, historyPage.getPageable(), historyPage.getTotalElements());
     }

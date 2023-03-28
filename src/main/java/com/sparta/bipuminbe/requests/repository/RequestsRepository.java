@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.requests.repository;
 
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
+import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import org.springframework.data.domain.Page;
@@ -68,5 +69,5 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
     @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPORT' AND request_status != 'PROCESSED'", nativeQuery = true)
     Long userCountReport(@Param("userId") Long id);
 
-    Page<Requests> findBySupply_SupplyIdAndRequestTypeIn(Long supplyId, Set<RequestType> requestTypeQuery, Pageable pageable);
+    Page<Requests> findBySupply_SupplyIdAndRequestTypeInAndAcceptResult(Long supplyId, Set<RequestType> requestTypeQuery, AcceptResult accept, Pageable pageable);
 }
