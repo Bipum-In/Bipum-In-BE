@@ -70,9 +70,6 @@ public class UserService {
 
         Boolean checkUser = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null && kakaoUser.getPhone() != null;
 
-        log.info("kakaoUser의 부서 : " + kakaoUser.getDepartment());
-        log.info("CheckUser : " + checkUser);
-
         return ResponseEntity.ok()
                 .headers(responseHeader)
                 .body(ResponseDto.success(LoginResponseDto.of(kakaoUser, checkUser)));
