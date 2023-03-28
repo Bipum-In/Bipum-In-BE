@@ -1,26 +1,30 @@
 package com.sparta.bipuminbe.common.sse.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
-import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseDto;
-import com.sparta.bipuminbe.common.sse.entity.Notification;
+import com.sparta.bipuminbe.common.entity.Notification;
 import com.sparta.bipuminbe.common.sse.repository.EmitterRepository;
 import com.sparta.bipuminbe.common.sse.repository.NotificationRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +39,8 @@ public class NotificationService {
     private final RequestsRepository requestsRepository;
 
     private final UserRepository userRepository;
+
+    private ObjectMapper objectMapper;
 
     //시간이 포함된 아이디 생성. SseEmitter 구분을 위함
     @Transactional
@@ -105,7 +111,7 @@ public class NotificationService {
 
     // 관리자가 요청을 처리하면, 유저들에게 알림을 보낸다.
     @Transactional
-    public void sendForUser(Long requestsId, AcceptResult isAccepted) {
+    public void sendForUser(User userAdmin, Long requestsId, AcceptResult isAccepted) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest)
         );
@@ -129,11 +135,27 @@ public class NotificationService {
 //            log.info("key : " + key);
 //            log.info("============");
 //        }
+        // 관리자 사진, 메시지랑, 시간
+
+        //이미지 바이트로 변환
+        byte[] imageBytes = Base64.getEncoder().encode(userAdmin.getImage().getBytes(StandardCharsets.UTF_8));
+
+        NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, imageBytes);
+
+        String jsonResult = "";
+        try{
+            jsonResult = objectMapper.writeValueAsString(notificationResponseDto);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(ErrorCode.JsonConvertError);
+        }
+
+        String finalJsonResult = jsonResult;
+
         emitters.forEach(
                 (key, emitter) -> {
                     emitterRepository.saveEventCache(key, notification);
                     log.info("emitters 안쪽 eventId : " + eventId);
-                    sendNotification(emitter, eventId, key, NotificationResponseDto.of(notification).getContent());
+                    sendNotification(emitter, eventId, key, finalJsonResult);
                 }
         );
     }
@@ -141,37 +163,37 @@ public class NotificationService {
 
 
     // 유저가 요청을 보내면 관리자들에게 알림을 보낸다.
-    @Transactional
-    public void sendForAdmin(Long requestsId, User requestUser) {
-        Requests request = requestsRepository.findById(requestsId).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundRequest)
-        );
-
-        // 알림에 담을 내용
-        String content = creatForAdminMessage(request, requestUser);
-        String uri = "/api/requests/" + requestsId;
-
-        // Role이 Admin인 유저를 조회한다.
-        List<User> receiverList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
-
-        // 각 Admin 마다 알림을 전송한다.
-        for(User receiver : receiverList){
-            Notification notification = notificationRepository.save(createNotification(receiver, content, uri));
-            String receiverId = String.valueOf(receiver.getId());
-            String eventId = receiverId + "_" + System.currentTimeMillis();
-
-            // Emitter는 유저가 로그인하면 바로 구독할 것이다. 그럼 Admin 의 Emitter도 있을듯 본인 것만 보내기 때문에 노상관
-            Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
-
-            emitters.forEach(
-                    (key, emitter) -> {
-                        emitterRepository.saveEventCache(key, notification);
-                        log.info("emitters 안쪽 eventId : " + eventId);
-                        sendNotification(emitter, eventId, key, NotificationResponseDto.of(notification).getContent());
-                    }
-            );
-        }
-    }
+//    @Transactional
+//    public void sendForAdmin(Long requestsId, User requestUser) {
+//        Requests request = requestsRepository.findById(requestsId).orElseThrow(
+//                () -> new CustomException(ErrorCode.NotFoundRequest)
+//        );
+//
+//        // 알림에 담을 내용
+//        String content = creatForAdminMessage(request, requestUser);
+//        String uri = "/api/requests/" + requestsId;
+//
+//        // Role이 Admin인 유저를 조회한다.
+//        List<User> receiverList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
+//
+//        // 각 Admin 마다 알림을 전송한다.
+//        for(User receiver : receiverList){
+//            Notification notification = notificationRepository.save(createNotification(receiver, content, uri));
+//            String receiverId = String.valueOf(receiver.getId());
+//            String eventId = receiverId + "_" + System.currentTimeMillis();
+//
+//            // Emitter는 유저가 로그인하면 바로 구독할 것이다. 그럼 Admin 의 Emitter도 있을듯 본인 것만 보내기 때문에 노상관
+//            Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
+//
+//            emitters.forEach(
+//                    (key, emitter) -> {
+//                        emitterRepository.saveEventCache(key, notification);
+//                        log.info("emitters 안쪽 eventId : " + eventId);
+//                        sendNotification(emitter, eventId, key, NotificationResponseDto.of(notification).getContent());
+//                    }
+//            );
+//        }
+//    }
 
     private Notification createNotification(User receiver, String content, String url) {
         return Notification.builder()

@@ -64,10 +64,11 @@ public class RequestsController {
             "비품요청의 승인의 경우 supplyId도 같이 필요. " +
             "거절시 거절 사유(comment) 작성 필수. 관리자 권한 필요.")
     public ResponseDto<String> processingRequests(@PathVariable Long requestId,
-                                                  @RequestBody @Valid RequestsProcessRequestDto requestsProcessRequestDto) throws Exception {
+                                                  @RequestBody @Valid RequestsProcessRequestDto requestsProcessRequestDto,
+                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 //         관리자의 요청 처리 >> 요청자에게 알림 전송.
 //         uri는 해당 알림을 클릭하면 이동할 상세페이지 uri이다.
-        notificationService.sendForUser(requestId,
+        notificationService.sendForUser(userDetails.getUser(), requestId,
                 requestsProcessRequestDto.getAcceptResult());
 
         return requestsService.processingRequests(requestId, requestsProcessRequestDto);
@@ -100,7 +101,7 @@ public class RequestsController {
         RequestsResponseDto requestsResponseDto =requestsService.createRequests(requestsRequestDto, userDetails.getUser());
 
         // 글 작성 시점이라 requestId가 없다.
-        notificationService.sendForAdmin(requestsResponseDto.getRequestsId(), userDetails.getUser());
+//        notificationService.sendForAdmin(requestsResponseDto.getRequestsId(), userDetails.getUser());
 
         return ResponseDto.success(requestsResponseDto.getMessage());
     }
