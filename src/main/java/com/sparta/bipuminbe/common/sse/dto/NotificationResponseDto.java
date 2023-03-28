@@ -1,9 +1,8 @@
 package com.sparta.bipuminbe.common.sse.dto;
 
-import com.sparta.bipuminbe.common.sse.entity.Notification;
+import com.sparta.bipuminbe.common.entity.Notification;
 import lombok.Builder;
 import lombok.Getter;
-import org.joda.time.DateTime;
 
 import java.time.LocalDateTime;
 
@@ -13,13 +12,14 @@ public class NotificationResponseDto {
     private String content;
     private String url;
     private LocalDateTime createdAt;
-
-    public static NotificationResponseDto of(Notification notification) {
+    private byte[] imageBytes;
+    public static NotificationResponseDto of(Notification notification, byte[] imageBytes) {
 
         return builder()
                 .content(notification.getContent())
                 .url(notification.getUrl())
                 .createdAt(notification.getCreatedAt())
+                .imageBytes(imageBytes)
                 .build();
     }
 }

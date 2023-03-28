@@ -1,4 +1,4 @@
-package com.sparta.bipuminbe.common.sse.entity;
+package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.TimeStamped;
