@@ -66,7 +66,7 @@ public class SupplyController {
     @Operation(summary = "비품 수정", description = "관리자 권한 필요.")
     public ResponseDto<String> updateSupplies(
             @PathVariable Long supplyId,
-            @RequestBody @Valid SupplyRequestDto supplyRequestDto
+            @ModelAttribute @Valid SupplyRequestDto supplyRequestDto
     ) throws IOException {
         return supplyService.updateSupplies(supplyId, supplyRequestDto);
     }
