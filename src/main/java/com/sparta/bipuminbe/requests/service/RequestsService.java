@@ -96,9 +96,7 @@ public class RequestsService {
             requestId = createRequests.getRequestId();
 
             // image Null check. 요청 등록 시에는 이미지가 필수이다.
-            if (checkNullImageList(multipartFiles, null)) {
-                throw new CustomException(ErrorCode.NullImageList);
-            }
+            checkNullImageList(multipartFiles, null);
             //s3에 저장
             for (MultipartFile multipartFile : multipartFiles) {
                 String image = s3Uploader.uploadFiles(multipartFile, dirName);
@@ -151,24 +149,28 @@ public class RequestsService {
                     () -> new CustomException(ErrorCode.NullImageList));
 
             List<String> storedImageURLs = requestsRequestDto.getStoredImageURLs();
+            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
+            checkNullImageList(multipartFiles, storedImageURLs);
 
             // 이미지들 삭제
-            for (Image image : imageList) {
-                // DB에 들어있는 이미지 URL은 삭제하지 않는다.
-                if (storedImageURLs.contains(image.getImage())) {
-                    continue;
-                }
+            if (storedImageURLs != null) {
+                for (Image image : imageList) {
+                    // DB에 들어있는 이미지 URL은 삭제하지 않는다.
+                    if (storedImageURLs.contains(image.getImage())) {
+                        continue;
+                    }
 //                //S3 내 이미지 파일 삭제
 //                s3Uploader.deleteFile(image);
 
-                // DB 내 이미지 삭제
-                imageRepository.deleteById(image.getId());
+                    // DB 내 이미지 삭제
+                    imageRepository.deleteById(image.getId());
+                }
+            } else {
+                imageRepository.deleteAll(imageList);
             }
 
             Supply supply = getSupply(requestsRequestDto.getSupplyId());
             String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
-
-            List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
             requests.update(Requests.builder()
                     .content(requestsRequestDto.getContent())
@@ -176,7 +178,7 @@ public class RequestsService {
                     .build());
 
             // 추가하는 이미지가 있을 경우에만 s3에 저장한다.
-            if (!(checkNullImageList(multipartFiles, storedImageURLs))) {
+            if (multipartFiles != null) {
                 //s3에 저장
                 for (MultipartFile multipartFile : multipartFiles) {
                     String image = s3Uploader.uploadFiles(multipartFile, dirName);
@@ -207,10 +209,11 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage(String keyword, RequestType type, RequestStatus status, int page, int size, User user) {
+    public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage
+            (String keyword, RequestType type, RequestStatus status, int page, int size, User user, UserRoleEnum role) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
-        Set<Long> userIdQuery = getUserIdSet(user);
+        Set<Long> userIdQuery = getUserIdSet(user, role);
         Pageable pageable = getPageable(page, size);
 
         Page<Requests> requestsList = requestsRepository.
@@ -222,9 +225,9 @@ public class RequestsService {
     }
 
     // 유저가 admin이면 전체 조회, user라면 자기꺼만 조회.
-    private Set<Long> getUserIdSet(User user) {
+    private Set<Long> getUserIdSet(User user, UserRoleEnum role) {
         Set<Long> userIdQuery = new HashSet<>();
-        if (user.getRole().equals(UserRoleEnum.ADMIN)) {
+        if (role.equals(UserRoleEnum.ADMIN)) {
             List<User> userList = userRepository.findAll();
             for (User user1 : userList) {
                 userIdQuery.add(user1.getId());
@@ -383,7 +386,9 @@ public class RequestsService {
         }
     }
 
-    private boolean checkNullImageList(List<MultipartFile> multipartFiles, List<String> storedImageURLs) {
-        return multipartFiles == null && storedImageURLs == null;
+    private void checkNullImageList(List<MultipartFile> multipartFiles, List<String> storedImageURLs) {
+        if (multipartFiles == null && storedImageURLs == null) {
+            throw new CustomException(ErrorCode.NullImageList);
+        }
     }
 }

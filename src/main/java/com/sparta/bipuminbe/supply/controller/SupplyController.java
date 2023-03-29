@@ -50,14 +50,25 @@ public class SupplyController {
     }
 
     //비품 상세
-    @GetMapping("/supply/{supplyId}")
-    @Operation(summary = "비품 상세", description = "관리자 권한 필요." +
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @GetMapping("/admin/supply/{supplyId}")
+    @Operation(summary = "비품 상세(ADMIN)", description = "관리자 권한 필요." +
             "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
+    public ResponseDto<SupplyWholeResponseDto> getAdminSupply(
+            @PathVariable Long supplyId,
+            @RequestParam(defaultValue = "6") int size
+    ) {
+        return supplyService.getSupply(supplyId, size, UserRoleEnum.ADMIN);
+    }
+
+    //비품 상세
+    @GetMapping("/supply/{supplyId}")
+    @Operation(summary = "비품 상세(USER)", description = "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
     public ResponseDto<SupplyWholeResponseDto> getSupply(
             @PathVariable Long supplyId,
             @RequestParam(defaultValue = "6") int size
     ) {
-        return supplyService.getSupply(supplyId, size);
+        return supplyService.getSupply(supplyId, size, UserRoleEnum.USER);
     }
 
     //비품 수정
