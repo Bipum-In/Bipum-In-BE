@@ -41,7 +41,7 @@ public class RequestsController {
                                                                            @RequestParam(defaultValue = "1") int page,
                                                                            @RequestParam(defaultValue = "10") int size,
                                                                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return requestsService.getRequestsPage(keyword, type, status, page, size, userDetails.getUser());
+        return requestsService.getRequestsPage(keyword, type, status, page, size, userDetails.getUser(), UserRoleEnum.ADMIN);
     }
 
     @GetMapping("/requests")
@@ -55,7 +55,7 @@ public class RequestsController {
                                                                       @RequestParam(defaultValue = "1") int page,
                                                                       @RequestParam(defaultValue = "10") int size,
                                                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return requestsService.getRequestsPage(keyword, type, status, page, size, userDetails.getUser());
+        return requestsService.getRequestsPage(keyword, type, status, page, size, userDetails.getUser(), UserRoleEnum.USER);
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)

@@ -158,10 +158,10 @@ public class SupplyService {
 
     //비품 상세
     @Transactional(readOnly = true)
-    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId, int size) {
+    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId, int size, UserRoleEnum role) {
 
         Supply supply = getSupply(supplyId);
-        SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply);
+        SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply, role);
 //        List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
 //        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
 //        List<Requests> requests = requestsRepository.findBySupply(supply);
