@@ -19,11 +19,13 @@ public class RequestsPageResponseDto {
     private String categoryName;
     private String modelName;
     private LocalDateTime createdAt;
+    private String admin;
     private String status;
     private String acceptResult;
 
     public static RequestsPageResponseDto of(Requests requests) {
         User user = requests.getUser();
+        User admin = requests.getAdmin();
 
         RequestsPageResponseDtoBuilder builder = RequestsPageResponseDto.builder()
                 .requestId(requests.getRequestId())
@@ -31,6 +33,7 @@ public class RequestsPageResponseDto {
                 .empName(user.getEmpName())
                 .deptName(user.getDepartment().getDeptName())
                 .createdAt(requests.getCreatedAt())
+                .admin(admin == null ? null : admin.getEmpName())
                 .status(requests.getRequestStatus().getKorean());
 
         if (requests.getRequestType().equals(RequestType.SUPPLY)) {

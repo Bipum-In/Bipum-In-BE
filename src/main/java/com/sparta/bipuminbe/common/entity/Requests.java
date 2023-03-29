@@ -52,9 +52,13 @@ public class Requests extends TimeStamped {
     @JoinColumn(name = "partnersId")
     private Partners partners;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "adminId")
+    private User admin;
+
     @Builder
     public Requests(String content, List<Image> imageList, RequestType requestType, RequestStatus requestStatus,
-                    Supply supply, User user, Category category, AcceptResult acceptResult, Partners partners) {
+                    Supply supply, User user, Category category, AcceptResult acceptResult, Partners partners, User admin) {
         this.content = content;
         this.imageList = imageList;
         this.requestType = requestType;
@@ -64,14 +68,16 @@ public class Requests extends TimeStamped {
         this.category = supply == null ? category : supply.getCategory();
         this.acceptResult = acceptResult;
         this.partners = partners;
+        this.admin = admin;
     }
 
-    public void processingRequest(AcceptResult acceptResult, String comment, Supply supply) {
+    public void processingRequest(AcceptResult acceptResult, String comment, Supply supply, User admin) {
         // 처리중 상태 처리.
         if (this.requestType.equals(RequestType.REPAIR) && acceptResult.equals(AcceptResult.ACCEPT)
                 && this.requestStatus.equals(RequestStatus.UNPROCESSED)) {
             this.requestStatus = RequestStatus.PROCESSING;
             this.partners = supply.getPartners();
+            this.admin = admin;
             return;
         }
 
@@ -83,6 +89,7 @@ public class Requests extends TimeStamped {
         this.acceptResult = acceptResult;
         this.requestStatus = RequestStatus.PROCESSED;
         this.comment = comment;
+        this.admin = admin;
     }
 
     public void update(Requests requests) {
