@@ -28,7 +28,7 @@ public class SupplyController {
 
     //비품 등록
     @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, value = "/supply")
+    @PostMapping(value = "/supply", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "비품 등록", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가), 반납 날짜(null 가능), 협력업체(null 가능), 유저 아이디(null 불가), 관리자 권한 필요.")
     public ResponseDto<String> createSupply(
             @ModelAttribute @Valid SupplyRequestDto supplyRequestDto) throws IOException {
@@ -62,11 +62,11 @@ public class SupplyController {
 
     //비품 수정
     @Secured(value = UserRoleEnum.Authority.ADMIN)
-    @PutMapping("/supply/{supplyId}")
+    @PutMapping(value = "/supply/{supplyId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "비품 수정", description = "관리자 권한 필요.")
     public ResponseDto<String> updateSupplies(
             @PathVariable Long supplyId,
-            @RequestBody @Valid SupplyRequestDto supplyRequestDto
+            @ModelAttribute @Valid SupplyRequestDto supplyRequestDto
     ) throws IOException {
         return supplyService.updateSupplies(supplyId, supplyRequestDto);
     }
