@@ -73,12 +73,12 @@ public class DashboardService {
                 (countMap, modifiedAtMap);
 
 
-        // 알림 최신 순으로 4개 가져오기 관리자의 화면이므로 유저의 요청이 보인다.
-        // Notification의 userId 의 UserRole을 가져와 사용해야한다.
-        // Role을 거르지 않고
-
-        UserRoleEnum.USER
-        List<Notification> notifications = notificationRepository.findNotification();
+//        // 알림 최신 순으로 4개 가져오기 관리자의 화면이므로 유저의 요청이 보인다.
+//        // Notification의 userId 의 UserRole을 가져와 사용해야한다.
+//        // Role을 거르지 않고
+//
+//        UserRoleEnum.USER
+//        List<Notification> notifications = notificationRepository.findNotification();
 
         // 비품 카테고리, 비품 현황, 알림 합쳐서 리턴
         return ResponseDto.success(AdminMainResponseDto.of(responseDtos, requestsCountDto));
