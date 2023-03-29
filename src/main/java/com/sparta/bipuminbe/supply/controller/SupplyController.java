@@ -38,7 +38,7 @@ public class SupplyController {
 
     //비품 조회
     @GetMapping("/admin/supply")
-    @Operation(summary = "비품 조회", description = "SelectBox용(카테고리), 관리자 권한 필요. status ALL/USING/STOCK/REPAIRING")
+    @Operation(summary = "비품 조회 페이지(ADMIN)", description = "SelectBox용(카테고리), 관리자 권한 필요. status ALL/USING/STOCK/REPAIRING")
     public ResponseDto<Page<SupplyResponseDto>> getSupplyList(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") Long categoryId,
@@ -102,7 +102,7 @@ public class SupplyController {
 
     // 비품 요청 상세 페이지 SelectBox.
     @GetMapping("/supply/stock/{categoryId}")
-    @Operation(summary = "재고 비품 조회", description = "비품 요청 상세 페이지. SelectBox용.")
+    @Operation(summary = "재고 비품 조회(비품 요청 페이지)", description = "비품 요청 상세 페이지. SelectBox용.")
     public ResponseDto<List<StockSupplyResponseDto>> getStockSupply(@PathVariable Long categoryId) {
         return supplyService.getStockSupply(categoryId);
     }
