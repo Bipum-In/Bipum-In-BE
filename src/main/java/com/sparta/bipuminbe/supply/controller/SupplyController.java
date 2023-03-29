@@ -56,9 +56,10 @@ public class SupplyController {
             "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
     public ResponseDto<SupplyWholeResponseDto> getAdminSupply(
             @PathVariable Long supplyId,
-            @RequestParam(defaultValue = "6") int size
+            @RequestParam(defaultValue = "6") int size,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        return supplyService.getSupply(supplyId, size, UserRoleEnum.ADMIN);
+        return supplyService.getSupply(supplyId, size, userDetails.getUser(), UserRoleEnum.ADMIN);
     }
 
     //비품 상세(USER)
@@ -66,9 +67,10 @@ public class SupplyController {
     @Operation(summary = "비품 상세(USER)", description = "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
     public ResponseDto<SupplyWholeResponseDto> getSupply(
             @PathVariable Long supplyId,
-            @RequestParam(defaultValue = "6") int size
+            @RequestParam(defaultValue = "6") int size,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        return supplyService.getSupply(supplyId, size, UserRoleEnum.USER);
+        return supplyService.getSupply(supplyId, size, userDetails.getUser(), UserRoleEnum.USER);
     }
 
     //비품 수정
