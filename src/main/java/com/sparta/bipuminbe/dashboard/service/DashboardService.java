@@ -84,6 +84,7 @@ public class DashboardService {
         return ResponseDto.success(AdminMainResponseDto.of(responseDtos, requestsCountDto));
     }
 
+    @Transactional(readOnly = true)
     // 사용자 대시보드
     public ResponseDto<UserMainResponseDto> getUserMain(User user, LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
@@ -95,6 +96,9 @@ public class DashboardService {
         userCountMap.put("userCountReturn", requestsRepository.userCountReturn(user.getId()));
         userCountMap.put("userCountRepair", requestsRepository.userCountRepair(user.getId()));
         userCountMap.put("userCountReport", requestsRepository.userCountReport(user.getId()));
+        userCountMap.put("UnProcessedUserRequests",
+                requestsRepository.userCountSupply(user.getId()) + requestsRepository.userCountReturn(user.getId()) +
+                        requestsRepository.userCountRepair(user.getId()) + requestsRepository.userCountReport(user.getId()));
 
         // 사용 중인 비품 조회
         List<UserSupplyDto> userSupplyDtos = new ArrayList<>();
