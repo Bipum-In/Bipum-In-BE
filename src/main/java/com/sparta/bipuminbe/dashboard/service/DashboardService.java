@@ -6,6 +6,7 @@ import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.entity.Notification;
@@ -30,7 +31,7 @@ public class DashboardService {
 
     // 관리자 대시보드
     @Transactional(readOnly = true)
-    public ResponseDto<AdminMainResponseDto> getAdminMain(Long userId, LargeCategory largeCategory) {
+    public ResponseDto<AdminMainResponseDto> getAdminMain(LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
         List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
 
@@ -70,9 +71,14 @@ public class DashboardService {
 
         RequestsCountDto requestsCountDto = RequestsCountDto.of
                 (countMap, modifiedAtMap);
+
+
+//        // 알림 최신 순으로 4개 가져오기 관리자의 화면이므로 유저의 요청이 보인다.
+//        // Notification의 userId 의 UserRole을 가져와 사용해야한다.
+//        // Role을 거르지 않고
 //
-//        // 알림 최신 순으로 4개 가져오기 알림에 검색기준이 되는
-//        List<Notification> notifications = notificationRepository.findTop4ByReceiver_idOrderByCreatedAtDesc(userId);
+//        UserRoleEnum.USER
+//        List<Notification> notifications = notificationRepository.findNotification();
 
         // 비품 카테고리, 비품 현황, 알림 합쳐서 리턴
         return ResponseDto.success(AdminMainResponseDto.of(responseDtos, requestsCountDto));
