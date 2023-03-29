@@ -82,6 +82,19 @@ public class SupplyService {
         Supply newSupply = new Supply(supplyRequestDto, partners, newCategory, user, image);
         supplyRepository.save(newSupply);
 
+        // user history 기록 생성.
+        if (user != null) {
+            requestsRepository.save(Requests.builder()
+                    .requestType(RequestType.SUPPLY)
+                    .content("비품 사용 유저 내역을 위한 기록 생성.")
+                    .acceptResult(AcceptResult.ACCEPT)
+                    .requestStatus(RequestStatus.PROCESSED)
+                    .supply(newSupply)
+                    .user(user)
+                    .category(newCategory)
+                    .build());
+        }
+
         return ResponseDto.success("비품 등록 성공");
     }
 
@@ -158,10 +171,10 @@ public class SupplyService {
 
     //비품 상세
     @Transactional(readOnly = true)
-    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId, int size, UserRoleEnum role) {
+    public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId, int size, User user, UserRoleEnum role) {
 
         Supply supply = getSupply(supplyId);
-        SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply, role);
+        SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply, user, role);
 //        List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
 //        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
 //        List<Requests> requests = requestsRepository.findBySupply(supply);

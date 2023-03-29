@@ -15,6 +15,7 @@ public class SupplyDetailResponseDto {
 
     private Long supplyId;
     private Boolean isAdmin;
+    private Boolean isMySupply;
     private String image;
     private String largeCategory;
     private String category;
@@ -28,12 +29,13 @@ public class SupplyDetailResponseDto {
     private String deptName;
     private String status;
 
-    public SupplyDetailResponseDto(Supply supply, UserRoleEnum role) {
+    public SupplyDetailResponseDto(Supply supply, User loginUser, UserRoleEnum role) {
         Partners partners = supply.getPartners();
         User user = supply.getUser();
 
         this.supplyId = supply.getSupplyId();
         this.isAdmin = role.equals(UserRoleEnum.ADMIN);
+        this.isMySupply = user != null && user.getId().equals(loginUser.getId());
         this.image = supply.getImage();
         this.largeCategory = supply.getCategory().getLargeCategory().getKorean();
         this.category = supply.getCategory().getCategoryName();
