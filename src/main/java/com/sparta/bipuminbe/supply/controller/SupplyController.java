@@ -49,15 +49,26 @@ public class SupplyController {
         return supplyService.getSupplyList(keyword, categoryId, status, page, size);
     }
 
-    //비품 상세
-    @GetMapping("/supply/{supplyId}")
-    @Operation(summary = "비품 상세", description = "관리자 권한 필요." +
+    //비품 상세(ADMIN)
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @GetMapping("/admin/supply/{supplyId}")
+    @Operation(summary = "비품 상세(ADMIN)", description = "관리자 권한 필요." +
             "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
+    public ResponseDto<SupplyWholeResponseDto> getAdminSupply(
+            @PathVariable Long supplyId,
+            @RequestParam(defaultValue = "6") int size
+    ) {
+        return supplyService.getSupply(supplyId, size, UserRoleEnum.ADMIN);
+    }
+
+    //비품 상세(USER)
+    @GetMapping("/supply/{supplyId}")
+    @Operation(summary = "비품 상세(USER)", description = "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
     public ResponseDto<SupplyWholeResponseDto> getSupply(
             @PathVariable Long supplyId,
             @RequestParam(defaultValue = "6") int size
     ) {
-        return supplyService.getSupply(supplyId, size);
+        return supplyService.getSupply(supplyId, size, UserRoleEnum.USER);
     }
 
     //비품 수정
@@ -114,6 +125,7 @@ public class SupplyController {
         return supplyService.getStockList(keyword, categoryId, page, size);
     }
 
+    // 유저 사용 내역(비품 상세 페이지 무한 스크롤)
     @GetMapping("/supply/history/user/{supplyId}")
     @Operation(summary = "유저 사용 내역(비품 상세 페이지 무한 스크롤)")
     public ResponseDto<Page<SupplyHistoryResponseDto>> getUserHistory(@PathVariable Long supplyId,
@@ -122,6 +134,7 @@ public class SupplyController {
         return supplyService.getUserHistory(supplyId, page, size);
     }
 
+    // 수리 내역(비품 상세 페이지 무한 스크롤)
     @GetMapping("/supply/history/repair/{supplyId}")
     @Operation(summary = "수리 내역(비품 상세 페이지 무한 스크롤)")
     public ResponseDto<Page<SupplyHistoryResponseDto>> getRepairHistory(@PathVariable Long supplyId,
