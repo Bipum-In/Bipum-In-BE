@@ -109,7 +109,7 @@ public class DashboardService {
             userSupplyDtos.add(UserSupplyDto.of(supply));
         }
 //        for(Category category : categoryList){
-//        }
+//        }s
 
         // 요청 현황, 사용 중인 비품 현황 합쳐서 리턴
         return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, userCountMap));
