@@ -121,7 +121,7 @@ public class NotificationService {
         String content = createForUserMessage(request, receiver, isAccepted);
         String uri = "/api/requests/" + requestsId;
 
-        Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri));
+        Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri, request));
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -167,7 +167,7 @@ public class NotificationService {
 
         // 각 Admin 마다 알림을 전송한다.
         for(User receiver : receiverList){
-            Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri));
+            Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri, request));
             String receiverId = String.valueOf(receiver.getId());
             String eventId = receiverId + "_" + System.currentTimeMillis();
 
@@ -186,13 +186,14 @@ public class NotificationService {
         }
     }
 
-    private Notification createNotification(User sender, User receiver, String content, String url) {
+    private Notification createNotification(User sender, User receiver, String content, String url, Requests request) {
         return Notification.builder()
                 .sender(sender)
                 .receiver(receiver)
                 .content(content)
                 .url(url)
                 .isRead(false)
+                .request(request)
                 .build();
     }
 
