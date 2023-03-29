@@ -71,7 +71,7 @@ public class RequestsController {
         notificationService.sendForUser(userDetails.getUser(), requestId,
                 requestsProcessRequestDto.getAcceptResult());
 
-        return requestsService.processingRequests(requestId, requestsProcessRequestDto);
+        return requestsService.processingRequests(requestId, requestsProcessRequestDto, userDetails.getUser());
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)

@@ -295,7 +295,7 @@ public class RequestsService {
     }
 
     @Transactional
-    public ResponseDto<String> processingRequests(Long requestId, RequestsProcessRequestDto requestsProcessRequestDto) throws Exception {
+    public ResponseDto<String> processingRequests(Long requestId, RequestsProcessRequestDto requestsProcessRequestDto, User user) throws Exception {
         Requests request = getRequest(requestId);
         AcceptResult acceptResult = requestsProcessRequestDto.getAcceptResult();
         checkProcessedRequest(request);
@@ -306,7 +306,7 @@ public class RequestsService {
                 : request.getSupply();
 
         // 요청 상태 처리.
-        request.processingRequest(acceptResult, requestsProcessRequestDto.getComment(), supply);
+        request.processingRequest(acceptResult, requestsProcessRequestDto.getComment(), supply, user);
 
         String message = "[비품인]\n" + request.getUser().getEmpName() +
                 " 님이 요청 하신 " + request.getRequestType().getKorean();

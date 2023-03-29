@@ -31,8 +31,9 @@ public class SupplyController {
     @PostMapping(value = "/supply", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "비품 등록", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가), 반납 날짜(null 가능), 협력업체(null 가능), 유저 아이디(null 불가), 관리자 권한 필요.")
     public ResponseDto<String> createSupply(
-            @ModelAttribute @Valid SupplyRequestDto supplyRequestDto) throws IOException {
-        return supplyService.createSupply(supplyRequestDto);
+            @ModelAttribute @Valid SupplyRequestDto supplyRequestDto,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        return supplyService.createSupply(supplyRequestDto, userDetails.getUser());
     }
 
 
@@ -57,7 +58,7 @@ public class SupplyController {
     public ResponseDto<SupplyWholeResponseDto> getAdminSupply(
             @PathVariable Long supplyId,
             @RequestParam(defaultValue = "6") int size,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         return supplyService.getSupply(supplyId, size, userDetails.getUser(), UserRoleEnum.ADMIN);
     }
@@ -68,7 +69,7 @@ public class SupplyController {
     public ResponseDto<SupplyWholeResponseDto> getSupply(
             @PathVariable Long supplyId,
             @RequestParam(defaultValue = "6") int size,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         return supplyService.getSupply(supplyId, size, userDetails.getUser(), UserRoleEnum.USER);
     }
@@ -79,9 +80,10 @@ public class SupplyController {
     @Operation(summary = "비품 수정", description = "관리자 권한 필요.")
     public ResponseDto<String> updateSupplies(
             @PathVariable Long supplyId,
-            @ModelAttribute @Valid SupplyRequestDto supplyRequestDto
+            @ModelAttribute @Valid SupplyRequestDto supplyRequestDto,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails
     ) throws IOException {
-        return supplyService.updateSupplies(supplyId, supplyRequestDto);
+        return supplyService.updateSupplies(supplyId, supplyRequestDto, userDetails.getUser());
     }
 
     //비품 폐기

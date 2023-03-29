@@ -46,7 +46,7 @@ public class SupplyService {
 
     //비품 등록
     @Transactional
-    public ResponseDto<String> createSupply(SupplyRequestDto supplyRequestDto) throws IOException {
+    public ResponseDto<String> createSupply(SupplyRequestDto supplyRequestDto, User admin) throws IOException {
 
         Partners partners = null;
         if (supplyRequestDto.getPartnersId() != null) {
@@ -92,6 +92,7 @@ public class SupplyService {
                     .supply(newSupply)
                     .user(user)
                     .category(newCategory)
+                    .admin(admin)
                     .build());
         }
 
@@ -220,7 +221,7 @@ public class SupplyService {
 
     //비품 수정
     @Transactional
-    public ResponseDto<String> updateSupplies(Long supplyId, SupplyRequestDto supplyRequestDto) throws IOException {
+    public ResponseDto<String> updateSupplies(Long supplyId, SupplyRequestDto supplyRequestDto, User admin) throws IOException {
         Partners partners = null;
         if (supplyRequestDto.getPartnersId() != null) {
             partners = partnersRepository.findByPartnersIdAndDeletedFalse(supplyRequestDto.getPartnersId()).orElseThrow(
@@ -266,6 +267,7 @@ public class SupplyService {
                         .acceptResult(AcceptResult.ACCEPT)
                         .supply(supply)
                         .user(supply.getUser())
+                        .admin(admin)
                         .build());
                 supply.returnSupply();
             }
@@ -280,6 +282,7 @@ public class SupplyService {
                         .supply(supply)
                         .user(user)
                         .category(newCategory)
+                        .admin(admin)
                         .build());
                 supply.allocateSupply(user);
             }
@@ -307,6 +310,7 @@ public class SupplyService {
                 .acceptResult(AcceptResult.DISPOSE)
                 .supply(supply)
                 .user(user)
+                .admin(user)
                 .build());
 
         supplyRepository.delete(supply);
