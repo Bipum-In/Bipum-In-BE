@@ -274,10 +274,18 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(Long requestId, User user, UserRoleEnum role) {
+    public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(Long requestId, User user, UserRoleEnum role) {
+        //Todo 이제 여기 두 줄 사실상 지워도 되고, 위에 매개변수 두개도 필요 없고, isAdmin 필드 자체가 필요 없어졌다.
         Requests request = getRequest(requestId);
         checkPermission(request, user);
-        return ResponseDto.success(RequestsDetailsResponseDto.of(request, role));
+        return ResponseDto.success(RequestsAdminDetailsResponseDto.of(request, role));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(Long requestId, User user) {
+        Requests request = getRequest(requestId);
+        checkPermission(request, user);
+        return ResponseDto.success(RequestsDetailsResponseDto.of(request));
     }
 
     // 해당 요청을 볼 권한 확인.
@@ -288,7 +296,6 @@ public class RequestsService {
     }
 
     // 해당 요청이 본인의 요청인지 확인.
-
     private Requests getRequest(Long requestId) {
         return requestsRepository.findById(requestId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest));
