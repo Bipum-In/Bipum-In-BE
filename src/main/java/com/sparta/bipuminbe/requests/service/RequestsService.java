@@ -83,9 +83,6 @@ public class RequestsService {
 
             List<MultipartFile> multipartFiles = requestsRequestDto.getMultipartFile();
 
-            // image Null check
-            checkNullImageList(multipartFiles);
-
             Requests requests = Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .requestType(requestsRequestDto.getRequestType())
@@ -99,7 +96,7 @@ public class RequestsService {
             requestId = createRequests.getRequestId();
 
             // image Null check. 요청 등록 시에는 이미지가 필수이다.
-            if (checkNullImageList(multipartFiles)) {
+            if (checkNullImageList(multipartFiles, null)) {
                 throw new CustomException(ErrorCode.NullImageList);
             }
             //s3에 저장
@@ -151,7 +148,7 @@ public class RequestsService {
         } else {
             // 해당 요청의 이미지 리스트 가져오기
             List<Image> imageList = imageRepository.findImagesByRequests(requests).orElseThrow(
-                    () -> new CustomException(ErrorCode.NotFoundImages));
+                    () -> new CustomException(ErrorCode.NullImageList));
 
             List<String> storedImageURLs = requestsRequestDto.getStoredImageURLs();
 
@@ -180,7 +177,7 @@ public class RequestsService {
                     .build());
 
             // 추가하는 이미지가 있을 경우에만 s3에 저장한다.
-            if (!(checkNullImageList(multipartFiles))) {
+            if (!(checkNullImageList(multipartFiles, storedImageURLs))) {
                 //s3에 저장
                 for (MultipartFile multipartFile : multipartFiles) {
                     String image = s3Uploader.uploadFiles(multipartFile, dirName);
@@ -387,10 +384,7 @@ public class RequestsService {
         }
     }
 
-    private boolean checkNullImageList(List<MultipartFile> multipartFiles) {
-        if (multipartFiles == null) {
-            return true;
-        }
-        return false;
+    private boolean checkNullImageList(List<MultipartFile> multipartFiles, List<String> storedImageURLs) {
+        return multipartFiles == null && storedImageURLs == null;
     }
 }
