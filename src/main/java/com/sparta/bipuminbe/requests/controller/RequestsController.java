@@ -100,8 +100,8 @@ public class RequestsController {
 
         RequestsResponseDto requestsResponseDto =requestsService.createRequests(requestsRequestDto, userDetails.getUser());
 
-        // 글 작성 시점이라 requestId가 없다.
-//        notificationService.sendForAdmin(requestsResponseDto.getRequestsId(), userDetails.getUser());
+//         글 작성 시점이라 requestId가 없다.
+        notificationService.sendForAdmin(requestsResponseDto.getRequestsId(), userDetails.getUser());
 
         return ResponseDto.success(requestsResponseDto.getMessage());
     }
