@@ -226,12 +226,12 @@ public class NotificationService {
         String requestType = request.getRequestType().getKorean();
 
         if(requestType.equals("보고서 결재")){
-            return sender + " 님이 " + categoryName + " "
+            return sender.getEmpName() + " 님이 " + categoryName + " "
                     + requestType + "를 요청하셨습니다.";
         }
 
         // ~~ 님이 ~~카테고리 ~~를 요청하셨습니다.
-        return sender + " 님의 " +
+        return sender.getEmpName() + " 님의 " +
                 categoryName + " " + requestType + " 이 등록되었습니다.";
     }
 
@@ -244,9 +244,7 @@ public class NotificationService {
     private String convertToJson(User sender, Notification notification){
         String jsonResult = "";
 
-        String encodeToString = Base64.getEncoder().encodeToString(sender.getImage().getBytes(StandardCharsets.UTF_8));
-
-        NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, encodeToString);
+        NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, sender.getImage());
 
         try{
             jsonResult = objectMapper.writeValueAsString(notificationResponseDto);

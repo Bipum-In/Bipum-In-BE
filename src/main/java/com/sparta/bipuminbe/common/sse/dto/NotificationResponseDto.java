@@ -12,14 +12,14 @@ public class NotificationResponseDto {
     private String content;
     private String url;
     private LocalDateTime createdAt;
-    private String encodeToString;
-    public static NotificationResponseDto of(Notification notification, String encodeToString) {
+    private String image;
+    public static NotificationResponseDto of(Notification notification, String image) {
 
         return builder()
                 .content(notification.getContent())
                 .url(notification.getUrl())
                 .createdAt(notification.getCreatedAt())
-                .encodeToString(encodeToString)
+                .image(image)
                 .build();
     }
 }
