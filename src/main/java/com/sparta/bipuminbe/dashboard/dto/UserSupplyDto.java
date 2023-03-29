@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class UserSupplyDto {
     private Long supplyId;
+    private String categoryName;
     private String image;
     private String supplyName;
     private SupplyStatusEnum status;
@@ -16,6 +17,7 @@ public class UserSupplyDto {
     public static UserSupplyDto of(Supply supply) {
         return builder()
                 .supplyId(supply.getSupplyId())
+                .categoryName(supply.getCategory().getCategoryName())
                 .image(supply.getImage())
                 .supplyName(supply.getModelName())
                 .status(supply.getStatus())

@@ -41,16 +41,28 @@ public class Notification extends TimeStamped {
 
     //회원 정보에 대한 연관관계 매핑
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "receiver_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User receiver;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User sender;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requests_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Requests request;
+
     @Builder
-    public Notification(User receiver, String content, String url, Boolean isRead) {
+    public Notification(User sender, User receiver, String content, String url, Boolean isRead, Requests request) {
+        this.sender = sender;
         this.receiver = receiver;
 //        this.notificationType = notificationType;
         this.content = content;
         this.url = url;
         this.isRead = isRead;
+        this.request = request;
     }
 }
