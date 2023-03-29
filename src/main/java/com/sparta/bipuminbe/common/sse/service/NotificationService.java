@@ -40,7 +40,7 @@ public class NotificationService {
 
     private final UserRepository userRepository;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     //시간이 포함된 아이디 생성. SseEmitter 구분을 위함
     @Transactional
@@ -126,6 +126,7 @@ public class NotificationService {
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
 
+
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
 
 //        for(String key : emitters.keySet()){
@@ -136,6 +137,7 @@ public class NotificationService {
 //            log.info("============");
 //        }
 
+        log.info("sender : " + sender.getUsername());
         // 관리자 사진, 메시지랑, 시간
         //이미지 바이트로 변환
         String finalJsonResult = convertToJson(sender, notification);
