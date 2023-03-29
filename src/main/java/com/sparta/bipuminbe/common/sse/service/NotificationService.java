@@ -244,9 +244,7 @@ public class NotificationService {
     private String convertToJson(User sender, Notification notification){
         String jsonResult = "";
 
-        String encodeToString = Base64.getEncoder().encodeToString(sender.getImage().getBytes(StandardCharsets.UTF_8));
-
-        NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, encodeToString);
+        NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, sender.getImage());
 
         try{
             jsonResult = objectMapper.writeValueAsString(notificationResponseDto);
