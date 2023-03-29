@@ -78,17 +78,26 @@ public class RequestsController {
     @GetMapping("/admin/requests/{requestId}")
     @Operation(summary = "요청서 상세 페이지(ADMIN)",
             description = "isAdmin/requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
-    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(@PathVariable Long requestId,
-                                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return requestsService.getRequestsDetails(requestId, userDetails.getUser(), UserRoleEnum.ADMIN);
+    public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(@PathVariable Long requestId,
+                                                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return requestsService.getRequestsAdminDetails(requestId, userDetails.getUser(), UserRoleEnum.ADMIN);
     }
 
+//    @GetMapping("/requests/{requestId}")
+//    @Operation(summary = "요청서 상세 페이지(USER)",
+//            description = "isAdmin/requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
+//    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(@PathVariable Long requestId,
+//                                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        return requestsService.getRequestsDetails(requestId, userDetails.getUser(), UserRoleEnum.USER);
+//    }
+
+    // renewal 버전
     @GetMapping("/requests/{requestId}")
     @Operation(summary = "요청서 상세 페이지(USER)",
-            description = "isAdmin/requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
-    public ResponseDto<RequestsDetailsResponseDto> getRequestsAdminDetails(@PathVariable Long requestId,
-                                                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return requestsService.getRequestsDetails(requestId, userDetails.getUser(), UserRoleEnum.USER);
+            description = "requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
+    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(@PathVariable Long requestId,
+                                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return requestsService.getRequestsDetails(requestId, userDetails.getUser());
     }
 
     @PostMapping(value = "/requests", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -98,7 +107,7 @@ public class RequestsController {
     public ResponseDto<String> createRequests(@ModelAttribute @Valid RequestsRequestDto requestsRequestDto,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 
-        RequestsResponseDto requestsResponseDto =requestsService.createRequests(requestsRequestDto, userDetails.getUser());
+        RequestsResponseDto requestsResponseDto = requestsService.createRequests(requestsRequestDto, userDetails.getUser());
 
 //         글 작성 시점이라 requestId가 없다.
         notificationService.sendForAdmin(requestsResponseDto.getRequestsId(), userDetails.getUser());

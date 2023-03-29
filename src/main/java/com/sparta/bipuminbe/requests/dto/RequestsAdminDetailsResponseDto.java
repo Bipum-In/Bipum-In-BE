@@ -1,8 +1,8 @@
 package com.sparta.bipuminbe.requests.dto;
 
 import com.sparta.bipuminbe.common.entity.*;
-import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestType;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,71 +12,66 @@ import java.util.List;
 
 @Getter
 @Builder
-public class RequestsDetailsResponseDto {
+public class RequestsAdminDetailsResponseDto {
     private Long requestId;
-    private String requestType;
-    private String acceptResult;
-    private String requestStatus;
+    private Boolean isAdmin;
 
+    private String requestType;
+    private String requestStatus;
+    private String acceptResult;
+
+    private Long categoryId;
     private String categoryName;
     private String modelName;
     private String serialNum;
     private String content;
     private List<String> imageList;
 
+    private String userImage;
+    private String deptName;
+    private String empName;
+    private String username;
+
     private String comment;
-    private String allocatedModel;
-    private String allocatedImage;
-
-    private String adminName;
-    private String adminDeptName;
-    private String adminPhone;
-    private String adminImage;
-
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public static RequestsDetailsResponseDto of(Requests request) {
+    public static RequestsAdminDetailsResponseDto of(Requests request, UserRoleEnum role) {
+        User user = request.getUser();
+        Department department = user.getDepartment();
         Supply supply = request.getSupply();
         Category category = request.getCategory();
-        User admin = request.getAdmin();
-        Department adminDept = admin == null ? null : admin.getDepartment();
 
         List<String> imageList = new ArrayList<>();
         for (Image image : request.getImageList()) {
             imageList.add(image.getImage());
         }
 
-        RequestsDetailsResponseDtoBuilder builder = RequestsDetailsResponseDto.builder()
+        RequestsAdminDetailsResponseDtoBuilder builder = RequestsAdminDetailsResponseDto.builder()
                 .requestId(request.getRequestId())
+                .isAdmin(role.equals(UserRoleEnum.ADMIN))
+
                 .requestType(request.getRequestType().getKorean())
-                .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
                 .requestStatus(request.getRequestStatus().getKorean())
+                .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
 
                 .content(request.getContent())
                 .imageList(imageList)
 
+                .userImage(user.getImage())
+                .deptName(department.getDeptName())
+                .empName(user.getEmpName())
+                .username(user.getUsername())
+
                 .comment(request.getComment())
-
-                .adminName(admin == null ? null : admin.getEmpName())
-                .adminDeptName(admin == null ? null : adminDept.getDeptName())
-                .adminPhone(admin == null ? null : admin.getPhone())
-                .adminImage(admin == null ? null : admin.getImage())
-
                 .createdAt(request.getCreatedAt())
                 .modifiedAt(request.getModifiedAt());
 
         if (request.getRequestType().equals(RequestType.SUPPLY)) {
-            builder.categoryName(category.getCategoryName());
-
-            if (request.getAcceptResult() == AcceptResult.ACCEPT) {
-                Supply allocatedSupply = request.getSupply();
-                builder.allocatedModel(allocatedSupply.getModelName())
-                        .allocatedImage(allocatedSupply.getImage());
-            }
+            builder.categoryId(category.getId())
+                    .categoryName(category.getCategoryName());
         } else {
             category = supply.getCategory();
-
             builder.categoryName(category.getCategoryName())
                     .modelName(supply.getModelName())
                     .serialNum(supply.getSerialNum());
