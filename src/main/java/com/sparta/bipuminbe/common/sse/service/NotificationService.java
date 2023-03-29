@@ -111,7 +111,7 @@ public class NotificationService {
 
     // 관리자가 요청을 처리하면, 유저들에게 알림을 보낸다.
     @Transactional
-    public void sendForUser(User userAdmin, Long requestsId, AcceptResult isAccepted) {
+    public void sendForUser(User sender, Long requestsId, AcceptResult isAccepted) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest)
         );
@@ -121,7 +121,7 @@ public class NotificationService {
         String content = createForUserMessage(request, receiver, isAccepted);
         String uri = "/api/requests/" + requestsId;
 
-        Notification notification = notificationRepository.save(createNotification(receiver, content, uri));
+        Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri));
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -135,21 +135,10 @@ public class NotificationService {
 //            log.info("key : " + key);
 //            log.info("============");
 //        }
+
         // 관리자 사진, 메시지랑, 시간
-
         //이미지 바이트로 변환
-        byte[] imageBytes = Base64.getEncoder().encode(userAdmin.getImage().getBytes(StandardCharsets.UTF_8));
-
-        NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, imageBytes);
-
-        String jsonResult = "";
-        try{
-            jsonResult = objectMapper.writeValueAsString(notificationResponseDto);
-        } catch (JsonProcessingException e) {
-            throw new CustomException(ErrorCode.JsonConvertError);
-        }
-
-        String finalJsonResult = jsonResult;
+        String finalJsonResult = convertToJson(sender, notification);
 
         emitters.forEach(
                 (key, emitter) -> {
@@ -162,41 +151,44 @@ public class NotificationService {
 
 
 
-    // 유저가 요청을 보내면 관리자들에게 알림을 보낸다.
-//    @Transactional
-//    public void sendForAdmin(Long requestsId, User requestUser) {
-//        Requests request = requestsRepository.findById(requestsId).orElseThrow(
-//                () -> new CustomException(ErrorCode.NotFoundRequest)
-//        );
-//
-//        // 알림에 담을 내용
-//        String content = creatForAdminMessage(request, requestUser);
-//        String uri = "/api/requests/" + requestsId;
-//
-//        // Role이 Admin인 유저를 조회한다.
-//        List<User> receiverList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
-//
-//        // 각 Admin 마다 알림을 전송한다.
-//        for(User receiver : receiverList){
-//            Notification notification = notificationRepository.save(createNotification(receiver, content, uri));
-//            String receiverId = String.valueOf(receiver.getId());
-//            String eventId = receiverId + "_" + System.currentTimeMillis();
-//
-//            // Emitter는 유저가 로그인하면 바로 구독할 것이다. 그럼 Admin 의 Emitter도 있을듯 본인 것만 보내기 때문에 노상관
-//            Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
-//
-//            emitters.forEach(
-//                    (key, emitter) -> {
-//                        emitterRepository.saveEventCache(key, notification);
-//                        log.info("emitters 안쪽 eventId : " + eventId);
-//                        sendNotification(emitter, eventId, key, NotificationResponseDto.of(notification).getContent());
-//                    }
-//            );
-//        }
-//    }
+//     유저가 요청을 보내면 관리자들에게 알림을 보낸다.
+    @Transactional
+    public void sendForAdmin(Long requestsId, User sender) {
+        Requests request = requestsRepository.findById(requestsId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundRequest)
+        );
 
-    private Notification createNotification(User receiver, String content, String url) {
+        // 알림에 담을 내용
+        String content = creatForAdminMessage(request, sender);
+        String uri = "/api/requests/" + requestsId;
+
+        // Role이 Admin인 유저를 조회한다.
+        List<User> receiverList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
+
+        // 각 Admin 마다 알림을 전송한다.
+        for(User receiver : receiverList){
+            Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri));
+            String receiverId = String.valueOf(receiver.getId());
+            String eventId = receiverId + "_" + System.currentTimeMillis();
+
+            // Emitter는 유저가 로그인하면 바로 구독할 것이다. 그럼 Admin 의 Emitter도 있을듯 본인 것만 보내기 때문에 노상관
+            Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
+
+            String finalJsonResult = convertToJson(sender, notification);
+
+            emitters.forEach(
+                    (key, emitter) -> {
+                        emitterRepository.saveEventCache(key, notification);
+                        log.info("emitters 안쪽 eventId : " + eventId);
+                        sendNotification(emitter, eventId, key, finalJsonResult);
+                    }
+            );
+        }
+    }
+
+    private Notification createNotification(User sender, User receiver, String content, String url) {
         return Notification.builder()
+                .sender(sender)
                 .receiver(receiver)
                 .content(content)
                 .url(url)
@@ -226,17 +218,17 @@ public class NotificationService {
                 + " 수리 요청 건이 폐기 승인되었습니다.";
     }
 
-    private String creatForAdminMessage(Requests request, User requestUser){
+    private String creatForAdminMessage(Requests request, User sender){
         String categoryName = getCategoryName(request);
         String requestType = request.getRequestType().getKorean();
 
         if(requestType.equals("보고서 결재")){
-            return requestUser + " 님이 " + categoryName + " "
+            return sender + " 님이 " + categoryName + " "
                     + requestType + "를 요청하셨습니다.";
         }
 
         // ~~ 님이 ~~카테고리 ~~를 요청하셨습니다.
-        return requestUser + " 님의 " +
+        return sender + " 님의 " +
                 categoryName + " " + requestType + " 이 등록되었습니다.";
     }
 
@@ -244,5 +236,20 @@ public class NotificationService {
         return request.getCategory() == null ?
                 request.getSupply().getCategory().getCategoryName() :
                 request.getCategory().getCategoryName();
+    }
+
+    private String convertToJson(User sender, Notification notification){
+        byte[] imageBytes = Base64.getEncoder().encode(sender.getImage().getBytes(StandardCharsets.UTF_8));
+
+        NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, imageBytes);
+
+        String jsonResult = "";
+        try{
+            jsonResult = objectMapper.writeValueAsString(notificationResponseDto);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(ErrorCode.JsonConvertError);
+        }
+
+        return jsonResult;
     }
 }

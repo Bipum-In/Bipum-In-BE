@@ -45,8 +45,14 @@ public class Notification extends TimeStamped {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User receiver;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User sender;
+
     @Builder
-    public Notification(User receiver, String content, String url, Boolean isRead) {
+    public Notification(User sender, User receiver, String content, String url, Boolean isRead) {
+        this.sender = sender;
         this.receiver = receiver;
 //        this.notificationType = notificationType;
         this.content = content;

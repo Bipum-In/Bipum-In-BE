@@ -28,9 +28,8 @@ public class DashboardController {
     @Operation(summary = "관리자용 대쉬보드",
             description = "선택한 카테고리 별 조회 ALL / COMPUTER / DIGITAL / ELECTRONICS / FURNITURE / ETC")
     @GetMapping(value = "/admin/main")
-    public ResponseDto<AdminMainResponseDto> getAdminMain(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                          @RequestParam(defaultValue = "") LargeCategory largeCategory){
-        return dashboardService.getAdminMain(userDetails.getUser().getId(), largeCategory);
+    public ResponseDto<AdminMainResponseDto> getAdminMain(@RequestParam(defaultValue = "") LargeCategory largeCategory){
+        return dashboardService.getAdminMain(largeCategory);
     }
 
     @Operation(summary = "사용자용 대쉬보드")
