@@ -144,10 +144,10 @@ public class RequestsService {
         checkProcessing(requests);
 
         if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
-            Requests.builder()
+            requests.update(Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .category(category)
-                    .build();
+                    .build());
         } else {
             // 해당 요청의 이미지 리스트 가져오기
             List<Image> imageList = imageRepository.findImagesByRequests(requests).orElseThrow(
@@ -176,7 +176,6 @@ public class RequestsService {
             requests.update(Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .supply(supply)
-                    .category(supply.getCategory())
                     .build());
 
             // 추가하는 이미지가 있을 경우에만 s3에 저장한다.
