@@ -242,11 +242,12 @@ public class NotificationService {
     }
 
     private String convertToJson(User sender, Notification notification){
-        byte[] imageBytes = Base64.getEncoder().encode(sender.getImage().getBytes(StandardCharsets.UTF_8));
-
-        NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, imageBytes);
-
         String jsonResult = "";
+
+        String encodeToString = Base64.getEncoder().encodeToString(sender.getImage().getBytes(StandardCharsets.UTF_8));
+
+        NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, encodeToString);
+
         try{
             jsonResult = objectMapper.writeValueAsString(notificationResponseDto);
         } catch (JsonProcessingException e) {
