@@ -52,5 +52,12 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
     List<Supply> findByCategory_IdAndStatusAndDeletedFalse(Long categoryId, SupplyStatusEnum stock);
 
-    List<Supply> findByUserAndCategory_IdAndDeletedFalse(User user, Long category_id);
+    @Query(value = "select s from Supply s " +
+            "inner join Category c on s.category = c " +
+            "where s.user = :user and c.id = :categoryId and s.deleted = false " +
+            "and s not in (select distinct r.supply from Requests r " +
+            "where r.requestStatus in :statusQuery and r.supply is not null)")
+    List<Supply> getMySupply(@Param("user") User user,
+                             @Param("categoryId") Long categoryId,
+                             @Param("statusQuery") Set<RequestStatus> statusQuery);
 }
