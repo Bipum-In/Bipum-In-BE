@@ -198,6 +198,7 @@ public class NotificationService {
                 .url(url)
                 .isRead(false)
                 .request(request)
+                .notificationType(notificationType)
                 .build();
     }
 
