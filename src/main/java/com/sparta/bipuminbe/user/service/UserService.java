@@ -150,7 +150,7 @@ public class UserService {
         // DB 에 중복된 Kakao Id 가 있는지 확인
         User kakaoUser = userRepository.findByKakaoId(kakaoUserInfo.getId()).orElse(null);
 
-        if (kakaoUser == null) { // 유저가 없으면 새로 회원가입.
+        if (kakaoUser == null) { // 유저가 없으면 새로 회원가입..
             // password: random UUID
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
