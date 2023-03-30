@@ -98,10 +98,11 @@ public class SupplyController {
     }
 
     //자신의 비품 목록(selectbox용)
-    @GetMapping("/supply/mysupply")
+    @GetMapping("/supply/mysupply/{categoryId}")
     @Operation(summary = "자신의 비품 목록 조회", description = "SelectBox용")
-    public ResponseDto<List<SupplyUserDto>> getSupplyUser(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return supplyService.getSupplyUser(userDetails.getUser());
+    public ResponseDto<List<SupplyUserDto>> getSupplyUser(@PathVariable Long categoryId,
+                                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return supplyService.getSupplyUser(categoryId, userDetails.getUser());
     }
 
     // 비품 요청 상세 페이지 SelectBox.

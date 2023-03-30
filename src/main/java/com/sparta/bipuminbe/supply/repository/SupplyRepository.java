@@ -50,7 +50,7 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
     Optional<Supply> findBySupplyIdAndDeletedFalse(Long supplyId);
 
-    List<Supply> findByUserAndDeletedFalse(User user);
-
     List<Supply> findByCategory_IdAndStatusAndDeletedFalse(Long categoryId, SupplyStatusEnum stock);
+
+    List<Supply> findByUserAndCategory_IdAndDeletedFalse(User user, Long category_id);
 }
