@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
+import com.sparta.bipuminbe.common.enums.NotificationType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
@@ -121,7 +122,7 @@ public class NotificationService {
         String content = createForUserMessage(request, receiver, isAccepted);
         String uri = "/api/requests/" + requestsId;
 
-        Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri, request));
+        Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri, request, NotificationType.PROCESSED));
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -162,14 +163,14 @@ public class NotificationService {
 
         // 알림에 담을 내용
         String content = creatForAdminMessage(request, sender);
-        String uri = "/api/requests/" + requestsId;
+        String uri = "/api/admin/requests/" + requestsId;
 
         // Role이 Admin인 유저를 조회한다.
         List<User> receiverList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
 
         // 각 Admin 마다 알림을 전송한다.
         for(User receiver : receiverList){
-            Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri, request));
+            Notification notification = notificationRepository.save(createNotification(sender, receiver, content, uri, request, NotificationType.REQUEST));
             String receiverId = String.valueOf(receiver.getId());
             String eventId = receiverId + "_" + System.currentTimeMillis();
 
@@ -188,7 +189,8 @@ public class NotificationService {
         }
     }
 
-    private Notification createNotification(User sender, User receiver, String content, String url, Requests request) {
+    private Notification createNotification(User sender, User receiver, String content, String url,
+                                            Requests request, NotificationType notificationType) {
         return Notification.builder()
                 .sender(sender)
                 .receiver(receiver)

@@ -6,10 +6,10 @@ import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
-import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
-import com.sparta.bipuminbe.common.entity.Notification;
+import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForAdmin;
+import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForUser;
 import com.sparta.bipuminbe.common.sse.repository.NotificationRepository;
 import com.sparta.bipuminbe.dashboard.dto.*;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
@@ -31,7 +31,7 @@ public class DashboardService {
 
     // 관리자 대시보드
     @Transactional(readOnly = true)
-    public ResponseDto<AdminMainResponseDto> getAdminMain(LargeCategory largeCategory) {
+    public ResponseDto<AdminMainResponseDto> getAdminMain(User admin, LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
         List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
 
@@ -72,16 +72,11 @@ public class DashboardService {
         RequestsCountDto requestsCountDto = RequestsCountDto.of
                 (countMap, modifiedAtMap);
 
-
-//        // 알림 최신 순으로 4개 가져오기 관리자의 화면이므로 유저의 요청이 보인다.
-//        // Notification의 userId 의 UserRole을 가져와 사용해야한다.
-//        // Role을 거르지 않고
-//
-//        UserRoleEnum.USER
-//        List<Notification> notifications = notificationRepository.findNotification();
+        // 유저의 요청을 알림 발생시간 최신순으로 4개 검색함
+        List<NotificationResponseForAdmin> notifications = notificationRepository.findUserNotification(admin.getId());
 
         // 비품 카테고리, 비품 현황, 알림 합쳐서 리턴
-        return ResponseDto.success(AdminMainResponseDto.of(responseDtos, requestsCountDto));
+        return ResponseDto.success(AdminMainResponseDto.of(responseDtos, requestsCountDto, notifications));
     }
 
     @Transactional(readOnly = true)
@@ -108,11 +103,11 @@ public class DashboardService {
         for(Supply supply : supplies){
             userSupplyDtos.add(UserSupplyDto.of(supply));
         }
-//        for(Category category : categoryList){
-//        }s
+
+        List<NotificationResponseForUser> notifications = notificationRepository.findAdminNotification(user.getId());
 
         // 요청 현황, 사용 중인 비품 현황 합쳐서 리턴
-        return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, userCountMap));
+        return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, userCountMap, notifications));
     }
 
     private Set<LargeCategory> getCategoryQuery(LargeCategory largeCategory) {
