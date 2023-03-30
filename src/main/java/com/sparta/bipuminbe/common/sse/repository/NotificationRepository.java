@@ -13,7 +13,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     // notification의 requests_id 와 같은 요청과 그 요청에 해당하는 유저의 정보를 가져온다 (요청 건만)
     // 요청의 수신자가 adminId에 해당하는 알림 건만 가져오고, 최신 순으로 4건 가져온다.
-    @Query(value = "SELECT n.content, n.url, n.created_at, u.image FROM notification n " +
+    @Query(value = "SELECT n.content, n.created_at, u.image, r.request_id, r.request_type  FROM notification n " +
             "INNER JOIN requests r ON n.requests_id = r.request_id " +
             "INNER JOIN users u ON r.user_id = u.id " +
             "WHERE n.receiver_id = :adminId AND n.notification_type = 'REQUEST'" +
@@ -23,7 +23,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     // notification의 request_id 와 같은 요청과 그 요청에 해당하는 관리자의 정보를 가져온다 (승인/폐기 등 처리 건만)
     // 요청의 수신자가 userId에 해당하는 알림 건만 가져오고, 최신 순으로 4건 가져온다.
-    @Query(value = "SELECT n.content, n.url, n.created_at, r.accept_result FROM notification n " +
+    @Query(value = "SELECT n.content, n.created_at, r.accept_result, r.request_id, r.request_type FROM notification n " +
             "INNER JOIN requests r ON n.requests_id = r.request_id " +
             "INNER JOIN users u ON r.user_id = u.id " +
             "WHERE n.receiver_id = :userId AND n.notification_type = 'PROCESSED'" +

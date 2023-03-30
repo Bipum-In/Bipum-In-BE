@@ -27,10 +27,6 @@ public class Notification extends TimeStamped {
     @Column(nullable = false)
     private String content;
 
-    //알림을 누르면 이동할 주소
-    @Column(nullable = false)
-    private String url;
-
     //알림을 읽었는지 여부 체크
     @Column(nullable = false)
     private Boolean isRead;
@@ -62,12 +58,11 @@ public class Notification extends TimeStamped {
 
 
     @Builder
-    public Notification(User sender, User receiver, String content, String url,
+    public Notification(User sender, User receiver, String content,
                         Boolean isRead, Requests request, NotificationType notificationType) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
-        this.url = url;
         this.isRead = isRead;
         this.request = request;
         this.notificationType = notificationType;
