@@ -274,11 +274,8 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(Long requestId, User user, UserRoleEnum role) {
-        //Todo 이제 여기 두 줄 사실상 지워도 되고, 위에 매개변수 두개도 필요 없고, isAdmin 필드 자체가 필요 없어졌다.
-        Requests request = getRequest(requestId);
-        checkPermission(request, user);
-        return ResponseDto.success(RequestsAdminDetailsResponseDto.of(request, role));
+    public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(Long requestId) {
+        return ResponseDto.success(RequestsAdminDetailsResponseDto.of(getRequest(requestId)));
     }
 
     @Transactional(readOnly = true)

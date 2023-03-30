@@ -77,10 +77,9 @@ public class RequestsController {
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/requests/{requestId}")
     @Operation(summary = "요청서 상세 페이지(ADMIN)",
-            description = "isAdmin/requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
-    public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(@PathVariable Long requestId,
-                                                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return requestsService.getRequestsAdminDetails(requestId, userDetails.getUser(), UserRoleEnum.ADMIN);
+            description = "requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
+    public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(@PathVariable Long requestId) {
+        return requestsService.getRequestsAdminDetails(requestId);
     }
 
 //    @GetMapping("/requests/{requestId}")
