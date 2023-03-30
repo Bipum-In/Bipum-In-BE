@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    // notification의 requests_id 와 같은 요청과 그 요청에 해당하는 유저의 정보를 가져온다.
+    // notification의 requests_id 와 같은 요청과 그 요청에 해당하는 유저의 정보를 가져온다 (요청 건만)
     // 요청의 수신자가 adminId에 해당하는 알림 건만 가져오고, 최신 순으로 4건 가져온다.
     @Query(value = "SELECT n.content, n.url, n.created_at, u.image FROM notification n " +
             "INNER JOIN requests r ON n.requests_id = r.request_id " +
@@ -21,9 +21,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<NotificationResponseForAdmin> findUserNotification(@Param("adminId") Long adminId);
 
 
-    // 요청자의 Role을 구분하면, Admin이 비품요청을 할때는 커버가 되지 않는다..
-    // Admin이 직접 요청을 하게 되면 섞여서 보인다..
-
+    // notification의 request_id 와 같은 요청과 그 요청에 해당하는 관리자의 정보를 가져온다 (승인/폐기 등 처리 건만)
+    // 요청의 수신자가 userId에 해당하는 알림 건만 가져오고, 최신 순으로 4건 가져온다.
     @Query(value = "SELECT n.content, n.url, n.created_at, r.accept_result FROM notification n " +
             "INNER JOIN requests r ON n.requests_id = r.request_id " +
             "INNER JOIN users u ON r.user_id = u.id " +
