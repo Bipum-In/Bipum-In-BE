@@ -320,8 +320,8 @@ public class SupplyService {
 
     //자신의 비품 목록(selectbox용)
     @Transactional(readOnly = true)
-    public ResponseDto<List<SupplyUserDto>> getSupplyUser(User user) {
-        List<Supply> supplyInUserList = supplyRepository.findByUserAndDeletedFalse(user);
+    public ResponseDto<List<SupplyUserDto>> getSupplyUser(Long categoryId, User user) {
+        List<Supply> supplyInUserList = supplyRepository.findByUserAndCategory_IdAndDeletedFalse(user, categoryId);
         List<SupplyUserDto> supplyUserDtoList = new ArrayList<>();
         for (Supply supply : supplyInUserList) {
             supplyUserDtoList.add(SupplyUserDto.of(supply));
