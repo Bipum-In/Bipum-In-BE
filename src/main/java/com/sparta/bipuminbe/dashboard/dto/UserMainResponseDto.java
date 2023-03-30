@@ -12,14 +12,14 @@ import java.util.Map;
 @Builder
 public class UserMainResponseDto {
     private List<UserSupplyDto> userSupplyDtos;
-    private Map<String, Long> userCountMap;
+    private RequestsCountDto requestsCountDto;
     private List<NotificationResponseForUser> notifications;
 
-    public static UserMainResponseDto of(List<UserSupplyDto> userSupplyDtos, Map<String, Long> userCountMap,
+    public static UserMainResponseDto of(List<UserSupplyDto> userSupplyDtos, RequestsCountDto requestsCountDto,
                                          List<NotificationResponseForUser> notifications) {
         return builder()
                 .userSupplyDtos(userSupplyDtos)
-                .userCountMap(userCountMap)
+                .requestsCountDto(requestsCountDto)
                 .notifications(notifications)
                 .build();
     }
