@@ -111,7 +111,7 @@ public class RequestsService {
                 "보고서 제출 완료" :
                 requestsRequestDto.getRequestType().getKorean() + " 완료";
 
-        List<User> adminList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
+        List<User> adminList = userRepository.findByRoleAndAlarmAndDeletedFalse(UserRoleEnum.ADMIN, true);
         if (adminList != null) {
             List<String> phoneList = new ArrayList<>();
             for (User admin : adminList) {
@@ -228,7 +228,7 @@ public class RequestsService {
     private Set<Long> getUserIdSet(User user, UserRoleEnum role) {
         Set<Long> userIdQuery = new HashSet<>();
         if (role.equals(UserRoleEnum.ADMIN)) {
-            List<User> userList = userRepository.findAll();
+            List<User> userList = userRepository.findByDeletedFalse();
             for (User user1 : userList) {
                 userIdQuery.add(user1.getId());
             }

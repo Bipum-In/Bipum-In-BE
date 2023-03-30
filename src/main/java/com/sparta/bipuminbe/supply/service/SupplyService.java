@@ -57,7 +57,7 @@ public class SupplyService {
 
         User user = null;
         if (supplyRequestDto.getUserId() != null) {
-            user = userRepository.findById(supplyRequestDto.getUserId()).orElseThrow(
+            user = userRepository.findByIdAndDeletedFalse(supplyRequestDto.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundUsers)
             );
         }
@@ -231,7 +231,7 @@ public class SupplyService {
 
         User user = null;
         if (supplyRequestDto.getUserId() != null) {
-            user = userRepository.findById(supplyRequestDto.getUserId()).orElseThrow(
+            user = userRepository.findByIdAndDeletedFalse(supplyRequestDto.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundUsers)
             );
         }

@@ -172,7 +172,7 @@ public class UserService {
 
     @Transactional
     public ResponseDto<LoginResponseDto> loginAdd(LoginRequestDto loginRequestDto, User user) {
-        User foundUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+        User foundUser = userRepository.findByUsernameAndDeletedFalse(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
         Department department = getDepartment(loginRequestDto.getDepartmentId());
         foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone());
@@ -183,7 +183,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public ResponseDto<List<UserResponseDto>> getUserByDept(Long deptId) {
-        List<User> userInDeptList = userRepository.findByDepartment(getDepartment(deptId));
+        List<User> userInDeptList = userRepository.findByDepartmentAndDeletedFalse(getDepartment(deptId));
         List<UserResponseDto> userResponseDtoList = new ArrayList<>();
         for (User user : userInDeptList) {
             userResponseDtoList.add(UserResponseDto.of(user));

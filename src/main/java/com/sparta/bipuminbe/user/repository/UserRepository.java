@@ -11,11 +11,18 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     Optional<User> findByKakaoId(Long kakaoId);
-    List<User> findByDepartment(Department department);
 
     Optional<User> findById(Long id);
 
     void deleteByKakaoId(Long kakaoId);
 
-    List<User> findByRoleAndAlarm(UserRoleEnum role, Boolean alarm);
+    List<User> findByRoleAndAlarmAndDeletedFalse(UserRoleEnum admin, boolean b);
+
+    List<User> findByDeletedFalse();
+
+    Optional<User> findByIdAndDeletedFalse(Long userId);
+
+    Optional<User> findByUsernameAndDeletedFalse(String username);
+
+    List<User> findByDepartmentAndDeletedFalse(Department department);
 }
