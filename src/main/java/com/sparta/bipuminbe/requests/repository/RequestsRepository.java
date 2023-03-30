@@ -33,16 +33,20 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
     Page<Requests> getRequestsList(@Param("keyword") String keyword, @Param("requestTypeQuery") Set<RequestType> requestTypeQuery,
                                    @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery, Set<Long> userIdQuery, Pageable pageable);
 
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.request_type = 'SUPPLY'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM requests " +
+            "WHERE requests.request_type = 'SUPPLY' AND request_status != 'PROCESSED'", nativeQuery = true)
     Long countSupply();
 
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.request_type = 'RETURN'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM requests " +
+            "WHERE requests.request_type = 'RETURN' AND request_status != 'PROCESSED'", nativeQuery = true)
     Long countReturn();
 
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.request_type = 'REPAIR'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM requests " +
+            "WHERE requests.request_type = 'REPAIR' AND request_status != 'PROCESSED'", nativeQuery = true)
     Long countRepair();
 
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.request_status = 'REPORT'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM requests " +
+            "WHERE requests.request_status = 'REPORT' AND request_status != 'PROCESSED'", nativeQuery = true)
     Long countReport();
 
     @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'SUPPLY'", nativeQuery = true)
@@ -70,4 +74,13 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
     Long userCountReport(@Param("userId") Long id);
 
     Page<Requests> findBySupply_SupplyIdAndRequestTypeInAndAcceptResult(Long supplyId, Set<RequestType> requestTypeQuery, AcceptResult accept, Pageable pageable);
+
+    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'SUPPLY'", nativeQuery = true)
+    LocalDateTime supplyUserModifiedAt(@Param("userId") Long id);
+    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'RETURN'", nativeQuery = true)
+    LocalDateTime returnUserModifiedAt(@Param("userId") Long id);
+    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPAIR'", nativeQuery = true)
+    LocalDateTime repairUserModifiedAt(@Param("userId") Long id);
+    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPORT'", nativeQuery = true)
+    LocalDateTime reportUserModifiedAt(@Param("userId") Long id);
 }

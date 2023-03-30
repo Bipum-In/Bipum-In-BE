@@ -95,6 +95,16 @@ public class DashboardService {
                 requestsRepository.userCountSupply(user.getId()) + requestsRepository.userCountReturn(user.getId()) +
                         requestsRepository.userCountRepair(user.getId()) + requestsRepository.userCountReport(user.getId()));
 
+        // 요청 종류별 최신 수정일자
+        Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
+        modifiedAtMap.put("supplyUserModifiedAt", requestsRepository.supplyUserModifiedAt(user.getId()));
+        modifiedAtMap.put("returnUserModifiedAt", requestsRepository.returnUserModifiedAt(user.getId()));
+        modifiedAtMap.put("repairUserModifiedAt", requestsRepository.repairUserModifiedAt(user.getId()));
+        modifiedAtMap.put("ReportUserModifiedAt", requestsRepository.reportUserModifiedAt(user.getId()));
+
+        RequestsCountDto requestsCountDto = RequestsCountDto.of
+                (userCountMap, modifiedAtMap);
+
         // 사용 중인 비품 조회
         List<UserSupplyDto> userSupplyDtos = new ArrayList<>();
 
@@ -107,7 +117,7 @@ public class DashboardService {
         List<NotificationResponseForUser> notifications = notificationRepository.findAdminNotification(user.getId());
 
         // 요청 현황, 사용 중인 비품 현황 합쳐서 리턴
-        return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, userCountMap, notifications));
+        return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, requestsCountDto, notifications));
     }
 
     private Set<LargeCategory> getCategoryQuery(LargeCategory largeCategory) {
