@@ -94,7 +94,5 @@ public class Requests extends TimeStamped {
 
     public void update(Requests requests) {
         this.content = requests.getContent();
-        this.supply = requests.getSupply();
-        this.category = requests.getCategory();
     }
 }
