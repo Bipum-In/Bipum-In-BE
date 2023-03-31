@@ -50,10 +50,9 @@ public class UserController {
 
     @Operation(summary = "카카오 연결 끊기", description = "앱과 연결된 카카오 계정 연결 끊기")
     @PostMapping("/unlink")
-    public ResponseDto<String> unlink(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                      HttpServletRequest request) throws JsonProcessingException {
+    public ResponseDto<String> unlink(HttpServletRequest request) throws JsonProcessingException {
         String bearerToken = request.getHeader("Authorization");
 
-        return userService.unlink(userDetails.getUser(), bearerToken);
+        return userService.unlink(bearerToken);
     }
 }

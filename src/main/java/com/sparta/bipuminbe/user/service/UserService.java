@@ -5,9 +5,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Department;
+import com.sparta.bipuminbe.common.entity.Requests;
+import com.sparta.bipuminbe.common.entity.Supply;
+import com.sparta.bipuminbe.common.enums.AcceptResult;
+import com.sparta.bipuminbe.common.enums.RequestStatus;
+import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
+import com.sparta.bipuminbe.requests.repository.RequestsRepository;
+import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.dto.KakaoUserInfoDto;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
@@ -32,12 +39,15 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final RequestsRepository requestsRepository;
+    private final SupplyRepository supplyRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
@@ -172,7 +182,7 @@ public class UserService {
 
     @Transactional
     public ResponseDto<LoginResponseDto> loginAdd(LoginRequestDto loginRequestDto, User user) {
-        User foundUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+        User foundUser = userRepository.findByUsernameAndDeletedFalse(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
         Department department = getDepartment(loginRequestDto.getDepartmentId());
         foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone());
@@ -183,7 +193,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public ResponseDto<List<UserResponseDto>> getUserByDept(Long deptId) {
-        List<User> userInDeptList = userRepository.findByDepartment(getDepartment(deptId));
+        List<User> userInDeptList = userRepository.findByDepartmentAndDeletedFalse(getDepartment(deptId));
         List<UserResponseDto> userResponseDtoList = new ArrayList<>();
         for (User user : userInDeptList) {
             userResponseDtoList.add(UserResponseDto.of(user));
@@ -198,7 +208,8 @@ public class UserService {
 
     // 카카오와 연결된 계정의 연결 끊기
     // 저장된 액세스토큰 어떻게 가져오지
-    public ResponseDto<String> unlink(User user, String bearerToken) throws JsonProcessingException {
+    @Transactional
+    public ResponseDto<String> unlink(String bearerToken) throws JsonProcessingException {
         //HTTP 헤더 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", bearerToken);
@@ -218,6 +229,26 @@ public class UserService {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
         Long kakaoId = jsonNode.get("id").asLong();
+
+        User kakaoUser = userRepository.findByKakaoIdAndDeletedFalse(kakaoId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundUser));
+
+        // 비품 자동 반납.
+        List<Supply> supplyList = supplyRepository.findByUser_IdAndDeletedFalse(kakaoUser.getId());
+        for (Supply supply : supplyList) {
+            supply.returnSupply();
+
+            // 비품 자동 반납에 의한 기록 생성.
+            requestsRepository.save(Requests.builder()
+                    .requestType(RequestType.RETURN)
+                    .content("유저 탈퇴에 의한 비품 자동 반납")
+                    .acceptResult(AcceptResult.ACCEPT)
+                    .requestStatus(RequestStatus.PROCESSED)
+                    .supply(supply)
+                    .user(kakaoUser)
+                    .build());
+        }
+
 
         // DB의 회원정보 삭제
         userRepository.deleteByKakaoId(kakaoId);

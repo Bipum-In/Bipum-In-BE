@@ -156,10 +156,9 @@ public class NotificationService {
 
         // 알림에 담을 내용
         String content = creatForAdminMessage(request, sender);
-        String uri = "/api/admin/requests/" + requestsId;
 
         // Role이 Admin인 유저를 조회한다.
-        List<User> receiverList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
+        List<User> receiverList = userRepository.findByRoleAndAlarmAndDeletedFalse(UserRoleEnum.ADMIN, true);
 
         // 각 Admin 마다 알림을 전송한다.
         for(User receiver : receiverList){

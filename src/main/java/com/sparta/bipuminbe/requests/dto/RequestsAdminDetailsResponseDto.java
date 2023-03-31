@@ -14,8 +14,6 @@ import java.util.List;
 @Builder
 public class RequestsAdminDetailsResponseDto {
     private Long requestId;
-    private Boolean isAdmin;
-
     private String requestType;
     private String requestStatus;
     private String acceptResult;
@@ -36,7 +34,7 @@ public class RequestsAdminDetailsResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public static RequestsAdminDetailsResponseDto of(Requests request, UserRoleEnum role) {
+    public static RequestsAdminDetailsResponseDto of(Requests request) {
         User user = request.getUser();
         Department department = user.getDepartment();
         Supply supply = request.getSupply();
@@ -49,8 +47,6 @@ public class RequestsAdminDetailsResponseDto {
 
         RequestsAdminDetailsResponseDtoBuilder builder = RequestsAdminDetailsResponseDto.builder()
                 .requestId(request.getRequestId())
-                .isAdmin(role.equals(UserRoleEnum.ADMIN))
-
                 .requestType(request.getRequestType().getKorean())
                 .requestStatus(request.getRequestStatus().getKorean())
                 .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
