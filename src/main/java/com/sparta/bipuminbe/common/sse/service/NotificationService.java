@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -54,10 +55,15 @@ public class NotificationService {
 
 
         //시간이 만료된 경우 자동으로 레포지토리에서 삭제하고 클라이언트에서 재요청을 보낸다.
-        emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
-        emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
+        emitter.onCompletion(() -> {
+            emitterRepository.deleteById(emitterId);
+            onClientDisconnect(emitter, "Compeletion");
+        });
+        emitter.onTimeout(() -> {
+            emitterRepository.deleteById(emitterId);
+            onClientDisconnect(emitter, "Timeout");
+        });
         emitter.onError((e) -> emitterRepository.deleteById(emitterId));
-
         //Dummy 데이터를 보내 503에러 방지. (SseEmitter 유효시간 동안 어느 데이터도 전송되지 않으면 503에러 발생)
         String eventId = makeTimeIncludeId(userId);
         sendNotification(emitter, eventId, emitterId, "EventStream Created. [userId=" + userId + "]");
@@ -66,6 +72,7 @@ public class NotificationService {
         if (hasLostData(lastEventId)) {
             sendLostData(lastEventId, userId, emitterId, emitter);
         }
+
         return emitter;
     }
 
@@ -139,8 +146,6 @@ public class NotificationService {
                 }
         );
     }
-
-
 
 //     유저가 요청을 보내면 관리자들에게 알림을 보낸다.
     @Transactional
@@ -243,5 +248,15 @@ public class NotificationService {
         }
 
         return jsonResult;
+    }
+
+    // 클라이언트 타임아웃 처리
+    private void onClientDisconnect(SseEmitter emitter, String type) {
+        try {
+            emitter.send(SseEmitter.event().name(type).data("Client" + type).id(UUID.randomUUID().toString()));
+            emitter.complete();
+        } catch (IOException e) {
+            log.error("Failed to send" + type + "event to client", e);
+        }
     }
 }
