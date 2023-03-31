@@ -115,8 +115,8 @@ public class RequestsController {
     }
 
     @PutMapping(value = "/requests/{requestId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "유저 요청 수정 페이지", description = "**비품 요청**일 경우, 필요값 = categoryId, requestType, content<br>" +
-            "**반납/수리/보고서 일 경우**, 필요값 = supplyId, requestType, content, multipartFile(이미지)<br>" +
+    @Operation(summary = "유저 요청 수정 페이지", description = "**비품 요청**일 경우, 필요값 = requestType, content<br>" +
+            "**반납/수리/보고서 일 경우**, 필요값 = requestType, content, multipartFile(이미지)<br>" +
             "requestType = SUPPLY / REPAIR / RETURN / REPORT<br>" +
             "**처리 전의 요청**에 한해서만 수정 가능")
     public ResponseDto<String> updateRequests(@PathVariable Long requestId,

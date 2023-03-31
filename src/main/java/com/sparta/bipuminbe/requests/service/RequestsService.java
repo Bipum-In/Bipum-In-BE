@@ -138,10 +138,8 @@ public class RequestsService {
         checkProcessing(requests);
 
         if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
-            Category category = getCategory(requestsRequestDto.getCategoryId());
             requests.update(Requests.builder()
                     .content(requestsRequestDto.getContent())
-                    .category(category)
                     .build());
         } else {
             // 해당 요청의 이미지 리스트 가져오기
@@ -169,12 +167,10 @@ public class RequestsService {
                 imageRepository.deleteAll(imageList);
             }
 
-            Supply supply = getSupply(requestsRequestDto.getSupplyId());
             String dirName = requestsRequestDto.getRequestType().name().toLowerCase() + "images";
 
             requests.update(Requests.builder()
                     .content(requestsRequestDto.getContent())
-                    .supply(supply)
                     .build());
 
             // 추가하는 이미지가 있을 경우에만 s3에 저장한다.
