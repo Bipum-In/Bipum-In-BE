@@ -130,7 +130,6 @@ public class RequestsService {
     @Transactional
     public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto, User user) throws IOException {
         Requests requests = getRequest(requestId);
-        Category category = getCategory(requestsRequestDto.getCategoryId());
 
         // 본인의 요청인지 확인
         checkPermission(requests, user);
@@ -139,6 +138,7 @@ public class RequestsService {
         checkProcessing(requests);
 
         if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
+            Category category = getCategory(requestsRequestDto.getCategoryId());
             requests.update(Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .category(category)
