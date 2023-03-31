@@ -288,7 +288,7 @@ public class SupplyService {
             }
         }
 
-        supply.update(supplyRequestDto, partners, newCategory, user, image);
+        supply.update(partners, user, image);
 
         return ResponseDto.success("비품 수정 성공");
     }

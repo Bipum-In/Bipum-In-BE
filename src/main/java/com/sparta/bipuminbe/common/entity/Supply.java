@@ -58,10 +58,7 @@ public class Supply extends TimeStamped {
         this.deleted = false;
     }
 
-    public void update(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user, String image) {
-        this.category = category;
-        this.serialNum = supplyRequestDto.getSerialNum();
-        this.modelName = supplyRequestDto.getModelName();
+    public void update(Partners partners, User user, String image) {
         this.partners = partners;
         this.user = user;
         this.image = image;
