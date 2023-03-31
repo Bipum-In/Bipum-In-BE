@@ -103,7 +103,7 @@ public class UserService {
 //        http://localhost:8080/api/user/kakao/callback
 //        http://localhost:3000/api/user/kakao/callback
 
-        // HTTP 요청 보내기
+        // HTTP 요청 보내기1
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
                 new HttpEntity<>(body, headers);
         RestTemplate rt = new RestTemplate();
