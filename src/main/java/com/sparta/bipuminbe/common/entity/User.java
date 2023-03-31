@@ -14,7 +14,8 @@ import javax.persistence.*;
 @Entity(name = "users")
 @NoArgsConstructor
 @Getter
-//@SQLDelete(sql = "UPDATE users SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE users SET deleted = true, phone = null, image = null, " +
+        "kakaoId = CAST(uuid(), bigint), username = uuid() WHERE id = ?")
 //@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class User extends TimeStamped {
 
@@ -58,6 +59,7 @@ public class User extends TimeStamped {
         this.image = kakaoUserInfoDto.getImage();
         this.role = role;
         this.alarm = alarm;
+        this.deleted = false;
     }
 
     public void update(String empName, Department department, String phone) {
@@ -68,9 +70,5 @@ public class User extends TimeStamped {
 
     public void switchAlarm(Boolean alarm) {
         this.alarm = !alarm;
-    }
-
-    public void deleteDepartment() {
-        this.department = null;
     }
 }

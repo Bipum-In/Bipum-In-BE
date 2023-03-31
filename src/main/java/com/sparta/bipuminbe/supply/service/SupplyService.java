@@ -57,7 +57,7 @@ public class SupplyService {
 
         User user = null;
         if (supplyRequestDto.getUserId() != null) {
-            user = userRepository.findById(supplyRequestDto.getUserId()).orElseThrow(
+            user = userRepository.findByIdAndDeletedFalse(supplyRequestDto.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundUsers)
             );
         }
@@ -231,7 +231,7 @@ public class SupplyService {
 
         User user = null;
         if (supplyRequestDto.getUserId() != null) {
-            user = userRepository.findById(supplyRequestDto.getUserId()).orElseThrow(
+            user = userRepository.findByIdAndDeletedFalse(supplyRequestDto.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundUsers)
             );
         }
@@ -301,7 +301,6 @@ public class SupplyService {
         Supply supply = getSupply(supplyId);
 
         // 비품 폐기 처리 기록 생성.
-        //Todo softDelete 생기면 없어질 예정.
         String content = "비품의 유저 강제 변경에 의한 기록 생성.";
         requestsRepository.save(Requests.builder()
                 .content(content)

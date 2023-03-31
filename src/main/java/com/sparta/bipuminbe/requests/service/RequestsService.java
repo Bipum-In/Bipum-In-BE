@@ -111,7 +111,7 @@ public class RequestsService {
                 "보고서 제출 완료" :
                 requestsRequestDto.getRequestType().getKorean() + " 완료";
 
-        List<User> adminList = userRepository.findByRoleAndAlarm(UserRoleEnum.ADMIN, true);
+        List<User> adminList = userRepository.findByRoleAndAlarmAndDeletedFalse(UserRoleEnum.ADMIN, true);
         if (adminList != null) {
             List<String> phoneList = new ArrayList<>();
             for (User admin : adminList) {
@@ -130,7 +130,6 @@ public class RequestsService {
     @Transactional
     public ResponseDto<String> updateRequests(Long requestId, RequestsRequestDto requestsRequestDto, User user) throws IOException {
         Requests requests = getRequest(requestId);
-        Category category = getCategory(requestsRequestDto.getCategoryId());
 
         // 본인의 요청인지 확인
         checkPermission(requests, user);
@@ -139,6 +138,7 @@ public class RequestsService {
         checkProcessing(requests);
 
         if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
+            Category category = getCategory(requestsRequestDto.getCategoryId());
             requests.update(Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .category(category)
@@ -228,7 +228,7 @@ public class RequestsService {
     private Set<Long> getUserIdSet(User user, UserRoleEnum role) {
         Set<Long> userIdQuery = new HashSet<>();
         if (role.equals(UserRoleEnum.ADMIN)) {
-            List<User> userList = userRepository.findAll();
+            List<User> userList = userRepository.findByDeletedFalse();
             for (User user1 : userList) {
                 userIdQuery.add(user1.getId());
             }
@@ -274,11 +274,8 @@ public class RequestsService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(Long requestId, User user, UserRoleEnum role) {
-        //Todo 이제 여기 두 줄 사실상 지워도 되고, 위에 매개변수 두개도 필요 없고, isAdmin 필드 자체가 필요 없어졌다.
-        Requests request = getRequest(requestId);
-        checkPermission(request, user);
-        return ResponseDto.success(RequestsAdminDetailsResponseDto.of(request, role));
+    public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(Long requestId) {
+        return ResponseDto.success(RequestsAdminDetailsResponseDto.of(getRequest(requestId)));
     }
 
     @Transactional(readOnly = true)

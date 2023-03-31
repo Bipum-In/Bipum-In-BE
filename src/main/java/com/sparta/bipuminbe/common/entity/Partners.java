@@ -38,6 +38,7 @@ public class Partners extends TimeStamped {
         this.partnersName = partnersDto.getPartnersName();
         this.phone = partnersDto.getPhone();
         this.address = partnersDto.getAddress();
+        this.deleted = false;
     }
 
     public void update(PartnersDto partnersDto) {
