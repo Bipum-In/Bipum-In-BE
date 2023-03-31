@@ -77,7 +77,7 @@ public class SupplyController {
     //비품 수정
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping(value = "/supply/{supplyId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "비품 수정", description = "관리자 권한 필요.")
+    @Operation(summary = "비품 수정", description = "관리자 권한 필요. 수정 시 변경되는 곳은 partnersId, userId, image 입니다. 나머지는 기존 데이터 입력해주시면 됩니다.")
     public ResponseDto<String> updateSupplies(
             @PathVariable Long supplyId,
             @ModelAttribute @Valid SupplyRequestDto supplyRequestDto,
