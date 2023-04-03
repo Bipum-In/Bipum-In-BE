@@ -43,7 +43,7 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
     Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Long> categoryQuery,
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
 
-    Optional<List<Supply>> findByUser_IdAndCategory_LargeCategoryIn(Long id, Set<LargeCategory> categoryQuery);
+    Optional<List<Supply>> findByUser_IdAndCategory_LargeCategoryInAndDeletedFalse(Long id, Set<LargeCategory> categoryQuery);
 
     List<Supply> findByPartners_PartnersId(Long partnersId);
 

@@ -108,7 +108,7 @@ public class DashboardService {
         // 사용 중인 비품 조회
         List<UserSupplyDto> userSupplyDtos = new ArrayList<>();
 
-        List<Supply> supplies = supplyRepository.findByUser_IdAndCategory_LargeCategoryIn(user.getId(), categoryQuery)
+        List<Supply> supplies = supplyRepository.findByUser_IdAndCategory_LargeCategoryInAndDeletedFalse(user.getId(), categoryQuery)
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
         for(Supply supply : supplies){
             userSupplyDtos.add(UserSupplyDto.of(supply));
