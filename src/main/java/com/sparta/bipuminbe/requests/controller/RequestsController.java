@@ -66,12 +66,11 @@ public class RequestsController {
     public ResponseDto<String> processingRequests(@PathVariable Long requestId,
                                                   @RequestBody @Valid RequestsProcessRequestDto requestsProcessRequestDto,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
-//         관리자의 요청 처리 >> 요청자에게 알림 전송.
-//         uri는 해당 알림을 클릭하면 이동할 상세페이지 uri이다.
+
+        String message = requestsService.processingRequests(requestId, requestsProcessRequestDto, userDetails.getUser());
         notificationService.sendForUser(userDetails.getUser(), requestId,
                 requestsProcessRequestDto.getAcceptResult());
-
-        return requestsService.processingRequests(requestId, requestsProcessRequestDto, userDetails.getUser());
+        return ResponseDto.success(message);
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)

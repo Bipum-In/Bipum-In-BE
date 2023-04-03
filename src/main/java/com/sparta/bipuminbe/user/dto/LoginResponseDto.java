@@ -14,6 +14,7 @@ public class LoginResponseDto {
     private String deptName;
     private String image;
     private Long userId;
+    private UserRoleEnum userRole;
 
     public static LoginResponseDto of(User user, Boolean checkUser) {
         return LoginResponseDto.builder()
@@ -23,6 +24,7 @@ public class LoginResponseDto {
                 .deptName(user.getDepartment() == null ? null : user.getDepartment().getDeptName())
                 .image(user.getImage())
                 .userId(user.getId())
+                .userRole(user.getRole())
                 .build();
     }
 }

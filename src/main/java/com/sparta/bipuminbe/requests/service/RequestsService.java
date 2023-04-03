@@ -295,7 +295,7 @@ public class RequestsService {
     }
 
     @Transactional
-    public ResponseDto<String> processingRequests(Long requestId, RequestsProcessRequestDto requestsProcessRequestDto, User user) throws Exception {
+    public String processingRequests(Long requestId, RequestsProcessRequestDto requestsProcessRequestDto, User user) throws Exception {
         Requests request = getRequest(requestId);
         AcceptResult acceptResult = requestsProcessRequestDto.getAcceptResult();
         checkProcessedRequest(request);
@@ -340,7 +340,7 @@ public class RequestsService {
             phoneList.add(request.getUser().getPhone());
 //            smsUtil.sendMail(message, phoneList);
         }
-        return ResponseDto.success(message);
+        return message;
     }
 
     private void checkProcessedRequest(Requests request) {
