@@ -26,6 +26,7 @@ public class SupplyRequestDto {
     private String serialNum;
     private Long partnersId;
     private Long userId;
+    @NotBlank
     private String image;
     private MultipartFile multipartFile;
 }
