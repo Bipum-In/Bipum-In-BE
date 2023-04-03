@@ -213,7 +213,7 @@ public class NotificationService {
         return receiver.getEmpName() + " 님의 "
                 + request.getSupply().getModelName() + " "
                 + categoryName
-                + " 수리 요청 건이 폐기 승인되었습니다.";
+                + " 수리 요청 건이 폐기처리되었습니다.";
     }
 
     private String creatForAdminMessage(Requests request, User sender){
