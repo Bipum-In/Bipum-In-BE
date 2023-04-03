@@ -55,16 +55,16 @@ public class UserService {
     private final JwtUtil jwtUtil;
     @Value("${kakao.restapi.key}")
     private String apiKey;
-
-    @Value("${kakao.redirect.url}")
-    private String redirectUrl;
-
+    @Value("${kakao.redirect.local.url}")
+    private String redirectLocalUrl;
+    @Value("${kakao.redirect.server.url}")
+    private String redirectServerUrl;
 
     @Transactional
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
-    public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(String code) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(String code, String urlType) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getToken(code);
+        String accessToken = getToken(code, urlType);
 
         // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
         KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
@@ -73,7 +73,6 @@ public class UserService {
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
         // 4. JWT 토큰 반환
-
         HttpHeaders responseHeader = new HttpHeaders();
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
         responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
@@ -87,7 +86,9 @@ public class UserService {
 
 
     //     1. "인가 코드"로 "액세스 토큰" 요청
-    private String getToken(String code) throws JsonProcessingException {
+    private String getToken(String code, String urlType) throws JsonProcessingException {
+        String redirectUrl = urlType.equals("local") ? redirectLocalUrl : redirectServerUrl;
+
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -255,4 +256,6 @@ public class UserService {
 
         return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
     }
+
+
 }

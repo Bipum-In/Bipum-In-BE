@@ -27,10 +27,11 @@ public class UserController {
 
     @Operation(summary = "로그인 처리", description = "카카오 계정정보 담은 Jwt토큰 발급")
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(@RequestParam String code,
+                                                                    @RequestParam String urlType) throws JsonProcessingException {
         // code: 카카오 서버로부터 받은 인가 코드
 
-        return userService.kakaoLogin(code);
+        return userService.kakaoLogin(code, urlType);
     }
 
     //로그인 시, 부서와 유저이름이 없는 경우 반드시 추가입력하게 유도
