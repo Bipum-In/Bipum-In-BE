@@ -14,8 +14,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 
@@ -27,8 +34,8 @@ public class UserController {
 
     @Operation(summary = "로그인 처리", description = "카카오 계정정보 담은 Jwt토큰 발급")
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(@RequestParam String code,
-                                                                    @RequestParam String urlType) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<String>> kakaoLogin(@RequestParam String code,
+                                                                    @RequestParam String urlType) throws IOException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         // code: 카카오 서버로부터 받은 인가 코드
 
         return userService.kakaoLogin(code, urlType);

@@ -37,10 +37,19 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -53,6 +62,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final JwtUtil jwtUtil;
+    public static String alg = "AES/CBC/PKCS5Padding";
+    private final String key = "1bcmevgha6c7e8g53b4d6f7h4b2d1f0h";
+    private final String iv = "d1g8mqetyda35d0f";
     @Value("${kakao.restapi.key}")
     private String apiKey;
     @Value("${kakao.redirect.local.url}")
@@ -62,7 +74,7 @@ public class UserService {
 
     @Transactional
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
-    public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(String code, String urlType) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<String>> kakaoLogin(String code, String urlType) throws IOException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code, urlType);
 
@@ -81,7 +93,7 @@ public class UserService {
 
         return ResponseEntity.ok()
                 .headers(responseHeader)
-                .body(ResponseDto.success(LoginResponseDto.of(kakaoUser, checkUser)));
+                .body(ResponseDto.success(encryptUser(LoginResponseDto.of(kakaoUser, checkUser))));
     }
 
 
@@ -250,12 +262,31 @@ public class UserService {
                     .build());
         }
 
-
         // DB의 회원정보 삭제
         userRepository.deleteByKakaoId(kakaoId);
 
         return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
     }
 
+    public String encryptUser(LoginResponseDto loginResponseDto)
+            throws IOException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException {
+        Cipher cipher = Cipher.getInstance(alg);
+        SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
+        IvParameterSpec ivParamSpec = new IvParameterSpec(iv.getBytes());
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParamSpec);
 
+        byte[] encrypted = cipher.doFinal(convertToBytes(loginResponseDto));
+        return Base64.getEncoder().encodeToString(encrypted);
+    }
+
+    public static byte[] convertToBytes(LoginResponseDto loginResponseDto) throws IOException{
+        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutStream = new ObjectOutputStream(byteOutStream);
+
+        objectOutStream.writeObject(loginResponseDto);
+        objectOutStream.flush();
+        objectOutStream.close();
+
+        return byteOutStream.toByteArray();
+    }
 }
