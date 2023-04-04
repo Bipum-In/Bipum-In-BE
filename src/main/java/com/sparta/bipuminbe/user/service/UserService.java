@@ -37,15 +37,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -62,15 +60,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final JwtUtil jwtUtil;
-    public static String alg = "AES/CBC/PKCS5Padding";
-    private final String key = "1bcmevgha6c7e8g53b4d6f7h4b2d1f0h";
-    private final String iv = "d1g8mqetyda35d0f";
+
+    @Value("${login.encrypt.algorithm}")
+    private final String alg;
+    @Value("${login.encrypt.key}")
+    private final String key;
+    @Value("${login.encrypt.iv}")
+    private final String iv;
+    @Value("${login.encrypt.hanmacAlg}")
+    private final String hanmac_alg;
     @Value("${kakao.restapi.key}")
-    private String apiKey;
+    private final String apiKey;
     @Value("${kakao.redirect.local.url}")
-    private String redirectLocalUrl;
+    private final String redirectLocalUrl;
     @Value("${kakao.redirect.server.url}")
-    private String redirectServerUrl;
+    private final String redirectServerUrl;
 
     @Transactional
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
@@ -95,7 +99,6 @@ public class UserService {
                 .headers(responseHeader)
                 .body(ResponseDto.success(encryptUser(LoginResponseDto.of(kakaoUser, checkUser))));
     }
-
 
     //     1. "인가 코드"로 "액세스 토큰" 요청
     private String getToken(String code, String urlType) throws JsonProcessingException {
@@ -276,10 +279,15 @@ public class UserService {
         cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParamSpec);
 
         byte[] encrypted = cipher.doFinal(convertToBytes(loginResponseDto));
-        return Base64.getEncoder().encodeToString(encrypted);
+        String base64Encrpyted = Base64.getEncoder().encodeToString(encrypted);
+
+        // Generate HMAC
+        String hmac = generateHmac(encrypted, key);
+
+        return base64Encrpyted + "." + hmac;
     }
 
-    public static byte[] convertToBytes(LoginResponseDto loginResponseDto) throws IOException{
+    public static byte[] convertToBytes(Serializable loginResponseDto) throws IOException{
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutStream = new ObjectOutputStream(byteOutStream);
 
@@ -288,5 +296,14 @@ public class UserService {
         objectOutStream.close();
 
         return byteOutStream.toByteArray();
+    }
+
+    private String generateHmac(byte[] data, String key)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), hanmac_alg);
+        Mac mac = Mac.getInstance(hanmac_alg);
+        mac.init(signingKey);
+        byte[] hmacBytes = mac.doFinal(data);
+        return Base64.getEncoder().encodeToString(hmacBytes);
     }
 }
