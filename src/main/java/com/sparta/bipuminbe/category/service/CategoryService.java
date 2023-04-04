@@ -4,9 +4,11 @@ import com.sparta.bipuminbe.category.dto.CategoryDto;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Category;
+import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +28,7 @@ public class CategoryService {
     public ResponseDto<List<CategoryDto>> getCategoryList(String largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
         List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
-        List<CategoryDto> categoryDtoList = new ArrayList<>();
-        for (Category category : categoryList) {
-            categoryDtoList.add(CategoryDto.of(category));
-        }
-        return ResponseDto.success(categoryDtoList);
+        return ResponseDto.success(convertToDtoList(categoryList));
     }
 
     private Set<LargeCategory> getCategoryQuery(String largeCategory) {
@@ -50,7 +48,7 @@ public class CategoryService {
         }
         Category category = Category.builder().categoryName(categoryDto.getCategoryName())
                 .largeCategory(LargeCategory.valueOf(categoryDto.getLargeCategory()))
-                .categoryImage(categoryDto.getCategoryImage()).build();
+                .build();
         categoryRepository.save(category);
         return ResponseDto.success("카테고리 등록 완료.");
     }
@@ -78,5 +76,23 @@ public class CategoryService {
 
     private Boolean checkCategory(String categoryName) {
         return categoryRepository.existsByCategoryName(categoryName);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<List<String>> getMyLargeCategory(User user) {
+        return ResponseDto.success(categoryRepository.getMyLargeCategory(user));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<List<CategoryDto>> getMyCategory(LargeCategory largeCategory, User user) {
+        return ResponseDto.success(convertToDtoList(categoryRepository.getMyCategory(largeCategory, user)));
+    }
+
+    private static List<CategoryDto> convertToDtoList(List<Category> categoryList) {
+        List<CategoryDto> categoryDtoList = new ArrayList<>();
+        for (Category category : categoryList) {
+            categoryDtoList.add(CategoryDto.of(category));
+        }
+        return categoryDtoList;
     }
 }

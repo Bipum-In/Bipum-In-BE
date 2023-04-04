@@ -1,5 +1,7 @@
 package com.sparta.bipuminbe.supply.repository;
 
+import com.sparta.bipuminbe.category.dto.CategoryDto;
+import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
@@ -51,6 +53,7 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
     List<Supply> findByCategory_IdAndStatusAndDeletedFalse(Long categoryId, SupplyStatusEnum stock);
 
+    // 다른 요청을 처리 중이라 신청을 할 수 없는 비품은 출력하지 않는 로직.
     @Query(value = "select s from Supply s " +
             "inner join Category c on s.category = c " +
             "where s.user = :user and c.id = :categoryId and s.deleted = false " +
