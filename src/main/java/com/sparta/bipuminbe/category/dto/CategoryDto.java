@@ -1,29 +1,29 @@
 package com.sparta.bipuminbe.category.dto;
 
 import com.sparta.bipuminbe.common.entity.Category;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @Getter
-@Builder
 @Valid
+@Builder
 public class CategoryDto {
     private Long categoryId;
     @NotNull
     private String largeCategory;
     @NotNull
     private String categoryName;
-    private String categoryImage;
 
     public static CategoryDto of(Category category) {
         return CategoryDto.builder()
                 .categoryId(category.getId())
                 .largeCategory(category.getLargeCategory().getKorean())
                 .categoryName(category.getCategoryName())
-                .categoryImage(category.getCategoryImage())
                 .build();
     }
 }
