@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
+import com.sparta.bipuminbe.common.enums.UseType;
 import com.sparta.bipuminbe.supply.dto.SupplyRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,6 +42,14 @@ public class Supply extends TimeStamped {
     @JoinColumn(name = "categoryId", nullable = false)
     private Category category;
 
+    @Enumerated(EnumType.STRING)
+    private UseType useType;
+
+    // 공용일때만 사용하게 된다.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+
     @Column(nullable = false)
     private Boolean deleted;
 
@@ -53,6 +62,7 @@ public class Supply extends TimeStamped {
         this.category = category;
         this.user = user;
         this.deleted = false;
+        this.useType = user == null ? null : UseType.PERSONAL;
     }
 
     public void update(Partners partners, User user, String image) {
@@ -61,9 +71,14 @@ public class Supply extends TimeStamped {
         this.image = image;
     }
 
-    public void allocateSupply(User user) {
+    public void allocateSupply(Requests request) {
 //        checkSupplyStatus();
-        this.user = user;
+        if (useType.equals(UseType.COMMON)) {
+            this.department = request.getUser().getDepartment();
+        } else {
+            this.user = request.getUser();
+        }
+        this.useType = request.getUseType();
         this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.USING;
     }
 
@@ -81,6 +96,7 @@ public class Supply extends TimeStamped {
 
     public void returnSupply() {
         this.user = null;
+        this.department = null;
         this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.STOCK;
     }
 

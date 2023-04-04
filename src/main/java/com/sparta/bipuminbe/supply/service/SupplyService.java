@@ -274,7 +274,7 @@ public class SupplyService {
 
             // 다음 유저 비품 요청 생성. (기록용)
             if (user != null) {
-                requestsRepository.save(Requests.builder()
+                Requests request = Requests.builder()
                         .content(content)
                         .requestType(RequestType.SUPPLY)
                         .requestStatus(RequestStatus.PROCESSED)
@@ -283,8 +283,9 @@ public class SupplyService {
                         .user(user)
                         .category(newCategory)
                         .admin(admin)
-                        .build());
-                supply.allocateSupply(user);
+                        .build();
+                requestsRepository.save(request);
+                supply.allocateSupply(request);
             }
         }
 

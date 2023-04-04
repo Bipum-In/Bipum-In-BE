@@ -64,4 +64,7 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
                              @Param("statusQuery") Set<RequestStatus> statusQuery);
 
     List<Supply> findByUser_IdAndDeletedFalse(Long id);
+
+    // 부서 삭제시 공용 비품 리스트 호출.
+    List<Supply> findByDepartment_Id(Long id);
 }

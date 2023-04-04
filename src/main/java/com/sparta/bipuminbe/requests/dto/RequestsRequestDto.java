@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.requests.dto;
 
 import com.sparta.bipuminbe.common.enums.RequestType;
+import com.sparta.bipuminbe.common.enums.UseType;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,7 @@ public class RequestsRequestDto {
     private String content;
     @NotNull
     private RequestType requestType;
+    private UseType useType;
     private List<String> storedImageURLs;
     private List<MultipartFile> multipartFile;
 }

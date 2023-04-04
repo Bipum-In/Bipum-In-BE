@@ -11,6 +11,8 @@ public enum ErrorCode {
     NotFoundCategory(HttpStatus.NOT_FOUND, "카레고리가 존재하지 않습니다."),
     DuplicatedDepartment(HttpStatus.BAD_REQUEST, "이미 존재하는 부서입니다."),
     NotFoundDepartment(HttpStatus.NOT_FOUND, "해당 부서가 존재하지 않습니다."),
+    ExistsUserInDepartment(HttpStatus.BAD_REQUEST, "부서에 사원이 존재하여 삭제할 수 없습니다."),
+
     DuplicatedPartners(HttpStatus.BAD_REQUEST, "이미 등록된 협력업체 입니다."),
     NotFoundPartners(HttpStatus.NOT_FOUND, "해당 업체가 존재하지 않습니다."),
     NotFoundUsers(HttpStatus.NOT_FOUND, "해당 사용자가 존재하지 않습니다."),

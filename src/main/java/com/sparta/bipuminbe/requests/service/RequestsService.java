@@ -68,6 +68,7 @@ public class RequestsService {
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .category(category)
                     .user(user)
+                    .useType(requestsRequestDto.getUseType())
                     .build());
 
             requestId = createRequests.getRequestId();
@@ -321,7 +322,7 @@ public class RequestsService {
         } else {
             if (request.getRequestType().equals(RequestType.SUPPLY)) {
                 checkSupplyId(requestsProcessRequestDto.getSupplyId());
-                supply.allocateSupply(request.getUser());
+                supply.allocateSupply(request);
             } else if (request.getRequestType().equals(RequestType.REPAIR)) {
                 supply.repairSupply();
             } else if (request.getRequestType().equals(RequestType.RETURN)) {

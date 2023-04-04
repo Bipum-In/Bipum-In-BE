@@ -167,10 +167,12 @@ public class UserService {
             //Username이 이메일이므로 주의
             kakaoUser = User.builder().
                     kakaoId(kakaoUserInfo.getId()).
-                    encodedPassword(encodedPassword).
-                    kakaoUserInfoDto(kakaoUserInfo).
+                    password(encodedPassword).
+                    username(kakaoUserInfo.getUsername()).
+                    image(kakaoUserInfo.getImage()).
                     role(UserRoleEnum.USER).
                     alarm(true).
+                    deleted(false).
                     build();
 
             userRepository.save(kakaoUser);

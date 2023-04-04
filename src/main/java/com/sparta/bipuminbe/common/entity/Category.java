@@ -32,9 +32,4 @@ public class Category {
         this.categoryName = categoryDto.getCategoryName();
         this.largeCategory = LargeCategory.valueOf(categoryDto.getLargeCategory());
     }
-
-    public void madeCategory(String categoryName, LargeCategory largeCategory){
-        this.categoryName=categoryName;
-        this.largeCategory = largeCategory;
-    }
 }
