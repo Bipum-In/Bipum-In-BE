@@ -37,7 +37,16 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Slf4j
@@ -51,6 +60,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final JwtUtil jwtUtil;
+
+    //    @Value("${login.encrypt.algorithm}")
+//    private final String alg;
+//    @Value("${login.encrypt.key}")
+//    private final String key;
+//    @Value("${login.encrypt.iv}")
+//    private final String iv;
 
     @Value("${kakao.restapi.key}")
     private String apiKey;
@@ -253,4 +269,40 @@ public class UserService {
 
         return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
     }
+
+    //    public String encryptUser(LoginResponseDto loginResponseDto)
+//            throws IOException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException {
+//        Cipher cipher = Cipher.getInstance(alg);
+//        SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
+//        IvParameterSpec ivParamSpec = new IvParameterSpec(iv.getBytes());
+//        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParamSpec);
+//
+//        byte[] encrypted = cipher.doFinal(convertToBytes(loginResponseDto));
+//        String base64Encrpyted = Base64.getEncoder().encodeToString(encrypted);
+//
+//        // Generate HMAC
+//        String hmac = generateHmac(encrypted, key);
+//
+//        return base64Encrpyted + "." + hmac;
+//    }
+//
+//    public static byte[] convertToBytes(Serializable loginResponseDto) throws IOException{
+//        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+//        ObjectOutputStream objectOutStream = new ObjectOutputStream(byteOutStream);
+//
+//        objectOutStream.writeObject(loginResponseDto);
+//        objectOutStream.flush();
+//        objectOutStream.close();
+//
+//        return byteOutStream.toByteArray();
+//    }
+//
+//    public String generateHmac(byte[] data, String key)
+//            throws NoSuchAlgorithmException, InvalidKeyException {
+//        SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), "HmacSHA256");
+//        Mac mac = Mac.getInstance("HmacSHA256");
+//        mac.init(signingKey);
+//        byte[] hmacBytes = mac.doFinal(data);
+//        return Base64.getEncoder().encodeToString(hmacBytes);
+//    }
 }

@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @Getter
 @Builder
-public class LoginResponseDto implements Serializable {
+public class LoginResponseDto{
     private Boolean checkUser;
     private Boolean isAdmin;
     private String empName;

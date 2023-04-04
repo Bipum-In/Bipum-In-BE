@@ -19,6 +19,7 @@ public class NotificationResponseDto {
     private Long requestId;
     private RequestType requestType;
     private AcceptResult acceptResult;
+    private boolean isRead;
 
     public static NotificationResponseDto of(Notification notification, String image) {
 
@@ -29,6 +30,7 @@ public class NotificationResponseDto {
                 .requestType(notification.getRequest().getRequestType())
                 .image(image)
                 .acceptResult(notification.getAcceptResult())
+                .isRead(notification.getIsRead())
                 .build();
     }
 }
