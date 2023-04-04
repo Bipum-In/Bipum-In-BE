@@ -5,9 +5,11 @@ import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 @Getter
 @Builder
-public class LoginResponseDto {
+public class LoginResponseDto implements Serializable {
     private Boolean checkUser;
     private Boolean isAdmin;
     private String empName;
