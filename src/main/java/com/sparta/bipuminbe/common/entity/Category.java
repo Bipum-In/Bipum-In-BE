@@ -23,7 +23,7 @@ public class Category {
     private LargeCategory largeCategory;
 
     @Builder
-    public Category(String categoryName, LargeCategory largeCategory, String categoryImage) {
+    public Category(String categoryName, LargeCategory largeCategory) {
         this.categoryName = categoryName;
         this.largeCategory = largeCategory;
     }
@@ -33,8 +33,7 @@ public class Category {
         this.largeCategory = LargeCategory.valueOf(categoryDto.getLargeCategory());
     }
 
-    public void madeCategory(String categoryName, LargeCategory largeCategory,
-                             String categoryImage){
+    public void madeCategory(String categoryName, LargeCategory largeCategory){
         this.categoryName=categoryName;
         this.largeCategory = largeCategory;
     }
