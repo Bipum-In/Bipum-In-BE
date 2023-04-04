@@ -118,7 +118,7 @@ public class NotificationService {
         User receiver = request.getUser();
         String content = createForUserMessage(request, receiver, isAccepted);
 
-        Notification notification = notificationRepository.save(createNotification(sender, receiver, content, request, NotificationType.PROCESSED));
+        Notification notification = notificationRepository.save(createNotification(sender, receiver, content, request, NotificationType.PROCESSED, isAccepted));
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -163,7 +163,7 @@ public class NotificationService {
 
         // 각 Admin 마다 알림을 전송한다.
         for(User receiver : receiverList){
-            Notification notification = notificationRepository.save(createNotification(sender, receiver, content, request, NotificationType.REQUEST));
+            Notification notification = notificationRepository.save(createNotification(sender, receiver, content, request, NotificationType.REQUEST, null));
             String receiverId = String.valueOf(receiver.getId());
             String eventId = receiverId + "_" + System.currentTimeMillis();
 
@@ -183,7 +183,7 @@ public class NotificationService {
     }
 
     private Notification createNotification(User sender, User receiver, String content,
-                                            Requests request, NotificationType notificationType) {
+                                            Requests request, NotificationType notificationType, AcceptResult isAccepted) {
         return Notification.builder()
                 .sender(sender)
                 .receiver(receiver)
@@ -191,6 +191,7 @@ public class NotificationService {
                 .isRead(false)
                 .request(request)
                 .notificationType(notificationType)
+                .acceptResult(isAccepted)
                 .build();
     }
 
@@ -227,7 +228,7 @@ public class NotificationService {
 
         // ~~ 님이 ~~카테고리 ~~를 요청하셨습니다.
         return sender.getEmpName() + " 님의 " +
-                categoryName + " " + requestType + " 이 등록되었습니다.";
+                categoryName + " " + requestType + "이 등록되었습니다.";
     }
 
     private String getCategoryName(Requests request) {

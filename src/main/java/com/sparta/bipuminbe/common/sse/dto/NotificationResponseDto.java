@@ -1,6 +1,8 @@
 package com.sparta.bipuminbe.common.sse.dto;
 
 import com.sparta.bipuminbe.common.entity.Notification;
+import com.sparta.bipuminbe.common.enums.AcceptResult;
+import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +18,8 @@ public class NotificationResponseDto {
     private String image;
     private Long requestId;
     private RequestType requestType;
+    private AcceptResult acceptResult;
+
     public static NotificationResponseDto of(Notification notification, String image) {
 
         return builder()
@@ -24,6 +28,7 @@ public class NotificationResponseDto {
                 .requestId(notification.getRequest().getRequestId())
                 .requestType(notification.getRequest().getRequestType())
                 .image(image)
+                .acceptResult(notification.getAcceptResult())
                 .build();
     }
 }

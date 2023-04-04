@@ -3,7 +3,9 @@ package com.sparta.bipuminbe.common.entity;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.TimeStamped;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.NotificationType;
+import com.sparta.bipuminbe.common.enums.RequestStatus;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,6 +36,9 @@ public class Notification extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
+    @Enumerated(EnumType.STRING)
+    private AcceptResult acceptResult;
+
     //알림 종류
 //    @Enumerated(EnumType.STRING)
 //    @Column(nullable = false)
@@ -59,12 +64,13 @@ public class Notification extends TimeStamped {
 
     @Builder
     public Notification(User sender, User receiver, String content,
-                        Boolean isRead, Requests request, NotificationType notificationType) {
+                        Boolean isRead, Requests request, NotificationType notificationType, AcceptResult acceptResult) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
         this.isRead = isRead;
         this.request = request;
         this.notificationType = notificationType;
+        this.acceptResult = acceptResult;
     }
 }
