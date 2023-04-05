@@ -57,7 +57,7 @@ public class DashboardController {
     }
 
     @Operation(summary = "클릭한 알림 읽음 처리")
-    @PutMapping(value = "/main/read")
+    @PutMapping(value = "/main/read/{notificationId}")
     public ResponseDto<String> notificationRead(@PathVariable Long notificationId){
         return dashboardService.notificationRead(notificationId);
     }
