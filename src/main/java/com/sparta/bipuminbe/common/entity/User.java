@@ -23,8 +23,7 @@ public class User extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private Long kakaoId;
+    private Long kakaoId; // 임시로 지움
 
     @Column(nullable = false, unique = true)
     private String username;

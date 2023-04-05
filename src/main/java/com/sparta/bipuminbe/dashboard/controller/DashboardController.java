@@ -4,25 +4,24 @@ import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
+import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForAdmin;
+import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForUser;
 import com.sparta.bipuminbe.dashboard.dto.AdminMainResponseDto;
 import com.sparta.bipuminbe.dashboard.dto.UserMainResponseDto;
 import com.sparta.bipuminbe.dashboard.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class DashboardController {
     private final DashboardService dashboardService;
-
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @Operation(summary = "관리자용 대쉬보드",
@@ -39,5 +38,27 @@ public class DashboardController {
                                                         @RequestParam(defaultValue = "") LargeCategory largeCategory) {
 
         return dashboardService.getUserMain(userDetails.getUser(), largeCategory);
+    }
+
+    @Operation(summary = "Admin용 알림 Page 가져오기")
+    @GetMapping(value = "/admin/main/alarm")
+    public ResponseDto<Page<NotificationResponseForAdmin>> getAdminAlarm(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                         @RequestParam(defaultValue = "1") int page,
+                                                                         @RequestParam(defaultValue = "10") int size){
+        return dashboardService.getAdminAlarm(userDetails.getUser(), page, size);
+    }
+
+    @Operation(summary = "User용 알림 Page 가져오기")
+    @GetMapping(value = "/main/alarm")
+    public ResponseDto<Page<NotificationResponseForUser>> getUserAlarm(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                       @RequestParam(defaultValue = "1") int page,
+                                                                       @RequestParam(defaultValue = "10") int size){
+        return dashboardService.getUserAlarm(userDetails.getUser(), page, size);
+    }
+
+    @Operation(summary = "클릭한 알림 읽음 처리")
+    @PutMapping(value = "/main/read")
+    public ResponseDto<String> notificationRead(@PathVariable Long notificationId){
+        return dashboardService.notificationRead(notificationId);
     }
 }

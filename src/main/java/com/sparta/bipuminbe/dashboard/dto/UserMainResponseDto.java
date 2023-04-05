@@ -6,21 +6,21 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Builder
 public class UserMainResponseDto {
     private List<UserSupplyDto> userSupplyDtos;
     private RequestsCountDto requestsCountDto;
-    private List<NotificationResponseForUser> notifications;
+//    private List<NotificationResponseForUser> notifications;
 
-    public static UserMainResponseDto of(List<UserSupplyDto> userSupplyDtos, RequestsCountDto requestsCountDto,
-                                         List<NotificationResponseForUser> notifications) {
+    public static UserMainResponseDto of(List<UserSupplyDto> userSupplyDtos, RequestsCountDto requestsCountDto
+//                                         List<NotificationResponseForUser> notifications
+    ) {
         return builder()
                 .userSupplyDtos(userSupplyDtos)
                 .requestsCountDto(requestsCountDto)
-                .notifications(notifications)
+//                .notifications(notifications)
                 .build();
     }
 }

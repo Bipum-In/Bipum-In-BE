@@ -262,4 +262,15 @@ public class NotificationService {
             log.error("Failed to send" + type + "event to client", e);
         }
     }
+
+    // 처리 된 건이고, 읽은 알림은 삭제 (1일 경과한 데이터)
+    @Transactional
+    public void deleteOldNotification() {
+        List<Notification> notifications = notificationRepository.findOldNotification();
+
+        log.info("총 " + notifications.size() + " 건의 알림 삭제");
+        for(Notification notification : notifications){
+            notificationRepository.deleteById(notification.getId());
+        }
+    }
 }
