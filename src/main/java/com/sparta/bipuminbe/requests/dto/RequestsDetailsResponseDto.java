@@ -69,7 +69,7 @@ public class RequestsDetailsResponseDto {
 
         if (request.getRequestType().equals(RequestType.SUPPLY)) {
             builder.categoryName(category.getCategoryName())
-                    .useType(supply.getUseType().getKorean());
+                    .useType(request.getUseType().getKorean());
 
             if (request.getAcceptResult() == AcceptResult.ACCEPT) {
                 Supply allocatedSupply = request.getSupply();
