@@ -56,13 +56,15 @@ public class NotificationService {
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         emitter.onCompletion(() -> {
+            log.info("SSE 연결 Complete");
             emitterRepository.deleteById(emitterId);
-            onClientDisconnect(emitter, "Compeletion");
+//            onClientDisconnect(emitter, "Compeletion");
         });
         //시간이 만료된 경우 자동으로 레포지토리에서 삭제하고 클라이언트에서 재요청을 보낸다.
         emitter.onTimeout(() -> {
+            log.info("SSE 연결 Timeout");
             emitterRepository.deleteById(emitterId);
-            onClientDisconnect(emitter, "Timeout");
+//            onClientDisconnect(emitter, "Timeout");
         });
         emitter.onError((e) -> emitterRepository.deleteById(emitterId));
         //Dummy 데이터를 보내 503에러 방지. (SseEmitter 유효시간 동안 어느 데이터도 전송되지 않으면 503에러 발생)
@@ -258,6 +260,17 @@ public class NotificationService {
             emitter.complete();
         } catch (IOException e) {
             log.error("Failed to send" + type + "event to client", e);
+        }
+    }
+
+    // 처리 된 건이고, 읽은 알림은 삭제 (1일 경과한 데이터)
+    @Transactional
+    public void deleteOldNotification() {
+        List<Notification> notifications = notificationRepository.findOldNotification();
+
+        log.info("총 " + notifications.size() + " 건의 알림 삭제");
+        for(Notification notification : notifications){
+            notificationRepository.deleteById(notification.getId());
         }
     }
 }

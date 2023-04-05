@@ -4,10 +4,12 @@ import com.sparta.bipuminbe.common.enums.RequestType;
 
 import java.time.LocalDateTime;
 
+
 public interface NotificationResponseForAdmin {
     String getContent();
-    LocalDateTime getCreated_At();
     String getImage();
+    LocalDateTime getCreated_At();
     Long getRequest_id();
+    Long getNotification_id();
     RequestType getRequest_type();
 }

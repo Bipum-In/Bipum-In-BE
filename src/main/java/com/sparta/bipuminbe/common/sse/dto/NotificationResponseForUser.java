@@ -10,5 +10,6 @@ public interface NotificationResponseForUser {
     LocalDateTime getCreated_At();
     AcceptResult getAccept_result();
     Long getRequest_id();
+    Long getNotification_id();
     RequestType getRequest_type();
 }

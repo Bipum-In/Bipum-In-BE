@@ -63,4 +63,12 @@ public class UserController {
 
         return userService.unlink(bearerToken);
     }
+
+    @Operation(summary = "로그인 처리", description = "구글 계정정보 담은 Jwt토큰 발급")
+    @PostMapping("/login/google")
+    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(@RequestParam String code,
+                                                                     @RequestParam String urlType) throws IOException {
+
+        return userService.googleLogin(code, urlType);
+    }
 }

@@ -97,6 +97,7 @@ public class RequestsController {
                     "변경 사항 : ResponseDto useType 필드 추가.")
     public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(@PathVariable Long requestId,
                                                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
         return requestsService.getRequestsDetails(requestId, userDetails.getUser());
     }
 

@@ -60,8 +60,6 @@ public class Notification extends TimeStamped {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Requests request;
 
-
-
     @Builder
     public Notification(User sender, User receiver, String content,
                         Boolean isRead, Requests request, NotificationType notificationType, AcceptResult acceptResult) {
@@ -72,5 +70,9 @@ public class Notification extends TimeStamped {
         this.request = request;
         this.notificationType = notificationType;
         this.acceptResult = acceptResult;
+    }
+
+    public void read(){
+        this.isRead = true;
     }
 }

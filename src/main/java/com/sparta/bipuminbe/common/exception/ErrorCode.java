@@ -21,6 +21,7 @@ public enum ErrorCode {
     NotFoundRequest(HttpStatus.NOT_FOUND, "존재하지 않는 요청입니다."),
     NotFoundImages(HttpStatus.NOT_FOUND, "해당 요청의 이미지를 찾을 수 없습니다."),
     NotFoundFileInS3(HttpStatus.NOT_FOUND, "해당 파일을 S3에서 찾을 수 없습니다."),
+    NotFoundNotification(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
     NotAllowedMethod(HttpStatus.METHOD_NOT_ALLOWED, "잘못된 요청입니다."),
     NoPermission(HttpStatus.BAD_REQUEST, "해당 요청에 대한 권한이 없습니다."),
     NotFoundSupply(HttpStatus.NOT_FOUND, "해당 비품이 존재하지 않습니다."),
