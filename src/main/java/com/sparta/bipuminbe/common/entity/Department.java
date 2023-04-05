@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @Getter
-@SQLDelete(sql = "UPDATE department SET deleted = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE department SET deleted = true WHERE id = ?")
 public class Department {
 
     @Id
