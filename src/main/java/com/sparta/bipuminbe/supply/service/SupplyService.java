@@ -332,7 +332,7 @@ public class SupplyService {
         Supply supply = getSupply(supplyId);
 
         // 비품 폐기 처리 기록 생성.
-        String content = "비품의 유저 강제 변경에 의한 기록 생성.";
+        String content = "비품 폐기 처리에 대한 기록 생성.";
         requestsRepository.save(Requests.builder()
                 .content(content)
                 .requestType(RequestType.REPAIR)
