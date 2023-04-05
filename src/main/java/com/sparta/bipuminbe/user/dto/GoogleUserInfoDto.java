@@ -5,7 +5,7 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class GoogleUserInfo {
+public class GoogleUserInfoDto {
     public String id;
     public String email;
     public Boolean verifiedEmail;
