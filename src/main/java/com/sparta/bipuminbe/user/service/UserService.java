@@ -4,9 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.Department;
-import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.entity.Supply;
+import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
@@ -16,9 +14,9 @@ import com.sparta.bipuminbe.department.repository.DepartmentRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.dto.*;
-import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.jwt.JwtUtil;
+import com.sparta.bipuminbe.user.repository.MemberRepository;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +46,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
     //    @Value("${login.encrypt.algorithm}")
 //    private final String alg;
@@ -269,109 +268,110 @@ public class UserService {
         return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
     }
 
-//    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType) throws JsonProcessingException {
-//        // 1. "인가 코드"로 "액세스 토큰" 요청
-//        AccessTokenDto accessToken = getToken2(code, urlType);
-//
-//        // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
-//        GoogleUserInfo googleUserInfo = getGoogleUserInfo(accessToken);
-//        log.info("구글 사용자 정보 : " + googleUserInfo.getEmail() + ", " + googleUserInfo.getName()
-//                + ", " + googleUserInfo.getPicture());
-//        // 3. 필요시에 회원가입
-//        User kakaoUser = registerGoogleUserIfNeeded(googleUserInfo);
-//
-//        // 4. JWT 토큰 반환
-//        HttpHeaders responseHeader = new HttpHeaders();
-//        String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
-//        responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
-//
-//        Boolean checkUser = kakaoUser.getDepartment() != null && kakaoUser.getEmpName() != null && kakaoUser.getPhone() != null;
-//
-//        return ResponseEntity.ok()
-//                .headers(responseHeader)
-//                .body(ResponseDto.success(LoginResponseDto.of(kakaoUser, checkUser)));
-//
-//        return ResponseDto.success();
-//    }
-//    //     1. "인가 코드"로 "액세스 토큰" 요청
-//    private AccessTokenDto getToken2(String code, String urlType) throws JsonProcessingException {
-//        String redirectUrl = urlType.equals("local") ? redirectLocalUrl1 : redirectServerUrl1;
-//
-//        // HTTP Header 생성
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-//
-//        // HTTP Body 생성
-//        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-//        body.add("grant_type", "authorization_code");
-//        body.add("client_id", clientId); // 클라이언트 Id
-//        body.add("client_secret", clientSecret); // 클라이언트 Secret
-//        body.add("redirect_uri", redirectUrl);
-//        body.add("code", code);
-//
-//        // HTTP 요청 보내기1
-//        HttpEntity<MultiValueMap<String, String>> googleTokenRequest =
-//                new HttpEntity<>(body, headers);
-//        RestTemplate rt = new RestTemplate();
-//        ResponseEntity<String> response = rt.exchange(
-//                "https://oauth2.googleapis.com/token",
-//                HttpMethod.POST,
-//                googleTokenRequest,
-//                String.class
-//        );
-//
-//        // HTTP 응답 (JSON) -> 액세스 토큰 파싱
-//        ObjectMapper objectMapper = new ObjectMapper(); // 받은 것을 Json형태로 파싱
-//
-////        jsonNode.get("id_token").asText(); // refresh 토큰
-////        jsonNode.get("access_token").asText(); // 엑세스 토큰
-//        return objectMapper.readValue(response.getBody(), AccessTokenDto.class);
-//    }
-//
-//    private GoogleUserInfo getGoogleUserInfo(AccessTokenDto accessToken) throws JsonProcessingException {
-//        // HTTP Header 생성
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Authorization", "Bearer " + accessToken.getAccess_token());
-//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-//
-//        // HTTP 요청 보내기
-//        HttpEntity<MultiValueMap<String, String>> googleUserInfoRequest = new HttpEntity<>(headers);
-//        RestTemplate rt = new RestTemplate();
-//        ResponseEntity<String> response = rt.exchange(
-//                "https://www.googleapis.com/oauth2/v2/userinfo",
-//                HttpMethod.GET,
-//                googleUserInfoRequest,
-//                String.class
-//        );
-//
-//        ObjectMapper objectMapper = new ObjectMapper();
-//
-//        return objectMapper.readValue(response.getBody(), GoogleUserInfo.class);
-//    }
-//
-//    // 3. 필요시에 회원가입
-//    private User registerGoogleUserIfNeeded(GoogleUserInfo googleUserInfo) {//받은 사용자 정보를 DTO로 받아옴
-//        // DB 에 중복된 Kakao Id 가 있는지 확인
-//        User googleUser = userRepository.findByUsername(googleUserInfo.getEmail()).orElse(null);
-//
-//        if (googleUser == null) { // 유저가 없으면 새로 회원가입..
-//            // password: random UUID
-//            String password = UUID.randomUUID().toString();
-//            String encodedPassword = passwordEncoder.encode(password);
-//
-//            //Username이 이메일이므로 주의
-//            googleUser = User.builder().
-//                    encodedPassword(encodedPassword).
-//                    kakaoUserInfoDto(googleUserInfo).
-//                    role(UserRoleEnum.USER).
-//                    alarm(true).
-//                    build();
-//
-//            userRepository.save(googleUser);
-//        }
-//
-//        return googleUser;
-//    }
+    @Transactional
+    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType) throws JsonProcessingException {
+        // 1. "인가 코드"로 "액세스 토큰" 요청
+        AccessTokenDto accessToken = getToken2(code, urlType);
+
+        // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
+        GoogleUserInfoDto googleUserInfo = getGoogleUserInfo(accessToken);
+        log.info("구글 사용자 정보 : " + googleUserInfo.getEmail() + ", " + googleUserInfo.getName()
+                + ", " + googleUserInfo.getPicture());
+        // 3. 필요시에 회원가입
+        Member googleUser = registerGoogleUserIfNeeded(googleUserInfo);
+
+        // 4. JWT 토큰 반환
+        HttpHeaders responseHeader = new HttpHeaders();
+        String createToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole());
+        responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
+
+        Boolean checkUser = googleUser.getDepartment() != null && googleUser.getEmpName() != null && googleUser.getPhone() != null;
+
+        return ResponseEntity.ok()
+                .headers(responseHeader)
+                .body(ResponseDto.success(LoginResponseDto.of(googleUser, checkUser)));
+
+    }
+    //     1. "인가 코드"로 "액세스 토큰" 요청
+    private AccessTokenDto getToken2(String code, String urlType) throws JsonProcessingException {
+        String redirectUrl = urlType.equals("local") ? redirectLocalUrl1 : redirectServerUrl1;
+//        String redirectUrl = "http://localhost:8080/login/oauth2/code/google";
+
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // HTTP Body 생성
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("code", code);
+        body.add("client_id", clientId); // 클라이언트 Id
+        body.add("client_secret", clientSecret); // 클라이언트 Secret
+        body.add("redirect_uri", redirectUrl);
+        body.add("grant_type", "authorization_code");
+
+        // HTTP 요청 보내기1
+        HttpEntity<MultiValueMap<String, String>> googleTokenRequest =
+                new HttpEntity<>(body, headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://oauth2.googleapis.com/token",
+                HttpMethod.POST,
+                googleTokenRequest,
+                String.class
+        );
+
+        // HTTP 응답 (JSON) -> 액세스 토큰 파싱
+        ObjectMapper objectMapper = new ObjectMapper(); // 받은 것을 Json형태로 파싱
+
+//        jsonNode.get("id_token").asText(); // refresh 토큰
+//        jsonNode.get("access_token").asText(); // 엑세스 토큰
+        return objectMapper.readValue(response.getBody(), AccessTokenDto.class);
+    }
+
+    private GoogleUserInfoDto getGoogleUserInfo(AccessTokenDto accessToken) throws JsonProcessingException {
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken.getAccess_token());
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> googleUserInfoRequest = new HttpEntity<>(headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://www.googleapis.com/oauth2/v2/userinfo",
+                HttpMethod.GET,
+                googleUserInfoRequest,
+                String.class
+        );
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        return objectMapper.readValue(response.getBody(), GoogleUserInfoDto.class);
+    }
+
+    // 3. 필요시에 회원가입
+    private Member registerGoogleUserIfNeeded(GoogleUserInfoDto googleUserInfo) {//받은 사용자 정보를 DTO로 받아옴
+        // DB 에 중복된 Kakao Id 가 있는지 확인
+        Member googleUser = memberRepository.findByUsername(googleUserInfo.getEmail()).orElse(null);
+
+        if (googleUser == null) { // 유저가 없으면 새로 회원가입..
+            // password: random UUID
+            String password = UUID.randomUUID().toString();
+            String encodedPassword = passwordEncoder.encode(password);
+
+            //Username이 이메일이므로 주의
+            googleUser = Member.builder().
+                    encodedPassword(encodedPassword).
+                    googleUserInfoDto(googleUserInfo).
+                    role(UserRoleEnum.USER).
+                    alarm(true).
+                    build();
+
+            memberRepository.save(googleUser);
+        }
+
+        return googleUser;
+    }
 
 
 
