@@ -29,7 +29,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "INNER JOIN requests r ON n.requests_id = r.request_id " +
             "INNER JOIN users u ON r.user_id = u.id " +
             "WHERE n.receiver_id = :userId AND n.notification_type = 'PROCESSED' AND n.is_read = 'false'" +
-            "ORDER BY n.created_at", nativeQuery = true)
+            "ORDER BY n.created_at DESC", nativeQuery = true)
     Page<NotificationResponseForUser> findAdminNotification(@Param("userId") Long userId, Pageable pageable);
 
     @Query(value = "SELECT * FROM notification n " +
