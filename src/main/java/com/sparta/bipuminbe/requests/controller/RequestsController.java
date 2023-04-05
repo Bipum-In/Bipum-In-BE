@@ -95,6 +95,7 @@ public class RequestsController {
             description = "requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
     public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(@PathVariable Long requestId,
                                                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
         return requestsService.getRequestsDetails(requestId, userDetails.getUser());
     }
 

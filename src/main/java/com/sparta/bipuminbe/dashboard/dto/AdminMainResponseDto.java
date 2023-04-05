@@ -12,16 +12,17 @@ public class AdminMainResponseDto {
 
     private List<SupplyCountDto> supplyCountDtos;
     private RequestsCountDto requestsCountDto;
-    private List<NotificationResponseForAdmin> notifications;
+//    private List<NotificationResponseForAdmin> notifications;
 
     public static AdminMainResponseDto of(
-            List<SupplyCountDto> supplyCountDtos, RequestsCountDto requestsCountDto,
-            List<NotificationResponseForAdmin> notifications) {
+            List<SupplyCountDto> supplyCountDtos, RequestsCountDto requestsCountDto
+//            List<NotificationResponseForAdmin> notifications
+    ) {
 
         return AdminMainResponseDto.builder()
                 .supplyCountDtos(supplyCountDtos)
                 .requestsCountDto(requestsCountDto)
-                .notifications(notifications)
+//                .notifications(notifications)
                 .build();
     }
 }

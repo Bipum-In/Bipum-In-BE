@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class NotificationResponseDto {
+    private Long notificationId;
     private String content;
     private String url;
     private LocalDateTime createdAt;
@@ -24,6 +25,7 @@ public class NotificationResponseDto {
     public static NotificationResponseDto of(Notification notification, String image) {
 
         return builder()
+                .notificationId(notification.getId())
                 .content(notification.getContent())
                 .createdAt(notification.getCreatedAt())
                 .requestId(notification.getRequest().getRequestId())
