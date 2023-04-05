@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 public class GoogleUserInfoDto {
     public String id;
     public String email;
-    public Boolean verifiedEmail;
+    public Boolean verified_email;
 
     public String name;
-    public String givenName;
-    public String familyName;
+    public String given_name;
+    public String family_name;
     public String picture;
     public String locale;
 }
