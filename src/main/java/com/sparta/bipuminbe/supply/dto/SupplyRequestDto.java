@@ -29,7 +29,6 @@ public class SupplyRequestDto {
     private UseType useType;
     private Long userId;
     private Long deptId;
-    @NotBlank
     private String image;
     private MultipartFile multipartFile;
 }
