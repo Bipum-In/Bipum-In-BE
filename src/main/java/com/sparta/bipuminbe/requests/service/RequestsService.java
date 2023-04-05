@@ -61,7 +61,9 @@ public class RequestsService {
 //        );
         if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
-
+            if(requestsRequestDto.getUseType() == null) {
+                throw new CustomException(ErrorCode.InValidRequest);
+            }
             Requests createRequests = requestsRepository.save(Requests.builder()
                     .content(requestsRequestDto.getContent())
                     .requestType(requestsRequestDto.getRequestType())
