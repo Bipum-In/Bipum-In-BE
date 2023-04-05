@@ -61,17 +61,17 @@ public class UserService {
     private String redirectLocalUrl;
     @Value("${kakao.redirect.server.url}")
     private String redirectServerUrl;
-
-    @Value("${google.auth.clientId}")
-    private String clientId;
-    @Value("${google.auth.client_secret}")
-    private String clientSecret;
-    @Value("${google.auth.local.redirect.url}")
-    private String redirectLocalUrl1;
-    @Value("${google.auth.server.redirect.url}")
-    private String redirectServerUrl1;
-    @Value("${google.auth.scope}")
-    private String scope;
+//
+//    @Value("${google.auth.clientId}")
+//    private String clientId;
+//    @Value("${google.auth.client_secret}")
+//    private String clientSecret;
+//    @Value("${google.auth.local.redirect.url}")
+//    private String redirectLocalUrl1;
+//    @Value("${google.auth.server.redirect.url}")
+//    private String redirectServerUrl1;
+//    @Value("${google.auth.scope}")
+//    private String scope;
 
     @Transactional
     //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
