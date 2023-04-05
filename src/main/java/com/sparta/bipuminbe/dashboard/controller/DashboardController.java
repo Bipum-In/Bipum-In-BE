@@ -6,6 +6,7 @@ import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.dashboard.dto.AdminMainResponseDto;
 import com.sparta.bipuminbe.dashboard.dto.UserMainResponseDto;
+import com.sparta.bipuminbe.dashboard.dto.UserSupplyDto;
 import com.sparta.bipuminbe.dashboard.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -26,7 +29,7 @@ public class DashboardController {
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @Operation(summary = "관리자용 대쉬보드",
-            description = "선택한 카테고리 별 조회 ALL / COMPUTER / DIGITAL / ELECTRONICS / FURNITURE / ETC")
+            description = "선택한 카테고리 별 조회 -(전체) / COMPUTER / DIGITAL / ELECTRONICS / FURNITURE / ETC")
     @GetMapping(value = "/admin/main")
     public ResponseDto<AdminMainResponseDto> getAdminMain(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @RequestParam(defaultValue = "") LargeCategory largeCategory) {
@@ -39,5 +42,13 @@ public class DashboardController {
                                                         @RequestParam(defaultValue = "") LargeCategory largeCategory) {
 
         return dashboardService.getUserMain(userDetails.getUser(), largeCategory);
+    }
+
+    @GetMapping("/main/common")
+    @Operation(summary = "대쉬보드 공용모드 *신규 Api*",
+            description = "선택한 카테고리 별 조회 -(전체) / COMPUTER / DIGITAL / ELECTRONICS / FURNITURE / ETC")
+    public ResponseDto<List<UserSupplyDto>> getCommonSupply(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                            @RequestParam(defaultValue = "") LargeCategory largeCategory) {
+        return dashboardService.getCommonSupply(userDetails.getUser(), largeCategory);
     }
 }

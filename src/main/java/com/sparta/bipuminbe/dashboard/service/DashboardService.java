@@ -37,14 +37,14 @@ public class DashboardService {
 
         List<SupplyCountDto> responseDtos = new ArrayList();
         // 카테고리별 총 수량, 사용중, 수리중, 재고량 계산
-        for(Category category : categoryList){
+        for (Category category : categoryList) {
 
             Long totalCount = supplyRepository.countTotal(category.getId());
             Long useCount = supplyRepository.countUse(category.getId());
             Long repairCount = supplyRepository.countRepair(category.getId());
             Long stockCount = supplyRepository.countStock(category.getId());
 
-            if(totalCount == 0){
+            if (totalCount == 0) {
                 continue;
             }
 
@@ -60,7 +60,7 @@ public class DashboardService {
         countMap.put("ReportRequests", requestsRepository.countReport());
         countMap.put("UnProcessedRequests",
                 requestsRepository.countSupply() + requestsRepository.countReturn() +
-                requestsRepository.countRepair() + requestsRepository.countReport());
+                        requestsRepository.countRepair() + requestsRepository.countReport());
 
         // 요청 종류별 최신 수정일자
         Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
@@ -110,7 +110,7 @@ public class DashboardService {
 
         List<Supply> supplies = supplyRepository.findByUser_IdAndCategory_LargeCategoryInAndDeletedFalse(user.getId(), categoryQuery)
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
-        for(Supply supply : supplies){
+        for (Supply supply : supplies) {
             userSupplyDtos.add(UserSupplyDto.of(supply));
         }
 
@@ -128,5 +128,22 @@ public class DashboardService {
             categoryQuery.add(largeCategory);
         }
         return categoryQuery;
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<List<UserSupplyDto>> getCommonSupply(User user, LargeCategory largeCategory) {
+        Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
+        List<Supply> commonSupplyList = supplyRepository
+                .findByDepartmentAndCategory_LargeCategoryInAndDeletedFalseOrderByCategory_CategoryNameAsc
+                        (user.getDepartment(), categoryQuery);
+        return ResponseDto.success(convertToDtoList(commonSupplyList));
+    }
+
+    private List<UserSupplyDto> convertToDtoList(List<Supply> supplyList) {
+        List<UserSupplyDto> supplyDtoList = new ArrayList<>();
+        for (Supply supply : supplyList) {
+            supplyDtoList.add(UserSupplyDto.of(supply));
+        }
+        return supplyDtoList;
     }
 }
