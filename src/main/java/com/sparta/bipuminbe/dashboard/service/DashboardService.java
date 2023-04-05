@@ -2,10 +2,7 @@ package com.sparta.bipuminbe.dashboard.service;
 
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.Category;
-import com.sparta.bipuminbe.common.entity.Notification;
-import com.sparta.bipuminbe.common.entity.Supply;
-import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
@@ -65,7 +62,7 @@ public class DashboardService {
         countMap.put("ReportRequests", requestsRepository.countReport());
         countMap.put("UnProcessedRequests",
                 requestsRepository.countSupply() + requestsRepository.countReturn() +
-                requestsRepository.countRepair() + requestsRepository.countReport());
+                        requestsRepository.countRepair() + requestsRepository.countReport());
 
         // 요청 종류별 최신 수정일자
         Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
@@ -141,14 +138,14 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public ResponseDto<Page<NotificationResponseForAdmin>> getAdminAlarm(User admin, int page, int size) {
         Pageable pageable = getPageable(page, size);
-        Page<NotificationResponseForAdmin> notifications = notificationRepository.findUserNotification(admin.getId(),pageable);
+        Page<NotificationResponseForAdmin> notifications = notificationRepository.findUserNotification(admin.getId(), pageable);
         return ResponseDto.success(notifications);
     }
 
     @Transactional(readOnly = true)
     public ResponseDto<Page<NotificationResponseForUser>> getUserAlarm(User user, int page, int size) {
         Pageable pageable = getPageable(page, size);
-        Page<NotificationResponseForUser> notifications = notificationRepository.findAdminNotification(user.getId(),pageable);
+        Page<NotificationResponseForUser> notifications = notificationRepository.findAdminNotification(user.getId(), pageable);
         return ResponseDto.success(notifications);
     }
 
@@ -161,8 +158,24 @@ public class DashboardService {
     @Transactional
     public ResponseDto<String> notificationRead(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(
-                ()-> new CustomException(ErrorCode.NotFoundNotification));
+                () -> new CustomException(ErrorCode.NotFoundNotification));
         notification.read();
         return ResponseDto.success("알림 읽기 완료");
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<List<UserSupplyDto>> getCommonSupply(User user, LargeCategory largeCategory) {
+        Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
+        List<Supply> commonSupplyList = supplyRepository.
+                findByDepartmentAndCategory_LargeCategoryInAndDeletedFalseOrderByCategory_CategoryNameAsc(user.getDepartment(), categoryQuery);
+        return ResponseDto.success(convertToDtoList(commonSupplyList));
+    }
+
+    private List<UserSupplyDto> convertToDtoList(List<Supply> commonSupplyList) {
+        List<UserSupplyDto> supplyDtoList = new ArrayList<>();
+        for (Supply supply : commonSupplyList) {
+            supplyDtoList.add(UserSupplyDto.of(supply));
+        }
+        return supplyDtoList;
     }
 }
