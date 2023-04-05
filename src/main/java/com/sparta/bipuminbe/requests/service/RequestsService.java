@@ -91,6 +91,7 @@ public class RequestsService {
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .user(user)
                     .supply(supply)
+                    .useType(supply.getUseType())
                     .department(requestsRequestDto.getRequestType() == RequestType.RETURN ? supply.getDepartment() : null)
                     .build();
 

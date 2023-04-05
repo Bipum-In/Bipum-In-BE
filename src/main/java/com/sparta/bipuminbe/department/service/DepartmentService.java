@@ -101,6 +101,7 @@ public class DepartmentService {
                     .requestStatus(RequestStatus.PROCESSED)
                     .acceptResult(AcceptResult.ACCEPT)
                     .supply(supply)
+                    .useType(supply.getUseType())
                     .user(admin)
                     .department(supply.getDepartment())
                     .admin(admin)

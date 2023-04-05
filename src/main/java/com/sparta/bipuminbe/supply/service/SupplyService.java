@@ -296,6 +296,7 @@ public class SupplyService {
                         .acceptResult(AcceptResult.ACCEPT)
                         .supply(supply)
                         .user(supply.getUseType() == UseType.COMMON ? admin : supply.getUser())
+                        .useType(supply.getUseType())
                         .department(supply.getUseType() == UseType.COMMON ? supply.getDepartment() : null)
                         .admin(admin)
                         .build());
@@ -339,6 +340,7 @@ public class SupplyService {
                 .requestStatus(RequestStatus.PROCESSED)
                 .acceptResult(AcceptResult.DISPOSE)
                 .supply(supply)
+                .useType(supply.getUseType())
                 .user(user)
                 .admin(user)
                 .build());

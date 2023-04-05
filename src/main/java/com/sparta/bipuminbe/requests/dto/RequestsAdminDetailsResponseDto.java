@@ -53,6 +53,7 @@ public class RequestsAdminDetailsResponseDto {
                 .requestStatus(request.getRequestStatus().getKorean())
                 .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
 
+                .useType(request.getUseType().getKorean())
                 .content(request.getContent())
                 .imageList(imageList)
 
@@ -68,13 +69,11 @@ public class RequestsAdminDetailsResponseDto {
         if (request.getRequestType().equals(RequestType.SUPPLY)) {
             builder.categoryId(category.getId())
                     .categoryName(category.getCategoryName())
-                    .useType(request.getUseType().getKorean())
                     .modelName(request.getAcceptResult() == AcceptResult.ACCEPT ? supply.getModelName() : null)
                     .serialNum(request.getAcceptResult() == AcceptResult.ACCEPT ? supply.getSerialNum() : null);
         } else {
             category = supply.getCategory();
             builder.categoryName(category.getCategoryName())
-                    .useType(supply.getUseType().getKorean())
                     .modelName(supply.getModelName())
                     .serialNum(supply.getSerialNum());
         }

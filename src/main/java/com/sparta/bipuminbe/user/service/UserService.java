@@ -260,6 +260,7 @@ public class UserService {
                     .acceptResult(AcceptResult.ACCEPT)
                     .requestStatus(RequestStatus.PROCESSED)
                     .supply(supply)
+                    .useType(supply.getUseType())
                     .user(kakaoUser)
                     .admin(kakaoUser)
                     .build());
@@ -295,6 +296,7 @@ public class UserService {
                 .body(ResponseDto.success(LoginResponseDto.of(googleUser, checkUser)));
 
     }
+
     //     1. "인가 코드"로 "액세스 토큰" 요청
     private AccessTokenDto getToken2(String code, String urlType) throws JsonProcessingException {
         String redirectUrl = urlType.equals("local") ? redirectLocalUrl1 : redirectServerUrl1;
@@ -375,9 +377,6 @@ public class UserService {
 
         return googleUser;
     }
-
-
-
 
 
     //    public String encryptUser(LoginResponseDto loginResponseDto)
