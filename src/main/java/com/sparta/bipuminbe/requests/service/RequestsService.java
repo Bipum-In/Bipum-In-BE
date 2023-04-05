@@ -69,6 +69,7 @@ public class RequestsService {
                     .category(category)
                     .user(user)
                     .useType(requestsRequestDto.getUseType())
+                    .department(user.getDepartment())
                     .build());
 
             requestId = createRequests.getRequestId();
@@ -90,7 +91,7 @@ public class RequestsService {
                     .requestStatus(RequestStatus.UNPROCESSED)
                     .user(user)
                     .supply(supply)
-                    .category(supply.getCategory())
+                    .department(requestsRequestDto.getRequestType() == RequestType.RETURN ? supply.getDepartment() : null)
                     .build();
 
             Requests createRequests = requestsRepository.save(requests);

@@ -64,4 +64,17 @@ public class CategoryController {
                                                         @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return categoryService.getMyCategory(largeCategory, userDetails.getUser());
     }
+
+    @GetMapping("/category/common/myLargeCategory")
+    @Operation(summary = "공용 골랐을 때 LargeCategory 목록 (유저요청 페이지)", description = "가지고 있는 공용 LargeCategory")
+    public ResponseDto<List<String>> getMyCommonLargeCategory(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return categoryService.getMyCommonLargeCategory(userDetails.getUser());
+    }
+
+    @GetMapping("/category/common/myCategory")
+    @Operation(summary = "공용 골랐을 때 Category 목록 (유저요청 페이지)", description = "가지고 있는 공용 Category만 가져온다.")
+    public ResponseDto<List<CategoryDto>> getMyCommonCategory(@RequestParam LargeCategory largeCategory,
+                                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return categoryService.getMyCommonCategory(largeCategory, userDetails.getUser());
+    }
 }

@@ -108,4 +108,14 @@ public class CategoryService {
         }
         return categoryDtoList;
     }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<List<String>> getMyCommonLargeCategory(User user) {
+        return ResponseDto.success(categoryRepository.getMyCommonLargeCategory(user.getDepartment()));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<List<CategoryDto>> getMyCommonCategory(LargeCategory largeCategory, User user) {
+        return ResponseDto.success(convertToDtoList(categoryRepository.getMyCommonCategory(largeCategory, user.getDepartment())));
+    }
 }
