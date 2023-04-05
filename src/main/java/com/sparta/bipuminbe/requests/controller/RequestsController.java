@@ -75,8 +75,9 @@ public class RequestsController {
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/requests/{requestId}")
-    @Operation(summary = "요청서 상세 페이지(ADMIN)",
-            description = "requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
+    @Operation(summary = "요청서 상세 페이지(ADMIN) *수정사항 있습니다.*",
+            description = "requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다. <br>" +
+                    "변경 사항 : ResponseDto useType 필드 추가.")
     public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(@PathVariable Long requestId) {
         return requestsService.getRequestsAdminDetails(requestId);
     }
@@ -91,8 +92,9 @@ public class RequestsController {
 
     // renewal 버전.
     @GetMapping("/requests/{requestId}")
-    @Operation(summary = "요청서 상세 페이지(USER)",
-            description = "requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
+    @Operation(summary = "요청서 상세 페이지(USER) *수정사항 있습니다.*",
+            description = "requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다. <br>" +
+                    "변경 사항 : ResponseDto useType 필드 추가.")
     public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(@PathVariable Long requestId,
                                                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -100,9 +102,11 @@ public class RequestsController {
     }
 
     @PostMapping(value = "/requests", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "유저 요청 페이지", description = "**비품 요청**일 경우, 필요값 = categoryId, requestType, content<br>" +
+    @Operation(summary = "유저 요청 페이지 *수정사항 있습니다.*",
+            description = "**비품 요청**일 경우, 필요값 = categoryId, requestType, content<br>" +
             "**반납/수리/보고서 일 경우**, 필요값 = supplyId, requestType, content, multipartFile(이미지)<br>" +
-            "requestType = SUPPLY / REPAIR / RETURN / REPORT")
+            "requestType = SUPPLY / REPAIR / RETURN / REPORT <br>" +
+            "변경 사항 : useType 필드 추가. 비품 요청 시에만 데이터 보내면 됨.")
     public ResponseDto<String> createRequests(@ModelAttribute @Valid RequestsRequestDto requestsRequestDto,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 

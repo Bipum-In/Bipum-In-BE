@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.supply.dto;
 
 import com.sparta.bipuminbe.common.enums.LargeCategory;
+import com.sparta.bipuminbe.common.enums.UseType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,8 +26,9 @@ public class SupplyRequestDto {
     @NotBlank
     private String serialNum;
     private Long partnersId;
+    private UseType useType;
     private Long userId;
-    @NotBlank
+    private Long deptId;
     private String image;
     private MultipartFile multipartFile;
 }

@@ -28,4 +28,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByKakaoIdAndDeletedFalse(Long kakaoId);
 
+    boolean existsByDepartment_IdAndDeletedFalse(Long id);
 }

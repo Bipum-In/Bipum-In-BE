@@ -29,7 +29,9 @@ public class SupplyController {
     //비품 등록
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PostMapping(value = "/supply", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "비품 등록", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가), 반납 날짜(null 가능), 협력업체(null 가능), 유저 아이디(null 불가), 관리자 권한 필요.")
+    @Operation(summary = "비품 등록 *수정사항 있습니다.*", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가). 관리자 권한 필요. <br>" +
+            "개인 : UseType = PERSONAL, + userId <br>" +
+            "공용 : UseType = COMMON, + deptId")
     public ResponseDto<String> createSupply(
             @ModelAttribute @Valid SupplyRequestDto supplyRequestDto,
             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
@@ -38,8 +40,11 @@ public class SupplyController {
 
 
     //비품 조회
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/supply")
-    @Operation(summary = "비품 조회 페이지(ADMIN)", description = "SelectBox용(카테고리), 관리자 권한 필요. status ALL/USING/STOCK/REPAIRING")
+    @Operation(summary = "비품 조회 페이지(ADMIN) *수정사항 있습니다.*", description = "SelectBox용(카테고리), 관리자 권한 필요. <br>" +
+            "status ALL/USING/STOCK/REPAIRING. <br>" +
+            "수정 사항 : userName -> empName")
     public ResponseDto<Page<SupplyResponseDto>> getSupplyList(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") Long categoryId,
@@ -53,8 +58,8 @@ public class SupplyController {
     //비품 상세(ADMIN)
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/supply/{supplyId}")
-    @Operation(summary = "비품 상세(ADMIN)", description = "관리자 권한 필요." +
-            "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
+    @Operation(summary = "비품 상세(ADMIN) *수정사항 있습니다.*", description = "관리자 권한 필요. history의 경우 선택적으로 데이터 챙겨주시면 감사합니다. <br>" +
+            "수정사항 : Response에 useType(개인/공용) 추가.")
     public ResponseDto<SupplyWholeResponseDto> getAdminSupply(
             @PathVariable Long supplyId,
             @RequestParam(defaultValue = "6") int size,
@@ -65,7 +70,8 @@ public class SupplyController {
 
     //비품 상세(USER)
     @GetMapping("/supply/{supplyId}")
-    @Operation(summary = "비품 상세(USER)", description = "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다.")
+    @Operation(summary = "비품 상세(USER) *수정사항 있습니다.*", description = "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다. <br>" +
+            "수정사항 : Response에 useType(개인/공용) 추가.")
     public ResponseDto<SupplyWholeResponseDto> getSupply(
             @PathVariable Long supplyId,
             @RequestParam(defaultValue = "6") int size,
@@ -77,7 +83,11 @@ public class SupplyController {
     //비품 수정
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping(value = "/supply/{supplyId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "비품 수정", description = "관리자 권한 필요. 수정 시 변경되는 곳은 partnersId, userId, image 입니다. 나머지는 기존 데이터 입력해주시면 됩니다.")
+    @Operation(summary = "비품 수정 *수정사항 있습니다.*", description = "관리자 권한 필요.<br>" +
+            "수정 시 변경되는 곳은 partnersId, image, useType, userId, deptId 입니다. 나머지는 기존 데이터 입력해주시면 됩니다.<br>" +
+            "개인 : UseType = PERSONAL, + userId <br>" +
+            "공용 : UseType = COMMON, + deptId <br>" +
+            "재고 : UseType = Null(비움)")
     public ResponseDto<String> updateSupplies(
             @PathVariable Long supplyId,
             @ModelAttribute @Valid SupplyRequestDto supplyRequestDto,

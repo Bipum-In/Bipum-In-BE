@@ -53,15 +53,28 @@ public class CategoryController {
     }
 
     @GetMapping("/category/myLargeCategory")
-    @Operation(summary = "내가 가진 LargeCategory 목록 (유저요청 페이지)", description = "가지고 있는 LargeCategory만 가져온다.")
+    @Operation(summary = "내가 가진 LargeCategory 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 LargeCategory만 가져온다.")
     public ResponseDto<List<String>> getMyLargeCategory(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return categoryService.getMyLargeCategory(userDetails.getUser());
     }
 
     @GetMapping("/category/myCategory")
-    @Operation(summary = "내가 가진 Category 목록 (유저요청 페이지)", description = "가지고 있는 Category만 가져온다.")
+    @Operation(summary = "내가 가진 Category 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 Category만 가져온다.")
     public ResponseDto<List<CategoryDto>> getMyCategory(@RequestParam LargeCategory largeCategory,
                                                         @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return categoryService.getMyCategory(largeCategory, userDetails.getUser());
+    }
+
+    @GetMapping("/category/common/myLargeCategory")
+    @Operation(summary = "공용 골랐을 때 LargeCategory 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 공용 LargeCategory")
+    public ResponseDto<List<String>> getMyCommonLargeCategory(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return categoryService.getMyCommonLargeCategory(userDetails.getUser());
+    }
+
+    @GetMapping("/category/common/myCategory")
+    @Operation(summary = "공용 골랐을 때 Category 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 공용 Category만 가져온다.")
+    public ResponseDto<List<CategoryDto>> getMyCommonCategory(@RequestParam LargeCategory largeCategory,
+                                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return categoryService.getMyCommonCategory(largeCategory, userDetails.getUser());
     }
 }

@@ -181,10 +181,12 @@ public class UserService {
             //Username이 이메일이므로 주의
             kakaoUser = User.builder().
                     kakaoId(kakaoUserInfo.getId()).
-                    encodedPassword(encodedPassword).
-                    kakaoUserInfoDto(kakaoUserInfo).
+                    password(encodedPassword).
+                    username(kakaoUserInfo.getUsername()).
+                    image(kakaoUserInfo.getImage()).
                     role(UserRoleEnum.USER).
                     alarm(true).
+                    deleted(false).
                     build();
 
             userRepository.save(kakaoUser);
@@ -215,7 +217,7 @@ public class UserService {
     }
 
     private Department getDepartment(Long deptId) {
-        return departmentRepository.findById(deptId).orElseThrow(
+        return departmentRepository.findByIdAndDeletedFalse(deptId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundDepartment));
     }
 
@@ -259,6 +261,7 @@ public class UserService {
                     .requestStatus(RequestStatus.PROCESSED)
                     .supply(supply)
                     .user(kakaoUser)
+                    .admin(kakaoUser)
                     .build());
         }
 

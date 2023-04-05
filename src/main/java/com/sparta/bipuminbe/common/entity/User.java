@@ -1,13 +1,10 @@
 package com.sparta.bipuminbe.common.entity;
 
-import com.sparta.bipuminbe.user.dto.KakaoUserInfoDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
-import com.sparta.bipuminbe.user.dto.LoginRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -49,16 +46,18 @@ public class User extends TimeStamped {
     private Boolean deleted;
 
     @Builder
-    public User(Long kakaoId, String encodedPassword,
-                KakaoUserInfoDto kakaoUserInfoDto, UserRoleEnum role, Boolean alarm) {
-
+    public User(Long kakaoId, String username, String password, String empName, String phone,
+                String image, UserRoleEnum role, Boolean alarm, Department department, Boolean deleted) {
         this.kakaoId = kakaoId;
-        this.password = encodedPassword;
-        this.username = kakaoUserInfoDto.getUsername();
-        this.image = kakaoUserInfoDto.getImage();
+        this.username = username;
+        this.password = password;
+        this.empName = empName;
+        this.phone = phone;
+        this.image = image;
         this.role = role;
         this.alarm = alarm;
-        this.deleted = false;
+        this.department = department;
+        this.deleted = deleted;
     }
 
     public void update(String empName, Department department, String phone) {

@@ -3,6 +3,7 @@ package com.sparta.bipuminbe.common.entity;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
+import com.sparta.bipuminbe.common.enums.UseType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,10 +45,21 @@ public class Requests extends TimeStamped {
     @JoinColumn(name = "userId", nullable = false)
     private User user;
 
+    // 비품 요청의 경우 category를 받는다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoryId")
     private Category category;
 
+    // 비품 요청의 경우 개인/공용을 고른다.
+    @Enumerated(EnumType.STRING)
+    private UseType useType;
+
+    // 공용일 경우, 비품/반납 요청시 부서를 저장한다. (history 불변을 위해...)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "departmentId")
+    private Department department;
+
+    // 수리 요청시 history 생성을 위해 requests 자체에 저장해 둬야한다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partnersId")
     private Partners partners;
@@ -57,16 +69,18 @@ public class Requests extends TimeStamped {
     private User admin;
 
     @Builder
-    public Requests(String content, List<Image> imageList, RequestType requestType, RequestStatus requestStatus,
-                    Supply supply, User user, Category category, AcceptResult acceptResult, Partners partners, User admin) {
+    public Requests(String content, List<Image> imageList, RequestType requestType, RequestStatus requestStatus, Supply supply, User user,
+                    Category category, AcceptResult acceptResult, UseType useType, Department department, Partners partners, User admin) {
         this.content = content;
         this.imageList = imageList;
         this.requestType = requestType;
         this.requestStatus = requestStatus;
         this.supply = supply;
         this.user = user;
-        this.category = supply == null ? category : supply.getCategory();
+        this.category = category;
         this.acceptResult = acceptResult;
+        this.useType = useType;
+        this.department = department;
         this.partners = partners;
         this.admin = admin;
     }
@@ -94,5 +108,9 @@ public class Requests extends TimeStamped {
 
     public void update(Requests requests) {
         this.content = requests.getContent();
+    }
+
+    public void deleteCategory() {
+        this.category = null;
     }
 }
