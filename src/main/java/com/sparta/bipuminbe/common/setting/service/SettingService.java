@@ -42,7 +42,7 @@ public class SettingService {
         }
 
         // 부서 전체 목록 조회.. 내용물이 너무 없는데요?? 부서별 인원 수라던지 추가 정보 있으면 좋을듯..
-        List<Department> departments = departmentRepository.findAll();
+        List<Department> departments = departmentRepository.findByDeletedFalse();
         List<DepartmentDto> departmentDtos = new ArrayList<>();
 
         for(Department department : departments){

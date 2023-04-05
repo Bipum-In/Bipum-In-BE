@@ -322,7 +322,7 @@ public class RequestsService {
         } else {
             if (request.getRequestType().equals(RequestType.SUPPLY)) {
                 checkSupplyId(requestsProcessRequestDto.getSupplyId());
-                supply.allocateSupply(request);
+                supply.allocateSupply(request, request.getUser().getDepartment());
             } else if (request.getRequestType().equals(RequestType.REPAIR)) {
                 supply.repairSupply();
             } else if (request.getRequestType().equals(RequestType.RETURN)) {

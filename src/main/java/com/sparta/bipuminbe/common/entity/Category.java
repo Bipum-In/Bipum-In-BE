@@ -1,6 +1,5 @@
 package com.sparta.bipuminbe.common.entity;
 
-import com.sparta.bipuminbe.category.dto.CategoryDto;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,8 +27,8 @@ public class Category {
         this.largeCategory = largeCategory;
     }
 
-    public void update(CategoryDto categoryDto) {
-        this.categoryName = categoryDto.getCategoryName();
-        this.largeCategory = LargeCategory.valueOf(categoryDto.getLargeCategory());
+    public void update(String categoryName, LargeCategory largeCategory) {
+        this.categoryName = categoryName;
+        this.largeCategory = largeCategory;
     }
 }

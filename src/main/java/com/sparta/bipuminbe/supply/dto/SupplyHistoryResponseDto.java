@@ -1,9 +1,8 @@
 package com.sparta.bipuminbe.supply.dto;
 
-import com.sparta.bipuminbe.common.entity.Partners;
-import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.RequestType;
+import com.sparta.bipuminbe.common.enums.UseType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -22,18 +21,27 @@ public class SupplyHistoryResponseDto {
     public static SupplyHistoryResponseDto of(Requests request) {
         User user = request.getUser();
         Partners partners = request.getPartners();
+        Department department = request.getDepartment();
 
         SupplyHistoryResponseDtoBuilder builder = SupplyHistoryResponseDto.builder()
                 .requestId(request.getRequestId())
-                .empName(user == null ? null : user.getEmpName())
-                .deptName(user == null ? null : user.getDepartment().getDeptName())
                 .partnersName(partners == null ? null : partners.getPartnersName())
                 .modifiedAt(request.getModifiedAt());
 
-        if (request.getRequestType().equals(RequestType.SUPPLY)) {
-            builder.history("사용");
-        } else if (request.getRequestType().equals(RequestType.RETURN)) {
-            builder.history("반납");
+        if (request.getRequestType() == RequestType.SUPPLY || request.getRequestType() == RequestType.RETURN) {
+            // 개인 / 공용 (공용에 대한 request는 department를 저장하고 있다.)
+            builder.empName(department == null ? user.getEmpName() : "공용")
+                    .deptName(department == null ? user.getDepartment().getDeptName() : department.getDeptName());
+
+            if (request.getRequestType() == RequestType.SUPPLY) {
+                builder.history("사용");
+            } else {
+                builder.history("반납");
+            }
+        } else {
+            // 수리요청/보고서는 신청자로 받고있다.
+            builder.empName(user.getEmpName())
+                    .deptName(user.getDepartment().getDeptName());
         }
 
         return builder.build();

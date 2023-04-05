@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     DuplicatedCategory(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 입니다."),
     NotFoundCategory(HttpStatus.NOT_FOUND, "카레고리가 존재하지 않습니다."),
+    ExistsSupplyInCategory(HttpStatus.BAD_REQUEST, "카테고리에 비품이 존재하여 삭제할 수 없습니다."),
+
     DuplicatedDepartment(HttpStatus.BAD_REQUEST, "이미 존재하는 부서입니다."),
     NotFoundDepartment(HttpStatus.NOT_FOUND, "해당 부서가 존재하지 않습니다."),
     ExistsUserInDepartment(HttpStatus.BAD_REQUEST, "부서에 사원이 존재하여 삭제할 수 없습니다."),

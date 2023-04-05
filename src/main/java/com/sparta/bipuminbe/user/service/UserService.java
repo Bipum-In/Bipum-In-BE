@@ -203,7 +203,7 @@ public class UserService {
     }
 
     private Department getDepartment(Long deptId) {
-        return departmentRepository.findById(deptId).orElseThrow(
+        return departmentRepository.findByIdAndDeletedFalse(deptId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundDepartment));
     }
 
@@ -247,6 +247,7 @@ public class UserService {
                     .requestStatus(RequestStatus.PROCESSED)
                     .supply(supply)
                     .user(kakaoUser)
+                    .admin(kakaoUser)
                     .build());
         }
 

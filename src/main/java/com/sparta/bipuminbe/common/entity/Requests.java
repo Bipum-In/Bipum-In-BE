@@ -54,6 +54,11 @@ public class Requests extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private UseType useType;
 
+    // 공용일 경우, 비품/반납 요청시 부서를 저장한다. (history 불변을 위해...)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "departmentId")
+    private Department department;
+
     // 수리 요청시 history 생성을 위해 requests 자체에 저장해 둬야한다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partnersId")
@@ -64,8 +69,8 @@ public class Requests extends TimeStamped {
     private User admin;
 
     @Builder
-    public Requests(String content, List<Image> imageList, RequestType requestType, RequestStatus requestStatus, Supply supply,
-                    User user, Category category, AcceptResult acceptResult, UseType useType, Partners partners, User admin) {
+    public Requests(String content, List<Image> imageList, RequestType requestType, RequestStatus requestStatus, Supply supply, User user,
+                    Category category, AcceptResult acceptResult, UseType useType, Department department, Partners partners, User admin) {
         this.content = content;
         this.imageList = imageList;
         this.requestType = requestType;
@@ -75,6 +80,7 @@ public class Requests extends TimeStamped {
         this.category = category;
         this.acceptResult = acceptResult;
         this.useType = useType;
+        this.department = department;
         this.partners = partners;
         this.admin = admin;
     }
@@ -102,5 +108,9 @@ public class Requests extends TimeStamped {
 
     public void update(Requests requests) {
         this.content = requests.getContent();
+    }
+
+    public void deleteCategory() {
+        this.category = null;
     }
 }

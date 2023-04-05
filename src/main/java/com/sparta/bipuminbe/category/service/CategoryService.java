@@ -4,25 +4,26 @@ import com.sparta.bipuminbe.category.dto.CategoryDto;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Category;
+import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final SupplyRepository supplyRepository;
+    private final RequestsRepository requestsRepository;
 
     @Transactional(readOnly = true)
     public ResponseDto<List<CategoryDto>> getCategoryList(String largeCategory) {
@@ -46,10 +47,13 @@ public class CategoryService {
         if (checkCategory(categoryDto.getCategoryName())) {
             throw new CustomException(ErrorCode.DuplicatedCategory);
         }
-        Category category = Category.builder().categoryName(categoryDto.getCategoryName())
+
+        Category category = Category.builder()
+                .categoryName(categoryDto.getCategoryName())
                 .largeCategory(LargeCategory.valueOf(categoryDto.getLargeCategory()))
                 .build();
         categoryRepository.save(category);
+
         return ResponseDto.success("카테고리 등록 완료.");
     }
 
@@ -59,13 +63,22 @@ public class CategoryService {
         if (!categoryDto.getCategoryName().equals(category.getCategoryName()) && checkCategory(categoryDto.getCategoryName())) {
             throw new CustomException(ErrorCode.DuplicatedCategory);
         }
-        category.update(categoryDto);
+
+        category.update(categoryDto.getCategoryName(), LargeCategory.valueOf(categoryDto.getLargeCategory()));
         return ResponseDto.success("카테고리 수정 완료.");
     }
 
     @Transactional
     public ResponseDto<String> deleteCategory(Long categoryId) {
-        categoryRepository.delete(getCategory(categoryId));
+        if (supplyRepository.existsByCategory_Id(categoryId)) {
+            throw new CustomException(ErrorCode.ExistsSupplyInCategory);
+        }
+        // 삭제 전 연관관계 끊기. 카테고리는 Requests에 있어서 중요한 정보가 아니라 SoftDelete 필요 없다 판단.
+        List<Requests> requestList = requestsRepository.findByCategory_Id(categoryId);
+        for (Requests request : requestList) {
+            request.deleteCategory();
+        }
+        categoryRepository.deleteById(categoryId);
         return ResponseDto.success("카테고리 삭제 완료.");
     }
 

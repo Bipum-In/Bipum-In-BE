@@ -2,11 +2,13 @@ package com.sparta.bipuminbe.department.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
+import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.department.dto.DepartmentDto;
 import com.sparta.bipuminbe.department.service.DepartmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -41,7 +43,8 @@ public class DepartmentController {
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @DeleteMapping("/dept/{deptId}")
     @Operation(summary = "부서 삭제", description = "관리자 권한 필요.")
-    public ResponseDto<String> deleteDept(@PathVariable Long deptId) {
-        return departmentService.deleteDept(deptId);
+    public ResponseDto<String> deleteDept(@PathVariable Long deptId,
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return departmentService.deleteDept(deptId, userDetails.getUser());
     }
 }

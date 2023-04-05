@@ -2,7 +2,7 @@ package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.enums.UseType;
-import com.sparta.bipuminbe.supply.dto.SupplyRequestDto;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
@@ -19,7 +19,7 @@ public class Supply extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long supplyId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String serialNum;
 
     @Column(nullable = false)
@@ -53,28 +53,30 @@ public class Supply extends TimeStamped {
     @Column(nullable = false)
     private Boolean deleted;
 
-    public Supply(SupplyRequestDto supplyRequestDto, Partners partners, Category category, User user, String image) {
-        this.serialNum = supplyRequestDto.getSerialNum();
-        this.modelName = supplyRequestDto.getModelName();
+    @Builder
+    public Supply(String serialNum, String modelName, String image, SupplyStatusEnum status, Partners partners, User user,
+                  Category category, UseType useType, Department department, Boolean deleted) {
+        this.serialNum = serialNum;
+        this.modelName = modelName;
         this.image = image;
+        this.status = status;
         this.partners = partners;
-        this.status = user == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING;
+        this.user = user;
         this.category = category;
-        this.user = user;
-        this.deleted = false;
-        this.useType = user == null ? null : UseType.PERSONAL;
+        this.useType = useType;
+        this.department = department;
+        this.deleted = deleted;
     }
 
-    public void update(Partners partners, User user, String image) {
+    public void update(Partners partners, String image) {
         this.partners = partners;
-        this.user = user;
         this.image = image;
     }
 
-    public void allocateSupply(Requests request) {
+    public void allocateSupply(Requests request, Department department) {
 //        checkSupplyStatus();
-        if (useType.equals(UseType.COMMON)) {
-            this.department = request.getUser().getDepartment();
+        if (request.getUseType() == UseType.COMMON) {
+            this.department = department;
         } else {
             this.user = request.getUser();
         }
@@ -97,6 +99,7 @@ public class Supply extends TimeStamped {
     public void returnSupply() {
         this.user = null;
         this.department = null;
+        this.useType = null;
         this.status = this.status.equals(SupplyStatusEnum.REPAIRING) ? SupplyStatusEnum.REPAIRING : SupplyStatusEnum.STOCK;
     }
 
