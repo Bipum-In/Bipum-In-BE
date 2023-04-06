@@ -60,15 +60,10 @@ public class Notification extends TimeStamped {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Requests request;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requests_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Supply supply;
-
     @Builder
     public Notification(User sender, User receiver, String content,
                         Boolean isRead, Requests request, NotificationType notificationType,
-                        AcceptResult acceptResult, Supply supply) {
+                        AcceptResult acceptResult) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
@@ -76,7 +71,6 @@ public class Notification extends TimeStamped {
         this.request = request;
         this.notificationType = notificationType;
         this.acceptResult = acceptResult;
-        this.supply = supply;
     }
 
     public void read(){
