@@ -23,6 +23,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -475,8 +476,12 @@ public class SupplyService {
 
     //비품 복수 등록
     @Transactional
-    public ResponseDto<String> createSupplies(List<SupplyExcelDto> supplyExcelDtos) throws IOException {
+    public ResponseDto<String> createSupplies(ExcelCoverDto excelCoverDto) throws IOException {
+        SupplyExcelDto[] supplyExcelDtos = excelCoverDto.getExcelDtoList();
+        List<MultipartFile> multipartFileList = excelCoverDto.getMultipartFileList();
+        int index = 0;
         for (SupplyExcelDto supplyExcelDto : supplyExcelDtos) {
+
             Category category = categoryRepository.findByCategoryName(supplyExcelDto.getCategory()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundCategory));
 
@@ -493,8 +498,9 @@ public class SupplyService {
                         () -> new CustomException(ErrorCode.NotFoundUser));
             }
 
-            String image = supplyExcelDto.getImage() == null ? supplyExcelDto.getImage() :
-                    s3Uploader.uploadFiles(supplyExcelDto.getMultipartFile(), supplyExcelDto.getCategory());
+            String image = supplyExcelDto.getImage().equals("") ?
+                    s3Uploader.uploadFiles(multipartFileList.get(index), supplyExcelDto.getCategory()) :
+                    supplyExcelDto.getImage();
 
             supplyRepository.save(Supply.builder()
                     .serialNum(supplyExcelDto.getSerialNum())
@@ -508,7 +514,6 @@ public class SupplyService {
                     .deleted(false)
                     .build());
         }
-
         return ResponseDto.success("비품 등록 성공");
     }
 

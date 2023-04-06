@@ -5,20 +5,26 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
 public class SupplyExcelDto {
+//    @NotNull
+//    @NotBlank
     private String category; // 비품 종류
+//    @NotNull
+//    @NotBlank
     private String modelName; // 제품명
+//    @NotNull
+//    @NotBlank
     private String serialNum; // 시리얼 넘버
     private LocalDateTime createdAt; // 등록일자
     private String partners; // 협력업체
     private String empName; // 사용자
     private String deptName; //부서명
     private String image; //이미지
-    private MultipartFile multipartFile; //이미지
-
 }
