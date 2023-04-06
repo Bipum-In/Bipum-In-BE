@@ -165,7 +165,7 @@ public class UserService {
                     password(encodedPassword).
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
-                    role(UserRoleEnum.USER).
+                    role(UserRoleEnum.ADMIN).
                     alarm(true).
                     deleted(false).
                     build();
