@@ -15,14 +15,13 @@ import javax.persistence.*;
         "username = uuid() WHERE id = ?")
 //@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class User extends TimeStamped {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @Column(nullable = false, unique = true)
     private String googleId;
+
     @Column(nullable = false, unique = true)
     private String username;
 
