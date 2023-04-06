@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Getter
@@ -15,8 +16,10 @@ import javax.validation.constraints.NotNull;
 public class CategoryDto {
     private Long categoryId;
     @NotNull
+    @NotBlank
     private String largeCategory;
     @NotNull
+    @NotBlank
     private String categoryName;
 
     public static CategoryDto of(Category category) {

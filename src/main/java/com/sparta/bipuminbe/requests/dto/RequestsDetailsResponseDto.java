@@ -79,7 +79,7 @@ public class RequestsDetailsResponseDto {
         } else {
             category = supply.getCategory();
             builder.categoryName(category.getCategoryName())
-                    .useType(supply.getUseType().getKorean())
+                    .useType(supply.getUseType() == null ? null : supply.getUseType().getKorean())
                     .modelName(supply.getModelName())
                     .serialNum(supply.getSerialNum());
         }
