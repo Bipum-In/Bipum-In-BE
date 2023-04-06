@@ -50,7 +50,8 @@ public class Requests extends TimeStamped {
     @JoinColumn(name = "categoryId")
     private Category category;
 
-    // 비품 요청의 경우 개인/공용을 고른다.
+    // 비품 요청의 경우 개인/공용을 고른다.(Dto에서 추출)
+    // 그 외 요청도 저장은 모두가 한다. (supply에서 추출)
     @Enumerated(EnumType.STRING)
     private UseType useType;
 

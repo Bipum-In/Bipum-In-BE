@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.user.dto.LoginRequestDto;
 import com.sparta.bipuminbe.user.dto.LoginResponseDto;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @RestController
@@ -70,5 +74,12 @@ public class UserController {
                                                                      @RequestParam String urlType) throws IOException {
 
         return userService.googleLogin(code, urlType);
+    }
+
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @GetMapping("/map")
+    @Operation(summary = "전체 사원 목록(비품 복수 등록 페이지)", description = "전사원 부서명(key) : 사원명(value)")
+    public ResponseDto<Map<String, Set<String>>> getAllUserList() {
+        return userService.getAllUserList();
     }
 }

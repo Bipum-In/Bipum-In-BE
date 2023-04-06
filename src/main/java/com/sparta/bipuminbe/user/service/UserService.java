@@ -378,6 +378,39 @@ public class UserService {
         return googleUser;
     }
 
+    @Transactional(readOnly = true)
+    public ResponseDto<Map<String, Set<String>>> getAllUserList() {
+        List<Department> departmentList = departmentRepository.findByDeletedFalse();
+        List<User> userList = userRepository.findByDeletedFalse();
+
+        // 2중 for문을 돌리는 것 보다 유리할 것 같아 하나 만들어줌. (dept와 번호를 연결하는 SetList)
+        Map<String, Integer> deptNumber = new HashMap<>();
+        for (int i = 0; i < departmentList.size(); i++) {
+            deptNumber.put(departmentList.get(i).getDeptName(), i);
+        }
+
+        // 배열 번호는 부서를 가리키게 된다.
+        Set<String>[] userListByDept = new Set[departmentList.size()];
+        // 초기화
+        for (int i = 0; i < userListByDept.length; i++) {
+            userListByDept[i] = new HashSet<>();
+        }
+        // 부서 이름에 맞는 배열에 사원명을 집어넣음.
+        for (User user : userList) {
+            String deptName = user.getDepartment().getDeptName();
+            String empName = user.getEmpName();
+            userListByDept[deptNumber.get(deptName)].add(empName);
+        }
+
+        // 부서명 : 사원 리스트
+        Map<String, Set<String>> userMapByDept = new HashMap<>();
+        for (Department department : departmentList) {
+            String deptName = department.getDeptName();
+            userMapByDept.put(deptName, userListByDept[deptNumber.get(deptName)]);
+        }
+        return ResponseDto.success(userMapByDept);
+    }
+
 
     //    public String encryptUser(LoginResponseDto loginResponseDto)
 //            throws IOException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException {
