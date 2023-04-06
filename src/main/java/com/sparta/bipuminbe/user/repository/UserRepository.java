@@ -25,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByDepartmentAndDeletedFalse(Department department);
 
-    Optional<User> findByGoogleIdAndDeletedFalse(String kakaoId);
+    Optional<User> findByGoogleIdAndDeletedFalse(String googleId);
 
     boolean existsByDepartment_IdAndDeletedFalse(Long id);
 
