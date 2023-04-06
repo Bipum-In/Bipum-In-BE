@@ -7,6 +7,7 @@ import com.sparta.bipuminbe.common.enums.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
+import com.sparta.bipuminbe.department.repository.DepartmentRepository;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
@@ -31,6 +32,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class SupplyService {
+    private final DepartmentRepository departmentRepository;
     private final SupplyRepository supplyRepository;
     private final UserRepository userRepository;
     private final PartnersRepository partnersRepository;
@@ -46,20 +48,12 @@ public class SupplyService {
 
     //비품 등록
     @Transactional
-    public ResponseDto<String> createSupply(SupplyRequestDto supplyRequestDto, User admin) throws IOException {
+    public Requests createSupply(SupplyRequestDto supplyRequestDto, User admin) throws IOException {
 
         Partners partners = null;
         if (supplyRequestDto.getPartnersId() != null) {
             partners = partnersRepository.findByPartnersIdAndDeletedFalse(supplyRequestDto.getPartnersId()).orElseThrow(
-                    () -> new CustomException(ErrorCode.NotFoundPartners)
-            );
-        }
-
-        User user = null;
-        if (supplyRequestDto.getUserId() != null) {
-            user = userRepository.findByIdAndDeletedFalse(supplyRequestDto.getUserId()).orElseThrow(
-                    () -> new CustomException(ErrorCode.NotFoundUsers)
-            );
+                    () -> new CustomException(ErrorCode.NotFoundPartners));
         }
 
         String image = supplyRequestDto.getImage();
@@ -79,24 +73,52 @@ public class SupplyService {
             categoryRepository.save(newCategory);
         }
 
-        Supply newSupply = new Supply(supplyRequestDto, partners, newCategory, user, image);
+        //Todo 여기 조금 수정 되서 바꾸게 되었습니다.
+        User user = null;
+        if (supplyRequestDto.getUseType() == UseType.PERSONAL) {
+            user = userRepository.findByIdAndDeletedFalse(supplyRequestDto.getUserId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundUsers));
+        }
+
+        Department department = null;
+        if (supplyRequestDto.getUseType() == UseType.COMMON) {
+            department = departmentRepository.findByIdAndDeletedFalse(supplyRequestDto.getDeptId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundDepartment));
+        }
+
+        Supply newSupply = Supply.builder()
+                .serialNum(supplyRequestDto.getSerialNum())
+                .modelName(supplyRequestDto.getModelName())
+                .image(image)
+                .status(supplyRequestDto.getUseType() == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING)
+                .partners(partners)
+                .user(user)
+                .category(newCategory)
+                .useType(supplyRequestDto.getUseType())
+                .department(department)
+                .deleted(false)
+                .build();
         supplyRepository.save(newSupply);
 
         // user history 기록 생성.
-        if (user != null) {
-            requestsRepository.save(Requests.builder()
+        if (supplyRequestDto.getUseType() != null) {
+            Requests requests = requestsRepository.save(Requests.builder()
                     .requestType(RequestType.SUPPLY)
                     .content("비품 사용 유저 내역을 위한 기록 생성.")
                     .acceptResult(AcceptResult.ACCEPT)
                     .requestStatus(RequestStatus.PROCESSED)
                     .supply(newSupply)
-                    .user(user)
+                    .user(supplyRequestDto.getUseType() == UseType.COMMON ? admin : user)
                     .category(newCategory)
+                    .useType(supplyRequestDto.getUseType())
+                    .department(supplyRequestDto.getUseType() == UseType.COMMON ? department : null)
                     .admin(admin)
                     .build());
+
+            return requests;
         }
 
-        return ResponseDto.success("비품 등록 성공");
+        return null;
     }
 
 
@@ -221,18 +243,11 @@ public class SupplyService {
 
     //비품 수정
     @Transactional
-    public ResponseDto<String> updateSupplies(Long supplyId, SupplyRequestDto supplyRequestDto, User admin) throws IOException {
+    public List<Requests> updateSupplies(Long supplyId, SupplyRequestDto supplyRequestDto, User admin) throws IOException {
         Partners partners = null;
         if (supplyRequestDto.getPartnersId() != null) {
             partners = partnersRepository.findByPartnersIdAndDeletedFalse(supplyRequestDto.getPartnersId()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundPartners)
-            );
-        }
-
-        User user = null;
-        if (supplyRequestDto.getUserId() != null) {
-            user = userRepository.findByIdAndDeletedFalse(supplyRequestDto.getUserId()).orElseThrow(
-                    () -> new CustomException(ErrorCode.NotFoundUsers)
             );
         }
 
@@ -255,65 +270,94 @@ public class SupplyService {
             image = s3Uploader.uploadFiles(supplyRequestDto.getMultipartFile(), supplyRequestDto.getCategoryName());
         }
 
+        supply.update(partners, image);
+
+        //Todo 여기 조금 수정 되서 바꾸게 되었습니다.
+        User user = null;
+        if (supplyRequestDto.getUseType() == UseType.PERSONAL) {
+            user = userRepository.findByIdAndDeletedFalse(supplyRequestDto.getUserId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundUsers));
+        }
+
+        Department department = null;
+        if (supplyRequestDto.getUseType() == UseType.COMMON) {
+            department = departmentRepository.findByIdAndDeletedFalse(supplyRequestDto.getDeptId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundDepartment));
+        }
+
+        // 두 개의 requests를 담기 위한 Map 생성
+        List<Requests> requests = new ArrayList<>();
+
         // 비품 history에 기록이 남으려면 요청서도 생성해 줘야 한다.
-        if (user != supply.getUser()) {
-            String content = "비품의 유저 강제 변경에 의한 기록 생성.";
+        // 사용자 전환 check (뒤에 있는 부분은 공용에서 공용으로 전환될때를 고려하였다.)
+        if (user != supply.getUser() || department != supply.getDepartment()) {
+            String content = "비품의 유저 변경에 의한 기록 생성.";
             // 반납 요청 먼저 생성. (기록용)
-            if (supply.getUser() != null) {
-                requestsRepository.save(Requests.builder()
+            if (supply.getUseType() != null) {
+                Requests request = requestsRepository.save(Requests.builder()
                         .content(content)
                         .requestType(RequestType.RETURN)
                         .requestStatus(RequestStatus.PROCESSED)
                         .acceptResult(AcceptResult.ACCEPT)
                         .supply(supply)
-                        .user(supply.getUser())
+                        .user(supply.getUseType() == UseType.COMMON ? admin : supply.getUser())
+                        .useType(supply.getUseType())
+                        .department(supply.getUseType() == UseType.COMMON ? supply.getDepartment() : null)
                         .admin(admin)
                         .build());
                 supply.returnSupply();
+
+                // 반납 요청 담기
+                requests.add(request);
             }
 
             // 다음 유저 비품 요청 생성. (기록용)
-            if (user != null) {
-                requestsRepository.save(Requests.builder()
+            if (supplyRequestDto.getUseType() != null) {
+                Requests request = Requests.builder()
                         .content(content)
                         .requestType(RequestType.SUPPLY)
                         .requestStatus(RequestStatus.PROCESSED)
                         .acceptResult(AcceptResult.ACCEPT)
                         .supply(supply)
-                        .user(user)
+                        .user(supplyRequestDto.getUseType() == UseType.COMMON ? admin : user)
                         .category(newCategory)
+                        .useType(supplyRequestDto.getUseType())
+                        .department(supplyRequestDto.getUseType() == UseType.COMMON ? department : null)
                         .admin(admin)
-                        .build());
-                supply.allocateSupply(user);
+                        .build();
+                requestsRepository.save(request);
+                supply.allocateSupply(request, department);
+
+                // 비품 요청 담기
+                requests.add(request);
             }
         }
 
-        supply.update(partners, user, image);
-
-        return ResponseDto.success("비품 수정 성공");
+        return requests;
     }
 
 
     //비품 폐기
     @Transactional
-    public ResponseDto<String> deleteSupply(Long supplyId, User user) {
+    public Requests deleteSupply(Long supplyId, User user) {
 
         Supply supply = getSupply(supplyId);
 
         // 비품 폐기 처리 기록 생성.
-        String content = "비품의 유저 강제 변경에 의한 기록 생성.";
-        requestsRepository.save(Requests.builder()
+        String content = "비품 폐기 처리에 대한 기록 생성.";
+        Requests request = requestsRepository.save(Requests.builder()
                 .content(content)
                 .requestType(RequestType.REPAIR)
                 .requestStatus(RequestStatus.PROCESSED)
                 .acceptResult(AcceptResult.DISPOSE)
                 .supply(supply)
+                .useType(supply.getUseType())
                 .user(user)
                 .admin(user)
                 .build());
 
         supplyRepository.delete(supply);
-        return ResponseDto.success("비품 삭제 성공");
+        return request;
     }
 
 

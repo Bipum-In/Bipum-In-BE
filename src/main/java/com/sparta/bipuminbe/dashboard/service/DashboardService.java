@@ -2,9 +2,7 @@ package com.sparta.bipuminbe.dashboard.service;
 
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import com.sparta.bipuminbe.common.entity.Category;
-import com.sparta.bipuminbe.common.entity.Supply;
-import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
@@ -15,6 +13,10 @@ import com.sparta.bipuminbe.dashboard.dto.*;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,14 +39,14 @@ public class DashboardService {
 
         List<SupplyCountDto> responseDtos = new ArrayList();
         // 카테고리별 총 수량, 사용중, 수리중, 재고량 계산
-        for(Category category : categoryList){
+        for (Category category : categoryList) {
 
             Long totalCount = supplyRepository.countTotal(category.getId());
             Long useCount = supplyRepository.countUse(category.getId());
             Long repairCount = supplyRepository.countRepair(category.getId());
             Long stockCount = supplyRepository.countStock(category.getId());
 
-            if(totalCount == 0){
+            if (totalCount == 0) {
                 continue;
             }
 
@@ -60,7 +62,7 @@ public class DashboardService {
         countMap.put("ReportRequests", requestsRepository.countReport());
         countMap.put("UnProcessedRequests",
                 requestsRepository.countSupply() + requestsRepository.countReturn() +
-                requestsRepository.countRepair() + requestsRepository.countReport());
+                        requestsRepository.countRepair() + requestsRepository.countReport());
 
         // 요청 종류별 최신 수정일자
         Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
@@ -72,11 +74,13 @@ public class DashboardService {
         RequestsCountDto requestsCountDto = RequestsCountDto.of
                 (countMap, modifiedAtMap);
 
-        // 유저의 요청을 알림 발생시간 최신순으로 4개 검색함
-        List<NotificationResponseForAdmin> notifications = notificationRepository.findUserNotification(admin.getId());
+//        Pageable pageable = getPageable(page, size);
+//
+//        // 유저의 요청을 알림 발생시간 최신순으로 4개 검색함
+//        Page<NotificationResponseForAdmin> notifications = notificationRepository.findUserNotification(admin.getId(),pageable);
 
         // 비품 카테고리, 비품 현황, 알림 합쳐서 리턴
-        return ResponseDto.success(AdminMainResponseDto.of(responseDtos, requestsCountDto, notifications));
+        return ResponseDto.success(AdminMainResponseDto.of(responseDtos, requestsCountDto));
     }
 
     @Transactional(readOnly = true)
@@ -110,17 +114,18 @@ public class DashboardService {
 
         List<Supply> supplies = supplyRepository.findByUser_IdAndCategory_LargeCategoryInAndDeletedFalse(user.getId(), categoryQuery)
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
-        for(Supply supply : supplies){
+        for (Supply supply : supplies) {
             userSupplyDtos.add(UserSupplyDto.of(supply));
         }
 
-        List<NotificationResponseForUser> notifications = notificationRepository.findAdminNotification(user.getId());
+//        List<NotificationResponseForUser> notifications = notificationRepository.findAdminNotification(user.getId());
 
         // 요청 현황, 사용 중인 비품 현황 합쳐서 리턴
-        return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, requestsCountDto, notifications));
+        return ResponseDto.success(UserMainResponseDto.of(userSupplyDtos, requestsCountDto));
     }
 
-    private Set<LargeCategory> getCategoryQuery(LargeCategory largeCategory) {
+    @Transactional(readOnly = true)
+    public Set<LargeCategory> getCategoryQuery(LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = new HashSet<>();
         if (largeCategory == null) {
             categoryQuery.addAll(List.of(LargeCategory.values()));
@@ -128,5 +133,49 @@ public class DashboardService {
             categoryQuery.add(largeCategory);
         }
         return categoryQuery;
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<Page<NotificationResponseForAdmin>> getAdminAlarm(User admin, int page, int size) {
+        Pageable pageable = getPageable(page, size);
+        Page<NotificationResponseForAdmin> notifications = notificationRepository.findUserNotification(admin.getId(), pageable);
+        return ResponseDto.success(notifications);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<Page<NotificationResponseForUser>> getUserAlarm(User user, int page, int size) {
+        Pageable pageable = getPageable(page, size);
+        Page<NotificationResponseForUser> notifications = notificationRepository.findAdminNotification(user.getId(), pageable);
+        return ResponseDto.success(notifications);
+    }
+
+
+    private Pageable getPageable(int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "created_at");
+        return PageRequest.of(page - 1, size, sort);
+    }
+
+    @Transactional
+    public ResponseDto<String> notificationRead(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundNotification));
+        notification.read();
+        return ResponseDto.success("알림 읽기 완료");
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<List<UserSupplyDto>> getCommonSupply(User user, LargeCategory largeCategory) {
+        Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
+        List<Supply> commonSupplyList = supplyRepository.
+                findByDepartmentAndCategory_LargeCategoryInAndDeletedFalseOrderByCategory_CategoryNameAsc(user.getDepartment(), categoryQuery);
+        return ResponseDto.success(convertToDtoList(commonSupplyList));
+    }
+
+    private List<UserSupplyDto> convertToDtoList(List<Supply> commonSupplyList) {
+        List<UserSupplyDto> supplyDtoList = new ArrayList<>();
+        for (Supply supply : commonSupplyList) {
+            supplyDtoList.add(UserSupplyDto.of(supply));
+        }
+        return supplyDtoList;
     }
 }

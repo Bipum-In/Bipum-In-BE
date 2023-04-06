@@ -19,6 +19,7 @@ public class RequestsDetailsResponseDto {
     private String requestStatus;
 
     private String categoryName;
+    private String useType;
     private String modelName;
     private String serialNum;
     private String content;
@@ -67,7 +68,8 @@ public class RequestsDetailsResponseDto {
                 .modifiedAt(request.getModifiedAt());
 
         if (request.getRequestType().equals(RequestType.SUPPLY)) {
-            builder.categoryName(category.getCategoryName());
+            builder.categoryName(category.getCategoryName())
+                    .useType(request.getUseType().getKorean());
 
             if (request.getAcceptResult() == AcceptResult.ACCEPT) {
                 Supply allocatedSupply = request.getSupply();
@@ -76,8 +78,8 @@ public class RequestsDetailsResponseDto {
             }
         } else {
             category = supply.getCategory();
-
             builder.categoryName(category.getCategoryName())
+                    .useType(supply.getUseType().getKorean())
                     .modelName(supply.getModelName())
                     .serialNum(supply.getSerialNum());
         }

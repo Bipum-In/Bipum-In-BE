@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.requests.dto;
 
 import com.sparta.bipuminbe.common.entity.*;
+import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import lombok.Builder;
@@ -20,6 +21,7 @@ public class RequestsAdminDetailsResponseDto {
 
     private Long categoryId;
     private String categoryName;
+    private String useType;
     private String modelName;
     private String serialNum;
     private String content;
@@ -51,6 +53,7 @@ public class RequestsAdminDetailsResponseDto {
                 .requestStatus(request.getRequestStatus().getKorean())
                 .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
 
+                .useType(request.getUseType().getKorean())
                 .content(request.getContent())
                 .imageList(imageList)
 
@@ -65,7 +68,9 @@ public class RequestsAdminDetailsResponseDto {
 
         if (request.getRequestType().equals(RequestType.SUPPLY)) {
             builder.categoryId(category.getId())
-                    .categoryName(category.getCategoryName());
+                    .categoryName(category.getCategoryName())
+                    .modelName(request.getAcceptResult() == AcceptResult.ACCEPT ? supply.getModelName() : null)
+                    .serialNum(request.getAcceptResult() == AcceptResult.ACCEPT ? supply.getSerialNum() : null);
         } else {
             category = supply.getCategory();
             builder.categoryName(category.getCategoryName())

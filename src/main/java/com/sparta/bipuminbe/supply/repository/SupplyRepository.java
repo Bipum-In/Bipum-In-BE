@@ -1,5 +1,8 @@
 package com.sparta.bipuminbe.supply.repository;
 
+import com.sparta.bipuminbe.category.dto.CategoryDto;
+import com.sparta.bipuminbe.common.entity.Category;
+import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
@@ -11,6 +14,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -51,6 +55,7 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
     List<Supply> findByCategory_IdAndStatusAndDeletedFalse(Long categoryId, SupplyStatusEnum stock);
 
+    // 다른 요청을 처리 중이라 신청을 할 수 없는 비품은 출력하지 않는 로직.
     @Query(value = "select s from Supply s " +
             "inner join Category c on s.category = c " +
             "where s.user = :user and c.id = :categoryId and s.deleted = false " +
@@ -61,4 +66,14 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
                              @Param("statusQuery") Set<RequestStatus> statusQuery);
 
     List<Supply> findByUser_IdAndDeletedFalse(Long id);
+
+    // 부서 삭제시 공용 비품 리스트 호출.
+    List<Supply> findByDepartment_Id(Long id);
+
+    // 카테고리 삭제 전 비품 체크.
+    boolean existsByCategory_Id(Long id);
+
+    // 유저 대쉬보드 공용 비품 보기 전환
+    List<Supply> findByDepartmentAndCategory_LargeCategoryInAndDeletedFalseOrderByCategory_CategoryNameAsc
+            (Department department, Collection<LargeCategory> largeCategories);
 }

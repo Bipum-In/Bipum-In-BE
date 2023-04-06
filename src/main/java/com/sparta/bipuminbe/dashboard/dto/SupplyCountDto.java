@@ -9,7 +9,6 @@ import lombok.Getter;
 public class SupplyCountDto {
     private Long categoryId;
     private String categoryName;
-    private String categoryImage;
     private Long totalCount;
     private Long useCount;
     private Long repairCount;
@@ -22,7 +21,6 @@ public class SupplyCountDto {
         return SupplyCountDto.builder()
                 .categoryId(category.getId())
                 .categoryName(category.getCategoryName())
-                .categoryImage(category.getCategoryImage())
                 .totalCount(totalCount)
                 .useCount(useCount)
                 .repairCount(repairCount)

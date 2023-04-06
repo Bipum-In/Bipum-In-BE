@@ -76,6 +76,7 @@ public class EmitterRepositoryImpl implements EmitterRepository{
         eventCache.forEach(
                 (key, emitter) -> {
                     if (key.startsWith(userId)) {
+                        log.info("deleteAll " + userId + " 삭제");
                         eventCache.remove(key);
                     }
                 }

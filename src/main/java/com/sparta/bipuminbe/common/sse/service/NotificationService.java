@@ -56,13 +56,15 @@ public class NotificationService {
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         emitter.onCompletion(() -> {
+            log.info("SSE 연결 Complete");
             emitterRepository.deleteById(emitterId);
-            onClientDisconnect(emitter, "Compeletion");
+//            onClientDisconnect(emitter, "Compeletion");
         });
         //시간이 만료된 경우 자동으로 레포지토리에서 삭제하고 클라이언트에서 재요청을 보낸다.
         emitter.onTimeout(() -> {
+            log.info("SSE 연결 Timeout");
             emitterRepository.deleteById(emitterId);
-            onClientDisconnect(emitter, "Timeout");
+//            onClientDisconnect(emitter, "Timeout");
         });
         emitter.onError((e) -> emitterRepository.deleteById(emitterId));
         //Dummy 데이터를 보내 503에러 방지. (SseEmitter 유효시간 동안 어느 데이터도 전송되지 않으면 503에러 발생)
@@ -113,12 +115,18 @@ public class NotificationService {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest)
         );
+        // 강제 생성 시, sender는 관리자, receiver는 할당된 사람
 
         // 알림에 담을 내용
         User receiver = request.getUser();
         String content = createForUserMessage(request, receiver, isAccepted);
 
-        Notification notification = notificationRepository.save(createNotification(sender, receiver, content, request, NotificationType.PROCESSED));
+        // 관리자가 직접 유저를 배정한 건은 승인으로 간주함
+        if(isAccepted == AcceptResult.ASSIGN){
+            isAccepted = AcceptResult.ACCEPT;
+        }
+
+        Notification notification = notificationRepository.save(createNotification(sender, receiver, content, request, NotificationType.PROCESSED, isAccepted));
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -163,7 +171,7 @@ public class NotificationService {
 
         // 각 Admin 마다 알림을 전송한다.
         for(User receiver : receiverList){
-            Notification notification = notificationRepository.save(createNotification(sender, receiver, content, request, NotificationType.REQUEST));
+            Notification notification = notificationRepository.save(createNotification(sender, receiver, content, request, NotificationType.REQUEST, null));
             String receiverId = String.valueOf(receiver.getId());
             String eventId = receiverId + "_" + System.currentTimeMillis();
 
@@ -183,7 +191,7 @@ public class NotificationService {
     }
 
     private Notification createNotification(User sender, User receiver, String content,
-                                            Requests request, NotificationType notificationType) {
+                                            Requests request, NotificationType notificationType, AcceptResult isAccepted) {
         return Notification.builder()
                 .sender(sender)
                 .receiver(receiver)
@@ -191,6 +199,7 @@ public class NotificationService {
                 .isRead(false)
                 .request(request)
                 .notificationType(notificationType)
+                .acceptResult(isAccepted)
                 .build();
     }
 
@@ -208,6 +217,24 @@ public class NotificationService {
             return receiver.getEmpName() + " 님의 "
                     + categoryName + " "
                     + request.getRequestType().getKorean() + "이 반려되었습니다.";
+        }
+
+        // 관리자가 직접 비품의 유저를 설정한 건
+        if(isAccepted.name().equals("ASSIGN") && request.getRequestType().name().equals("SUPPLY")){
+            return "관리자에 의해 " + request.getSupply().getModelName() + " "
+                    + categoryName + "비품이 배정되었습니다.";
+        }
+
+        // 관리자가 배정된 비품을 다른 사용자에게 지급할 때 기존사용자에게 보낼 메시지
+        if(isAccepted.name().equals("ASSIGN") && request.getRequestType().name().equals("RETURN") ){
+            return "관리자에 의해 " + request.getSupply().getModelName() + " "
+                    + categoryName + "비품이 반납되었습니다.";
+        }
+
+        // 관리자가 비품을 폐기할 때, 기존 사용자에게 보낼 메시지
+        if(isAccepted.name().equals("ASSIGN") && request.getSupply().getDeleted() ){
+            return "관리자에 의해 " + request.getSupply().getModelName() + " "
+                    + categoryName + "비품이 폐기되었습니다.";
         }
         // 수리 요청 >> 폐기 처리 건
         return receiver.getEmpName() + " 님의 "
@@ -227,7 +254,7 @@ public class NotificationService {
 
         // ~~ 님이 ~~카테고리 ~~를 요청하셨습니다.
         return sender.getEmpName() + " 님의 " +
-                categoryName + " " + requestType + " 이 등록되었습니다.";
+                categoryName + " " + requestType + "이 등록되었습니다.";
     }
 
     private String getCategoryName(Requests request) {
@@ -257,6 +284,17 @@ public class NotificationService {
             emitter.complete();
         } catch (IOException e) {
             log.error("Failed to send" + type + "event to client", e);
+        }
+    }
+
+    // 처리 된 건이고, 읽은 알림은 삭제 (1일 경과한 데이터)
+    @Transactional
+    public void deleteOldNotification() {
+        List<Notification> notifications = notificationRepository.findOldNotification();
+
+        log.info("총 " + notifications.size() + " 건의 알림 삭제");
+        for(Notification notification : notifications){
+            notificationRepository.deleteById(notification.getId());
         }
     }
 }
