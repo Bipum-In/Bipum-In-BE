@@ -12,7 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 @SQLDelete(sql = "UPDATE users SET deleted = true, phone = null, image = null, " +
-        "kakaoId = CAST(uuid(), bigint), username = uuid() WHERE id = ?")
+        "username = uuid() WHERE id = ?")
 //@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class User extends TimeStamped {
 
@@ -20,8 +20,9 @@ public class User extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long kakaoId; // 임시로 지움
 
+    @Column(nullable = false, unique = true)
+    private String googleId;
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -31,6 +32,9 @@ public class User extends TimeStamped {
     private String empName;
     private String phone;
     private String image;
+
+    @Column(nullable = false)
+    private String accessToken;
 
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
@@ -46,14 +50,15 @@ public class User extends TimeStamped {
     private Boolean deleted;
 
     @Builder
-    public User(Long kakaoId, String username, String password, String empName, String phone,
-                String image, UserRoleEnum role, Boolean alarm, Department department, Boolean deleted) {
-        this.kakaoId = kakaoId;
+    public User(String googleId, String username, String password, String empName, String phone,
+                String image, String accessToken, UserRoleEnum role, Boolean alarm, Department department, Boolean deleted) {
+        this.googleId = googleId;
         this.username = username;
         this.password = password;
         this.empName = empName;
         this.phone = phone;
         this.image = image;
+        this.accessToken = accessToken;
         this.role = role;
         this.alarm = alarm;
         this.department = department;

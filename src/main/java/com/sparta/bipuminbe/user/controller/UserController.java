@@ -36,13 +36,12 @@ import java.util.Set;
 public class UserController {
     private final UserService userService;
 
-    @Operation(summary = "로그인 처리", description = "카카오 계정정보 담은 Jwt토큰 발급")
-    @PostMapping("/login")
-    public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(@RequestParam String code,
-                                                                    @RequestParam String urlType) throws IOException {
-        // code: 카카오 서버로부터 받은 인가 코드
+    @Operation(summary = "로그인 처리", description = "구글 계정정보 담은 Jwt토큰 발급")
+    @PostMapping("/login/google")
+    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(@RequestParam String code,
+                                                                     @RequestParam String urlType) throws IOException {
 
-        return userService.kakaoLogin(code, urlType);
+        return userService.googleLogin(code, urlType);
     }
 
     //로그인 시, 부서와 유저이름이 없는 경우 반드시 추가입력하게 유도
@@ -60,20 +59,13 @@ public class UserController {
         return userService.getUserByDept(deptId);
     }
 
-    @Operation(summary = "카카오 연결 끊기", description = "앱과 연결된 카카오 계정 연결 끊기")
-    @PostMapping("/unlink")
-    public ResponseDto<String> unlink(HttpServletRequest request) throws JsonProcessingException {
+    @Operation(summary = "구글 연결 끊기", description = "앱과 연결된 카카오 계정 연결 끊기")
+    @PostMapping("/delete")
+    public ResponseDto<String> deleteUser(HttpServletRequest request,
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         String bearerToken = request.getHeader("Authorization");
 
-        return userService.unlink(bearerToken);
-    }
-
-    @Operation(summary = "로그인 처리", description = "구글 계정정보 담은 Jwt토큰 발급")
-    @PostMapping("/login/google")
-    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(@RequestParam String code,
-                                                                     @RequestParam String urlType) throws IOException {
-
-        return userService.googleLogin(code, urlType);
+        return userService.deleteUser(userDetails.getUser(), bearerToken);
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
@@ -82,4 +74,13 @@ public class UserController {
     public ResponseDto<Map<String, Set<String>>> getAllUserList() {
         return userService.getAllUserList();
     }
+
+    //    @Operation(summary = "로그인 처리", description = "카카오 계정정보 담은 Jwt토큰 발급")
+//    @PostMapping("/login")
+//    public ResponseEntity<ResponseDto<LoginResponseDto>> kakaoLogin(@RequestParam String code,
+//                                                                    @RequestParam String urlType) throws IOException {
+//        // code: 카카오 서버로부터 받은 인가 코드
+//
+//        return userService.kakaoLogin(code, urlType);
+//    }
 }

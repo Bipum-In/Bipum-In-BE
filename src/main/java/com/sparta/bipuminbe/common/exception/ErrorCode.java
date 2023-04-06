@@ -43,6 +43,7 @@ public enum ErrorCode {
     DuplicatedNickname(HttpStatus.BAD_REQUEST, "이미 존재하는 닉네임 입니다."),
     NotMatchUser(HttpStatus.BAD_REQUEST, "작성자가 일치하지 않습니다."),
     InValidException(HttpStatus.BAD_REQUEST, "값이 잘못되었습니다."),
+    FailedRevokeGoogleAccessToken(HttpStatus.BAD_REQUEST, "구글 액세스토큰 취소가 실패했습니다."),
     TokenSecurityExceptionOrMalformedJwtException(HttpStatus.BAD_REQUEST, "Invalid JWT signature, 유효하지 않는 JWT 서명 입니다."),
     TokenExpiredJwtException(HttpStatus.BAD_REQUEST, "Expired JWT token, 만료된 JWT token 입니다."),
     TokenUnsupportedJwtException(HttpStatus.BAD_REQUEST, "Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다."),
