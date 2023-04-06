@@ -43,7 +43,7 @@ public class SupplyController {
 
         Requests requests = supplyService.createSupply(supplyRequestDto, userDetails.getUser());
 
-        if(supplyRequestDto.getUserId() != null){
+        if (supplyRequestDto.getUserId() != null) {
             notificationService.sendForUser(userDetails.getUser(), requests.getRequestId(), AcceptResult.ASSIGN);
         }
         return ResponseDto.success("비품 등록 완료");
@@ -115,8 +115,8 @@ public class SupplyController {
 
         List<Requests> requests = supplyService.updateSupplies(supplyId, supplyRequestDto, userDetails.getUser());
 
-        for(Requests request : requests){
-            if(supplyRequestDto.getUserId() != null){
+        for (Requests request : requests) {
+            if (supplyRequestDto.getUserId() != null) {
                 notificationService.sendForUser(userDetails.getUser(), request.getRequestId(), AcceptResult.ASSIGN);
             }
         }
@@ -138,12 +138,20 @@ public class SupplyController {
         return ResponseDto.success("비품 삭제 성공");
     }
 
-    //자신의 비품 목록(selectbox용)
+    // 자신의 비품 목록(selectbox용)
     @GetMapping("/supply/mysupply/{categoryId}")
     @Operation(summary = "자신의 비품 목록 조회", description = "SelectBox용")
     public ResponseDto<List<SupplyUserDto>> getSupplyUser(@PathVariable Long categoryId,
                                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return supplyService.getSupplyUser(categoryId, userDetails.getUser());
+    }
+
+    // 자신의 부서 공용 비품 목록(selectbox용)
+    @GetMapping("/supply/common/mysupply/{categoryId}")
+    @Operation(summary = "자신의 부서의 공용 비품 목록 조회", description = "SelectBox용")
+    public ResponseDto<List<SupplyUserDto>> getMyCommonSupply(@PathVariable Long categoryId,
+                                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return supplyService.getMyCommonSupply(categoryId, userDetails.getUser());
     }
 
     // 비품 요청 상세 페이지 SelectBox.
@@ -184,8 +192,8 @@ public class SupplyController {
     @GetMapping("/supply/history/repair/{supplyId}")
     @Operation(summary = "수리 내역(비품 상세 페이지 무한 스크롤)")
     public ResponseDto<Page<SupplyHistoryResponseDto>> getRepairHistory(@PathVariable Long supplyId,
-                                                                      @RequestParam(defaultValue = "1") int page,
-                                                                      @RequestParam(defaultValue = "6") int size) {
+                                                                        @RequestParam(defaultValue = "1") int page,
+                                                                        @RequestParam(defaultValue = "6") int size) {
         return supplyService.getRepairHistory(supplyId, page, size);
     }
 }
