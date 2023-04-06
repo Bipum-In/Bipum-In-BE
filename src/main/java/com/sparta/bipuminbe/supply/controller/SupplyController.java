@@ -1,9 +1,13 @@
 package com.sparta.bipuminbe.supply.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.entity.Notification;
+import com.sparta.bipuminbe.common.entity.Requests;
+import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
+import com.sparta.bipuminbe.common.sse.service.NotificationService;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.service.SupplyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,13 +22,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class SupplyController {
     private final SupplyService supplyService;
-
+    private final NotificationService notificationService;
 
     //비품 등록
     @Secured(value = UserRoleEnum.Authority.ADMIN)
@@ -35,7 +40,13 @@ public class SupplyController {
     public ResponseDto<String> createSupply(
             @ModelAttribute @Valid SupplyRequestDto supplyRequestDto,
             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-        return supplyService.createSupply(supplyRequestDto, userDetails.getUser());
+
+        Requests requests = supplyService.createSupply(supplyRequestDto, userDetails.getUser());
+
+        if(supplyRequestDto.getUserId() != null){
+            notificationService.sendForUser(userDetails.getUser(), requests.getRequestId(), AcceptResult.ASSIGN);
+        }
+        return ResponseDto.success("비품 등록 완료");
     }
 
 
@@ -93,7 +104,15 @@ public class SupplyController {
             @ModelAttribute @Valid SupplyRequestDto supplyRequestDto,
             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails
     ) throws IOException {
-        return supplyService.updateSupplies(supplyId, supplyRequestDto, userDetails.getUser());
+
+        List<Requests> requests = supplyService.updateSupplies(supplyId, supplyRequestDto, userDetails.getUser());
+
+        for(Requests request : requests){
+            if(supplyRequestDto.getUserId() != null){
+                notificationService.sendForUser(userDetails.getUser(), request.getRequestId(), AcceptResult.ASSIGN);
+            }
+        }
+        return ResponseDto.success("비품 수정 성공");
     }
 
     //비품 폐기
@@ -104,7 +123,11 @@ public class SupplyController {
             @PathVariable Long supplyId,
             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        return supplyService.deleteSupply(supplyId, userDetails.getUser());
+        Requests request = supplyService.deleteSupply(supplyId, userDetails.getUser());
+
+        notificationService.sendForUser(userDetails.getUser(), request.getRequestId(), AcceptResult.ASSIGN);
+
+        return ResponseDto.success("비품 삭제 성공");
     }
 
     //자신의 비품 목록(selectbox용)
