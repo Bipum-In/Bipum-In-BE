@@ -428,4 +428,16 @@ public class SupplyService {
         }
         return historyDtoPage;
     }
+
+    //비품 복수 등록
+    @Transactional
+    public ResponseDto<String> createSupplies(List<SupplyExcelDto> supplyExcelDtos, User user) throws IOException {
+        for (SupplyExcelDto supplyExcelDto : supplyExcelDtos) {
+            
+        }
+
+//        supplyRepository.save(dto);
+
+        return ResponseDto.success("비품 등록 성공");
+    }
 }
