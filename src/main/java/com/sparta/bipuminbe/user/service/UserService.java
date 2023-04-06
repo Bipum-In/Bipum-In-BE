@@ -223,7 +223,7 @@ public class UserService {
             throw new CustomException(ErrorCode.FailedRevokeGoogleAccessToken);
         }
 
-        User googleUser = userRepository.findByKakaoIdAndDeletedFalse(user.getId()).orElseThrow(
+        User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
 
         // 비품 자동 반납.
@@ -245,7 +245,7 @@ public class UserService {
         }
 
         // DB의 회원정보 삭제
-        userRepository.deleteByKakaoId(googleUser.getId());
+        userRepository.deleteByGoogleId(googleUser.getGoogleId());
 
         return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
     }
