@@ -59,7 +59,7 @@ public class UserController {
         return userService.getUserByDept(deptId);
     }
 
-    @Operation(summary = "구글 연결 끊기", description = "앱과 연결된 카카오 계정 연결 끊기")
+    @Operation(summary = "구글 연결 끊기", description = "앱과 연결된 구글 계정 연결 끊기")
     @PostMapping("/delete")
     public ResponseDto<String> deleteUser(HttpServletRequest request,
                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
