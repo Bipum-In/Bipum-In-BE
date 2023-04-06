@@ -10,11 +10,10 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
-    Optional<User> findByKakaoId(Long kakaoId);
 
     Optional<User> findById(Long id);
 
-    void deleteByKakaoId(Long kakaoId);
+    void deleteByGoogleId(String GoogleId);
 
     List<User> findByRoleAndAlarmAndDeletedFalse(UserRoleEnum admin, boolean b);
 
@@ -26,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByDepartmentAndDeletedFalse(Department department);
 
-    Optional<User> findByKakaoIdAndDeletedFalse(Long kakaoId);
+    Optional<User> findByGoogleIdAndDeletedFalse(String kakaoId);
 
     boolean existsByDepartment_IdAndDeletedFalse(Long id);
 
