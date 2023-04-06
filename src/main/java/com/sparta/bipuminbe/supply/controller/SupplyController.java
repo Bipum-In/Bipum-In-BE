@@ -49,6 +49,14 @@ public class SupplyController {
         return ResponseDto.success("비품 등록 완료");
     }
 
+    //비품 복수 등록
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @PostMapping(value = "/supply/excel", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "비품 복수 등록", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가), 반납 날짜(null 가능), 협력업체(null 가능), 유저 아이디(null 불가), 관리자 권한 필요.")
+    public ResponseDto<String> createSupplies(
+            @ModelAttribute @Valid List<SupplyExcelDto> supplyExcelDtos) throws IOException {
+        return supplyService.createSupplies(supplyExcelDtos);
+    }
 
     //비품 조회
     @Secured(value = UserRoleEnum.Authority.ADMIN)
