@@ -68,7 +68,7 @@ public class RequestsDetailsResponseDto {
                 .modifiedAt(request.getModifiedAt());
 
         if (request.getRequestType().equals(RequestType.SUPPLY)) {
-            builder.categoryName(category.getCategoryName())
+            builder.categoryName(category == null ? null : category.getCategoryName())
                     .useType(request.getUseType().getKorean());
 
             if (request.getAcceptResult() == AcceptResult.ACCEPT) {

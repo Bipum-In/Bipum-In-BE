@@ -20,4 +20,8 @@ public class TimeStamped {
 
     @LastModifiedDate
     private LocalDateTime modifiedAt;
+
+    public void insertCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

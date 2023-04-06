@@ -18,11 +18,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -54,8 +54,8 @@ public class SupplyController {
     @PostMapping(value = "/supply/excel", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "비품 복수 등록", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가), 반납 날짜(null 가능), 협력업체(null 가능), 유저 아이디(null 불가), 관리자 권한 필요.")
     public ResponseDto<String> createSupplies(
-            @ModelAttribute @Valid List<SupplyExcelDto> supplyExcelDtos) throws IOException {
-        return supplyService.createSupplies(supplyExcelDtos);
+            @ModelAttribute ExcelCoverDto excelCoverDto) throws IOException {
+        return supplyService.createSupplies(excelCoverDto);
     }
 
     //비품 조회

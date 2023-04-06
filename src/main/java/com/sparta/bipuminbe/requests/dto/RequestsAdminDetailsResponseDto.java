@@ -67,8 +67,8 @@ public class RequestsAdminDetailsResponseDto {
                 .modifiedAt(request.getModifiedAt());
 
         if (request.getRequestType().equals(RequestType.SUPPLY)) {
-            builder.categoryId(category.getId())
-                    .categoryName(category.getCategoryName())
+            builder.categoryId(category == null ? null : category.getId())
+                    .categoryName(category == null ? null : category.getCategoryName())
                     .modelName(request.getAcceptResult() == AcceptResult.ACCEPT ? supply.getModelName() : null)
                     .serialNum(request.getAcceptResult() == AcceptResult.ACCEPT ? supply.getSerialNum() : null);
         } else {
