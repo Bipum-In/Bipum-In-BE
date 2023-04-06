@@ -481,13 +481,13 @@ public class SupplyService {
                     () -> new CustomException(ErrorCode.NotFoundCategory));
 
             Partners partners = null;
-            if(supplyExcelDto.getPartners() != null){
+            if (supplyExcelDto.getPartners() != null) {
                 partners = partnersRepository.findByPartnersNameAndDeletedFalse(supplyExcelDto.getPartners())
                         .orElseThrow(() -> new CustomException(ErrorCode.NotFoundPartners));
             }
 
             User user = null;
-            if(supplyExcelDto.getEmpName() != null) {
+            if (supplyExcelDto.getEmpName() != null) {
                 user = userRepository.findByEmpNameAndDepartment_DeptNameAndDeletedFalse
                         (supplyExcelDto.getEmpName(), supplyExcelDto.getDeptName()).orElseThrow(
                         () -> new CustomException(ErrorCode.NotFoundUser));
@@ -510,5 +510,15 @@ public class SupplyService {
         }
 
         return ResponseDto.success("비품 등록 성공");
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<List<SupplyUserDto>> getMyCommonSupply(Long categoryId, User user) {
+        List<Supply> commonSupplyList = supplyRepository.findByCategory_IdAndDepartmentAndDeletedFalse(categoryId, user.getDepartment());
+        List<SupplyUserDto> commonSupplyDtoList = new ArrayList<>();
+        for (Supply supply : commonSupplyList) {
+            commonSupplyDtoList.add(SupplyUserDto.of(supply));
+        }
+        return ResponseDto.success(commonSupplyDtoList);
     }
 }
