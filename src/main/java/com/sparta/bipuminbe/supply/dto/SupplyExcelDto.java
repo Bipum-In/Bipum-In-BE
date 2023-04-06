@@ -2,12 +2,14 @@ package com.sparta.bipuminbe.supply.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Getter
+@Setter
 public class SupplyExcelDto {
     private String category; // 비품 종류
     private String modelName; // 제품명

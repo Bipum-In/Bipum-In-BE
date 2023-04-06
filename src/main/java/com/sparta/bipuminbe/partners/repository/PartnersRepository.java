@@ -12,4 +12,6 @@ public interface PartnersRepository extends JpaRepository<Partners, Long> {
     List<Partners> findByDeletedFalse();
 
     Boolean existsByPartnersName(String partnersName);
+
+    Optional<Partners> findByPartnersNameAndDeletedFalse(String partners);
 }

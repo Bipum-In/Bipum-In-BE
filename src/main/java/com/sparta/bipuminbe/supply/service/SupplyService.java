@@ -475,12 +475,39 @@ public class SupplyService {
 
     //비품 복수 등록
     @Transactional
-    public ResponseDto<String> createSupplies(List<SupplyExcelDto> supplyExcelDtos, User user) throws IOException {
+    public ResponseDto<String> createSupplies(List<SupplyExcelDto> supplyExcelDtos) throws IOException {
         for (SupplyExcelDto supplyExcelDto : supplyExcelDtos) {
-            
-        }
+            Category category = categoryRepository.findByCategoryName(supplyExcelDto.getCategory()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NotFoundCategory));
 
-//        supplyRepository.save(dto);
+            Partners partners = null;
+            if(supplyExcelDto.getPartners() != null){
+                partners = partnersRepository.findByPartnersNameAndDeletedFalse(supplyExcelDto.getPartners())
+                        .orElseThrow(() -> new CustomException(ErrorCode.NotFoundPartners));
+            }
+
+            User user = null;
+            if(supplyExcelDto.getEmpName() != null) {
+                user = userRepository.findByEmpNameAndDepartment_DeptNameAndDeletedFalse
+                        (supplyExcelDto.getEmpName(), supplyExcelDto.getDeptName()).orElseThrow(
+                        () -> new CustomException(ErrorCode.NotFoundUser));
+            }
+
+            String image = supplyExcelDto.getImage() == null ? supplyExcelDto.getImage() :
+                    s3Uploader.uploadFiles(supplyExcelDto.getMultipartFile(), supplyExcelDto.getCategory());
+
+            supplyRepository.save(Supply.builder()
+                    .serialNum(supplyExcelDto.getSerialNum())
+                    .modelName(supplyExcelDto.getModelName())
+                    .image(image)
+                    .status(user == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING)
+                    .partners(partners)
+                    .user(user)
+                    .category(category)
+                    .useType(user == null ? null : UseType.PERSONAL)
+                    .deleted(false)
+                    .build());
+        }
 
         return ResponseDto.success("비품 등록 성공");
     }
