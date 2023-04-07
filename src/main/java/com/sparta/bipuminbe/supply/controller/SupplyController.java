@@ -61,7 +61,7 @@ public class SupplyController {
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/supply")
     @Operation(summary = "비품 조회 페이지(ADMIN) *수정사항 있습니다.*", description = "SelectBox용(카테고리), 관리자 권한 필요. <br>" +
-            "status ALL/USING/STOCK/REPAIRING. <br>" +
+            "status -/USING/STOCK/REPAIRING. <br>" +
             "수정 사항 : userName -> empName")
     public ResponseDto<Page<SupplyResponseDto>> getSupplyList(
             @RequestParam(defaultValue = "") String keyword,
