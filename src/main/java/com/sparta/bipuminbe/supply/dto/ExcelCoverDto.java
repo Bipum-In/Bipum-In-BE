@@ -12,6 +12,6 @@ import java.util.Map;
 @Setter
 @AllArgsConstructor
 public class ExcelCoverDto {
-    SupplyExcelDto[] excelDtoList;
+    List<String> jsonObjectList;
     List<MultipartFile> multipartFileList;
 }

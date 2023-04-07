@@ -1,5 +1,6 @@
 package com.sparta.bipuminbe.supply.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
@@ -477,11 +478,13 @@ public class SupplyService {
     //비품 복수 등록
     @Transactional
     public ResponseDto<String> createSupplies(ExcelCoverDto excelCoverDto) throws IOException {
-        SupplyExcelDto[] supplyExcelDtos = excelCoverDto.getExcelDtoList();
+        List<String> supplyExcelDtos = excelCoverDto.getJsonObjectList();
         List<MultipartFile> multipartFileList = excelCoverDto.getMultipartFileList();
-        int index = 0;
-        for (SupplyExcelDto supplyExcelDto : supplyExcelDtos) {
 
+        ObjectMapper mapper = new ObjectMapper();
+        int index = 0;
+        for (String supplyExcelString : supplyExcelDtos) {
+            SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelString, SupplyExcelDto.class);
             Category category = categoryRepository.findByCategoryName(supplyExcelDto.getCategory()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundCategory));
 
@@ -498,7 +501,7 @@ public class SupplyService {
                         () -> new CustomException(ErrorCode.NotFoundUser));
             }
 
-            String image = supplyExcelDto.getImage().equals("") ?
+            String image = supplyExcelDto.getImage() == null || supplyExcelDto.getImage().equals("") ?
                     s3Uploader.uploadFiles(multipartFileList.get(index), supplyExcelDto.getCategory()) :
                     supplyExcelDto.getImage();
 
@@ -514,6 +517,11 @@ public class SupplyService {
                     .deleted(false)
                     .build());
         }
+
+        if(index != multipartFileList.size()){
+            throw new CustomException(ErrorCode.NotMatchedAmountImages);
+        }
+
         return ResponseDto.success("비품 등록 성공");
     }
 
