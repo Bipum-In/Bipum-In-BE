@@ -255,7 +255,7 @@ public class UserService {
         List<Department> departmentList = departmentRepository.findByDeletedFalse();
         List<User> userList = userRepository.findByDeletedFalse();
 
-        // 2중 for문을 돌리는 것 보다 유리할 것 같아 하나 만들어줌. (dept와 번호를 연결하는 SetList)
+        // 2중 for문을 돌리는 것 보다 유리할 것 같아 하나 만들어줌. (dept와 번호를 연결하는 SetList.)
         Map<String, Integer> deptNumber = new HashMap<>();
         for (int i = 0; i < departmentList.size(); i++) {
             deptNumber.put(departmentList.get(i).getDeptName(), i);
