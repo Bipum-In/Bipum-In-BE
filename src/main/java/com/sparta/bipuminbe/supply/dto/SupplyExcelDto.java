@@ -23,7 +23,7 @@ public class SupplyExcelDto {
     @NotNull
     @NotBlank
     private String serialNum; // 시리얼 넘버
-    private LocalDateTime createdAt; // 등록일자
+    private String createdAt; // 등록일자
     private String partners; // 협력업체
     private String empName; // 사용자
     private String deptName; //부서명
