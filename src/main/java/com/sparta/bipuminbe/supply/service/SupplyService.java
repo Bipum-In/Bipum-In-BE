@@ -522,7 +522,7 @@ public class SupplyService {
             }
 
             String image = supplyExcelDto.getImage() == null || supplyExcelDto.getImage().equals("") ?
-                    s3Uploader.uploadFiles(multipartFileList.get(index), supplyExcelDto.getCategory()) :
+                    s3Uploader.uploadFiles(multipartFileList.get(index++), supplyExcelDto.getCategory()) :
                     supplyExcelDto.getImage();
 
             supplyRepository.save(Supply.builder()
