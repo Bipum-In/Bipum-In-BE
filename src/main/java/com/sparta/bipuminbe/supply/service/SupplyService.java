@@ -60,7 +60,7 @@ public class SupplyService {
 
         String image = supplyRequestDto.getImage();
 
-        if (image == null) {
+        if (image == null || image.equals("")) {
             image = s3Uploader.uploadFiles(supplyRequestDto.getMultipartFile(), supplyRequestDto.getCategoryName());
         }
 
