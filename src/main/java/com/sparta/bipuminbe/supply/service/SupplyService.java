@@ -71,7 +71,8 @@ public class SupplyService {
             newCategory = category.get();
         } else {
             newCategory = Category.builder().largeCategory(supplyRequestDto.getLargeCategory())
-                    .categoryName(supplyRequestDto.getCategoryName()).build();
+                    .categoryName(supplyRequestDto.getCategoryName())
+                    .deleted(false).build();
             categoryRepository.save(newCategory);
         }
 
@@ -262,7 +263,7 @@ public class SupplyService {
             newCategory = category.get();
         } else {
             newCategory = Category.builder().largeCategory(supplyRequestDto.getLargeCategory())
-                    .categoryName(supplyRequestDto.getCategoryName()).build();
+                    .categoryName(supplyRequestDto.getCategoryName()).deleted(false).build();
             categoryRepository.save(newCategory);
         }
 
