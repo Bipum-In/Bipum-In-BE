@@ -19,4 +19,6 @@ public interface DepartmentRepository extends JpaRepository<Department,Long> {
 
     // 부서 조회.
     Optional<Department> findByIdAndDeletedFalse(Long deptId);
+
+    Optional<Department> findByDeptNameAndDeletedFalse(String deptName);
 }

@@ -27,6 +27,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
@@ -521,6 +523,12 @@ public class SupplyService {
                         () -> new CustomException(ErrorCode.NotFoundUser));
             }
 
+            Department department = null;
+            if (supplyExcelDto.getDeptName() != null && supplyExcelDto.getDeptName().equals("")) {
+                department = departmentRepository.findByDeptNameAndDeletedFalse(supplyExcelDto.getDeptName()).orElseThrow(
+                        () -> new CustomException(ErrorCode.NotFoundDepartment));
+            }
+
             String image = supplyExcelDto.getImage() == null || supplyExcelDto.getImage().equals("") ?
                     s3Uploader.uploadFiles(multipartFileList.get(index++), supplyExcelDto.getCategory()) :
                     supplyExcelDto.getImage();
@@ -529,11 +537,13 @@ public class SupplyService {
                     .serialNum(supplyExcelDto.getSerialNum())
                     .modelName(supplyExcelDto.getModelName())
                     .image(image)
-                    .status(user == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING)
                     .partners(partners)
                     .user(user)
                     .category(category)
-                    .useType(user == null ? null : UseType.PERSONAL)
+                    .useType(user == null ? department == null ? null : UseType.COMMON : UseType.PERSONAL)
+                    .status(user == null && department == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING)
+                    .department(department)
+                    .createdAt(LocalDateTime.parse(supplyExcelDto.getCreatedAt(), DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     .deleted(false)
                     .build());
         }
