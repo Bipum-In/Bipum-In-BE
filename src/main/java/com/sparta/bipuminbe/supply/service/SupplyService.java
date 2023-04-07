@@ -533,11 +533,13 @@ public class SupplyService {
                     s3Uploader.uploadFiles(multipartFileList.get(index++), supplyExcelDto.getCategory()) :
                     supplyExcelDto.getImage();
 
-            LocalDateTime createdAt;
-            try {
-                createdAt = LocalDateTime.parse(supplyExcelDto.getCreatedAt(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            } catch (Exception e) {
-                throw new CustomException(ErrorCode.InValidTimePattern);
+            LocalDateTime createdAt = null;
+            if (supplyExcelDto.getCreatedAt() != null && !supplyExcelDto.getCreatedAt().equals("")) {
+                try {
+                    createdAt = LocalDateTime.parse(supplyExcelDto.getCreatedAt(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                } catch (Exception e) {
+                    throw new CustomException(ErrorCode.InValidTimePattern);
+                }
             }
 
             supplyRepository.save(Supply.builder()
