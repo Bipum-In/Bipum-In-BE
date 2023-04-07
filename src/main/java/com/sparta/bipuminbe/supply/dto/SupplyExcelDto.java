@@ -13,14 +13,14 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 public class SupplyExcelDto {
-//    @NotNull
-//    @NotBlank
+    @NotNull
+    @NotBlank
     private String category; // 비품 종류
-//    @NotNull
-//    @NotBlank
+    @NotNull
+    @NotBlank
     private String modelName; // 제품명
-//    @NotNull
-//    @NotBlank
+    @NotNull
+    @NotBlank
     private String serialNum; // 시리얼 넘버
     private LocalDateTime createdAt; // 등록일자
     private String partners; // 협력업체

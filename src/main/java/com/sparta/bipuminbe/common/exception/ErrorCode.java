@@ -23,6 +23,7 @@ public enum ErrorCode {
     NotFoundImages(HttpStatus.NOT_FOUND, "해당 요청의 이미지를 찾을 수 없습니다."),
     NotFoundFileInS3(HttpStatus.NOT_FOUND, "해당 파일을 S3에서 찾을 수 없습니다."),
     NotMatchedAmountImages(HttpStatus.BAD_REQUEST, "누락된 이미지가 존재합니다."),
+    InvalidBase64(HttpStatus.BAD_REQUEST, "Base64 파일이 잘못되었습니다."),
 
     NotFoundNotification(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
     NotAllowedMethod(HttpStatus.METHOD_NOT_ALLOWED, "잘못된 요청입니다."),

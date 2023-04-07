@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,6 +79,27 @@ public class S3Uploader {
         if (convertFile.createNewFile()) { // 바로 위에서 지정한 경로에 File이 생성됨 (경로가 잘못되었다면 생성 불가능)
             try (FileOutputStream fos = new FileOutputStream(convertFile)) { // FileOutputStream 데이터를 파일에 바이트 스트림으로 저장하기 위함
                 fos.write(file.getBytes());
+            }
+            return Optional.of(convertFile);
+        }
+        return Optional.empty();
+    }
+
+    public String uploadBase64(String base64Image, String dirName) throws IOException {
+        File uploadFile = convertBase64(base64Image) // 파일 변환할 수 없으면 에러
+                .orElseThrow(() -> new CustomException(ErrorCode.InvalidBase64));
+        return upload(uploadFile, dirName);
+    }
+
+//     로컬에 파일 업로드 하기 (Base64)
+    private Optional<File> convertBase64(String base64Image) throws IOException {
+        File convertFile = new File(System.getProperty("user.dir") + "/" + base64Image.substring(0,10));
+        // BASE64를 일반 파일로 변환하고 저장합니다.
+        Base64.Decoder decoder = Base64.getDecoder();
+        byte[] decodedBytes = decoder.decode(base64Image.getBytes());
+        if (convertFile.createNewFile()) { // 바로 위에서 지정한 경로에 File이 생성됨 (경로가 잘못되었다면 생성 불가능)
+            try (FileOutputStream fos = new FileOutputStream(convertFile)) { // FileOutputStream 데이터를 파일에 바이트 스트림으로 저장하기 위함
+                fos.write(decodedBytes);
             }
             return Optional.of(convertFile);
         }
