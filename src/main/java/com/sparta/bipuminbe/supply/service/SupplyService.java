@@ -27,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -533,10 +534,10 @@ public class SupplyService {
                     s3Uploader.uploadFiles(multipartFileList.get(index++), supplyExcelDto.getCategory()) :
                     supplyExcelDto.getImage();
 
-            LocalDateTime createdAt = null;
+            LocalDateTime createdAt = LocalDateTime.now();
             if (supplyExcelDto.getCreatedAt() != null && !supplyExcelDto.getCreatedAt().equals("")) {
                 try {
-                    createdAt = LocalDateTime.parse(supplyExcelDto.getCreatedAt(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    createdAt = LocalDate.parse(supplyExcelDto.getCreatedAt(), DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
                 } catch (Exception e) {
                     throw new CustomException(ErrorCode.InValidTimePattern);
                 }
