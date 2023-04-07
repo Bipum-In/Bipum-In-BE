@@ -36,6 +36,7 @@ public enum ErrorCode {
     NotUnProcessedRequest(HttpStatus.BAD_REQUEST, "처리 전 요청만 수정/삭제가 가능합니다."),
     InValidRequest(HttpStatus.BAD_REQUEST, "해당 키워드의 이미지를 검색할 수 없습니다."),
     ProcessedRequest(HttpStatus.BAD_REQUEST, "이미 처리된 요청입니다."),
+    InValidTimePattern(HttpStatus.BAD_REQUEST, "날짜형식을 맞춰주세요. yyyy-MM-dd"),
 
     JsonConvertError(HttpStatus.BAD_REQUEST, "Json 형식으로 변환에 실패했습니다."),
     UnAuthorized(HttpStatus.UNAUTHORIZED, "로그인을 해주세요."),
@@ -53,6 +54,7 @@ public enum ErrorCode {
     TokenUnsupportedJwtException(HttpStatus.BAD_REQUEST, "Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다."),
     TokenIllegalArgumentException(HttpStatus.BAD_REQUEST, "JWT claims is empty, 잘못된 JWT 토큰 입니다."),
     RefreshTokenValidException(HttpStatus.BAD_REQUEST, "refreshToken이 유효하지 않습니다.");
+
 
     private final HttpStatus httpStatus;
     private final String message;
