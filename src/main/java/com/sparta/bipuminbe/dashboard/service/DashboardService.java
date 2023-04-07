@@ -35,7 +35,7 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public ResponseDto<AdminMainResponseDto> getAdminMain(User admin, LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
-        List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
+        List<Category> categoryList = categoryRepository.findByLargeCategoryInAndDeletedFalseOrderByCategoryName(categoryQuery);
 
         List<SupplyCountDto> responseDtos = new ArrayList();
         // 카테고리별 총 수량, 사용중, 수리중, 재고량 계산
@@ -87,7 +87,7 @@ public class DashboardService {
     // 사용자 대시보드
     public ResponseDto<UserMainResponseDto> getUserMain(User user, LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
-        List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
+        List<Category> categoryList = categoryRepository.findByLargeCategoryInAndDeletedFalseOrderByCategoryName(categoryQuery);
 
         // 요청 현황 조회
         Map<String, Long> userCountMap = new HashMap<>();

@@ -14,11 +14,13 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    boolean existsByCategoryName(String categoryName);
+    boolean existsByCategoryNameAndDeletedFalse(String categoryName);
 
-    List<Category> findByLargeCategoryInOrderByCategoryName(Set<LargeCategory> largeCategories);
+    List<Category> findByLargeCategoryInAndDeletedFalseOrderByCategoryName(Set<LargeCategory> largeCategories);
 
-    Optional<Category> findByCategoryName(String categoryName);
+    Optional<Category> findByCategoryNameAndDeletedFalse(String categoryName);
+
+    Optional<Category> findByCategoryNameAndDeletedTrue(String categoryName);
 
     // 내가 가진 LargeCategory 리스트만 나오는 SelectBox.
     @Query(value = "select distinct c.largeCategory from Supply s " +
@@ -44,4 +46,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             "where c.largeCategory = :largeCategory and s.department = :department and s.deleted = false")
     List<Category> getMyCommonCategory(@Param("largeCategory") LargeCategory largeCategory,
                                        @Param("department") Department department);
+
+    List<Category> findByDeletedFalse();
+
+    Optional<Category> findByCategoryName(String categoryName);
 }

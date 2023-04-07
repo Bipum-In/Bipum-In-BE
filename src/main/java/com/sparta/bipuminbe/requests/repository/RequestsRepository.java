@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface RequestsRepository extends JpaRepository<Requests, Long> {
-    // 카테고리 삭제 전 카테고리 체크.
-    List<Requests> findByCategory_Id(Long id);
 
     boolean existsBySupply_SupplyIdAndRequestStatusNot(Long supplyId, RequestStatus requestStatus);
 
