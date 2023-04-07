@@ -222,25 +222,25 @@ public class NotificationService {
         // 관리자가 직접 비품의 유저를 설정한 건
         if(isAccepted.name().equals("ASSIGN") && request.getRequestType().name().equals("SUPPLY")){
             return "관리자에 의해 " + request.getSupply().getModelName() + " "
-                    + categoryName + "비품이 배정되었습니다.";
+                    + categoryName + " 비품이 배정되었습니다.";
         }
 
         // 관리자가 배정된 비품을 다른 사용자에게 지급할 때 기존사용자에게 보낼 메시지
         if(isAccepted.name().equals("ASSIGN") && request.getRequestType().name().equals("RETURN") ){
             return "관리자에 의해 " + request.getSupply().getModelName() + " "
-                    + categoryName + "비품이 반납되었습니다.";
+                    + categoryName + " 비품이 반납되었습니다.";
         }
 
         // 관리자가 비품을 폐기할 때, 기존 사용자에게 보낼 메시지
         if(isAccepted.name().equals("ASSIGN") && request.getSupply().getDeleted() ){
             return "관리자에 의해 " + request.getSupply().getModelName() + " "
-                    + categoryName + "비품이 폐기되었습니다.";
+                    + categoryName + " 비품이 폐기되었습니다.";
         }
         // 수리 요청 >> 폐기 처리 건
         return receiver.getEmpName() + " 님의 "
                 + request.getSupply().getModelName() + " "
                 + categoryName
-                + " 수리 요청 건이 폐기처리되었습니다.";
+                + " 비품이 폐기처리되었습니다.";
     }
 
     private String creatForAdminMessage(Requests request, User sender){
