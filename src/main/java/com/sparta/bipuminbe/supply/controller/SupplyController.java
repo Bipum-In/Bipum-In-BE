@@ -50,7 +50,10 @@ public class SupplyController {
     //비품 복수 등록
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PostMapping(value = "/supply/excel", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "비품 복수 등록", description = "카테고리(null 불가), 모델 이름(null 불가), 시리얼 번호(null 불가), 반납 날짜(null 가능), 협력업체(null 가능), 유저 아이디(null 불가), 관리자 권한 필요.")
+    @Operation(summary = "비품 복수 등록", description = "jsonObjectList(json Stringify 리스트), multipartFileList 리스트 <br>" +
+            "String category, String modelName, String serialNum, String createdAt(yyyy-MM-dd) <br>" +
+            "String partners, String empName, String deptName, String image <br>" +
+            "위 2줄이 한뭉치로 stringify 후 리스트화 하여 보내야 한다.")
     public ResponseDto<String> createSupplies(
             @ModelAttribute ExcelCoverDto excelCoverDto) throws IOException {
 
