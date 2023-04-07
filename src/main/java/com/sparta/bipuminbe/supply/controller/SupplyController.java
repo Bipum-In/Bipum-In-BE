@@ -163,8 +163,8 @@ public class SupplyController {
     // 비품 이미지 search
     @GetMapping("/supply/search")
     @Operation(summary = "naver Api를 통한 이미지 서치")
-    public ResponseDto<ImageResponseDto> getImageByNaver(@RequestParam String modelName) {
-        return supplyService.getImageByNaver(modelName);
+    public ResponseDto<List<ImageResponseDto>> getImageByNaver(@RequestParam List<String> modelNameList) {
+        return supplyService.getImageByNaver(modelNameList);
     }
 
     // 비품 리스트 UserPage
