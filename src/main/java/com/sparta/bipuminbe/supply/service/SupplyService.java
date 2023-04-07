@@ -509,13 +509,13 @@ public class SupplyService {
                     () -> new CustomException(ErrorCode.NotFoundCategory));
 
             Partners partners = null;
-            if (supplyExcelDto.getPartners() != null) {
+            if (supplyExcelDto.getPartners() != null && !supplyExcelDto.getPartners().equals("")) {
                 partners = partnersRepository.findByPartnersNameAndDeletedFalse(supplyExcelDto.getPartners())
                         .orElseThrow(() -> new CustomException(ErrorCode.NotFoundPartners));
             }
 
             User user = null;
-            if (supplyExcelDto.getEmpName() != null) {
+            if (supplyExcelDto.getEmpName() != null && !supplyExcelDto.getEmpName().equals("")) {
                 user = userRepository.findByEmpNameAndDepartment_DeptNameAndDeletedFalse
                         (supplyExcelDto.getEmpName(), supplyExcelDto.getDeptName()).orElseThrow(
                         () -> new CustomException(ErrorCode.NotFoundUser));
