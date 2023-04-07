@@ -23,13 +23,20 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final SupplyRepository supplyRepository;
-    private final RequestsRepository requestsRepository;
 
     @Transactional(readOnly = true)
     public ResponseDto<List<CategoryDto>> getCategoryList(String largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
-        List<Category> categoryList = categoryRepository.findByLargeCategoryInOrderByCategoryName(categoryQuery);
+        List<Category> categoryList = categoryRepository.findByLargeCategoryInAndDeletedFalseOrderByCategoryName(categoryQuery);
         return ResponseDto.success(convertToDtoList(categoryList));
+    }
+
+    private List<CategoryDto> convertToDtoList(List<Category> categoryList) {
+        List<CategoryDto> categoryDtoList = new ArrayList<>();
+        for (Category category : categoryList) {
+            categoryDtoList.add(CategoryDto.of(category));
+        }
+        return categoryDtoList;
     }
 
     private Set<LargeCategory> getCategoryQuery(String largeCategory) {
@@ -48,13 +55,32 @@ public class CategoryService {
             throw new CustomException(ErrorCode.DuplicatedCategory);
         }
 
+        checkDeletedCategory(categoryDto.getCategoryName());
         Category category = Category.builder()
                 .categoryName(categoryDto.getCategoryName())
                 .largeCategory(LargeCategory.valueOf(categoryDto.getLargeCategory()))
+                .deleted(false)
                 .build();
         categoryRepository.save(category);
 
         return ResponseDto.success("카테고리 등록 완료.");
+    }
+
+    private Category getCategory(Long categoryId) {
+        return categoryRepository.findById(categoryId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundCategory));
+    }
+
+    private Boolean checkCategory(String categoryName) {
+        return categoryRepository.existsByCategoryNameAndDeletedFalse(categoryName);
+    }
+
+    private void checkDeletedCategory(String categoryName) {
+        Optional<Category> deletedCategory = categoryRepository.findByCategoryNameAndDeletedTrue(categoryName);
+        if (deletedCategory.isPresent()) {
+            Category category = deletedCategory.get();
+            category.update(categoryName + "(삭제됨#" + category.getId() + ")", deletedCategory.get().getLargeCategory());
+        }
     }
 
     @Transactional
@@ -64,6 +90,7 @@ public class CategoryService {
             throw new CustomException(ErrorCode.DuplicatedCategory);
         }
 
+        checkDeletedCategory(categoryDto.getCategoryName());
         category.update(categoryDto.getCategoryName(), LargeCategory.valueOf(categoryDto.getLargeCategory()));
         return ResponseDto.success("카테고리 수정 완료.");
     }
@@ -73,22 +100,9 @@ public class CategoryService {
         if (supplyRepository.existsByCategory_Id(categoryId)) {
             throw new CustomException(ErrorCode.ExistsSupplyInCategory);
         }
-        // 삭제 전 연관관계 끊기. 카테고리는 Requests에 있어서 중요한 정보가 아니라 SoftDelete 필요 없다 판단.
-        List<Requests> requestList = requestsRepository.findByCategory_Id(categoryId);
-        for (Requests request : requestList) {
-            request.deleteCategory();
-        }
+
         categoryRepository.deleteById(categoryId);
         return ResponseDto.success("카테고리 삭제 완료.");
-    }
-
-    private Category getCategory(Long categoryId) {
-        return categoryRepository.findById(categoryId).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundCategory));
-    }
-
-    private Boolean checkCategory(String categoryName) {
-        return categoryRepository.existsByCategoryName(categoryName);
     }
 
     @Transactional(readOnly = true)
@@ -99,14 +113,6 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public ResponseDto<List<CategoryDto>> getMyCategory(LargeCategory largeCategory, User user) {
         return ResponseDto.success(convertToDtoList(categoryRepository.getMyCategory(largeCategory, user)));
-    }
-
-    private static List<CategoryDto> convertToDtoList(List<Category> categoryList) {
-        List<CategoryDto> categoryDtoList = new ArrayList<>();
-        for (Category category : categoryList) {
-            categoryDtoList.add(CategoryDto.of(category));
-        }
-        return categoryDtoList;
     }
 
     @Transactional(readOnly = true)

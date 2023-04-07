@@ -1,7 +1,5 @@
 package com.sparta.bipuminbe.supply.repository;
 
-import com.sparta.bipuminbe.category.dto.CategoryDto;
-import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
@@ -42,8 +40,7 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
             "AND c.id IN :categoryQuery " +
             "AND s.status IN :statusQuery " +
-            "AND s.deleted = false " +
-            "order by s.createdAt desc")
+            "AND s.deleted = false ")
     Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Long> categoryQuery,
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
 

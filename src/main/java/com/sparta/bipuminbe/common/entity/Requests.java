@@ -110,8 +110,4 @@ public class Requests extends TimeStamped {
     public void update(Requests requests) {
         this.content = requests.getContent();
     }
-
-    public void deleteCategory() {
-        this.category = null;
-    }
 }

@@ -139,7 +139,7 @@ public class SupplyService {
     private Set<Long> getCategoryQuerySet(Long categoryId) {
         Set<Long> categoryQuerySet = new HashSet<>();
         if (categoryId == null) {
-            List<Category> categoryList = categoryRepository.findAll();
+            List<Category> categoryList = categoryRepository.findByDeletedFalse();
             for (Category category : categoryList) {
                 categoryQuerySet.add(category.getId());
             }
@@ -504,7 +504,7 @@ public class SupplyService {
         int index = 0;
         for (String supplyExcelString : supplyExcelDtos) {
             SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelString, SupplyExcelDto.class);
-            Category category = categoryRepository.findByCategoryName(supplyExcelDto.getCategory()).orElseThrow(
+            Category category = categoryRepository.findByCategoryNameAndDeletedFalse(supplyExcelDto.getCategory()).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundCategory));
 
             Partners partners = null;
