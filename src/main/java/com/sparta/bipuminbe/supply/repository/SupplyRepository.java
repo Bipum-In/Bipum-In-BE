@@ -65,6 +65,16 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
                              @Param("categoryId") Long categoryId,
                              @Param("statusQuery") Set<RequestStatus> statusQuery);
 
+    // 다른 요청을 처리 중이라 신청을 할 수 없는 비품은 출력하지 않는 로직. (공용 비품 버전)
+    @Query(value = "select s from Supply s " +
+            "inner join Category c on s.category = c " +
+            "where s.department = :department and c.id = :categoryId and s.deleted = false " +
+            "and s not in (select distinct r.supply from Requests r " +
+            "where r.requestStatus in :statusQuery and r.supply is not null)")
+    List<Supply> getMyCommonSupply(@Param("department") Department department,
+                             @Param("categoryId") Long categoryId,
+                             @Param("statusQuery") Set<RequestStatus> statusQuery);
+
     List<Supply> findByUser_IdAndDeletedFalse(Long id);
 
     // 부서 삭제시 공용 비품 리스트 호출.
@@ -76,6 +86,4 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
     // 유저 대쉬보드 공용 비품 보기 전환
     List<Supply> findByDepartmentAndCategory_LargeCategoryInAndDeletedFalseOrderByCategory_CategoryNameAsc
             (Department department, Collection<LargeCategory> largeCategories);
-
-    List<Supply> findByCategory_IdAndDepartmentAndDeletedFalse(Long categoryId, Department department);
 }

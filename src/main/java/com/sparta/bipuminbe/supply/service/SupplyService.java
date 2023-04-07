@@ -366,19 +366,33 @@ public class SupplyService {
     //자신의 비품 목록(selectbox용)
     @Transactional(readOnly = true)
     public ResponseDto<List<SupplyUserDto>> getSupplyUser(Long categoryId, User user) {
-        // 다른 요청이 처리 중인 비품을 찾기 위한 statusQuery
+        List<Supply> supplyInUserList = supplyRepository.getMySupply(user, categoryId, getNotProcessedStatusQuery());
+        return ResponseDto.success(convertToMySupplyDtoList(supplyInUserList));
+    }
+
+    // 다른 요청이 처리 중인 비품을 찾기 위한 statusQuery
+    private Set<RequestStatus> getNotProcessedStatusQuery() {
         Set<RequestStatus> statusQuery = new HashSet<>();
         statusQuery.add(RequestStatus.UNPROCESSED);
         statusQuery.add(RequestStatus.PROCESSING);
+        return statusQuery;
+    }
 
-        List<Supply> supplyInUserList = supplyRepository.getMySupply(user, categoryId, statusQuery);
+    // MySupplyDtoList로 Convert
+    private List<SupplyUserDto> convertToMySupplyDtoList(List<Supply> supplyInUserList) {
         List<SupplyUserDto> supplyUserDtoList = new ArrayList<>();
         for (Supply supply : supplyInUserList) {
             supplyUserDtoList.add(SupplyUserDto.of(supply));
         }
-        return ResponseDto.success(supplyUserDtoList);
+        return supplyUserDtoList;
     }
 
+    // 자신의 부서의 공용 비품 목록(selectBox용)
+    @Transactional(readOnly = true)
+    public ResponseDto<List<SupplyUserDto>> getMyCommonSupply(Long categoryId, User user) {
+        List<Supply> commonSupplyList = supplyRepository.getMyCommonSupply(user.getDepartment(), categoryId, getNotProcessedStatusQuery());
+        return ResponseDto.success(convertToMySupplyDtoList(commonSupplyList));
+    }
 
     // 비품 요청 상세 페이지. 재고 SelectBox.
     @Transactional(readOnly = true)
@@ -518,20 +532,10 @@ public class SupplyService {
                     .build());
         }
 
-        if(index != multipartFileList.size()){
+        if (index != multipartFileList.size()) {
             throw new CustomException(ErrorCode.NotMatchedAmountImages);
         }
 
         return ResponseDto.success("비품 등록 성공");
-    }
-
-    @Transactional(readOnly = true)
-    public ResponseDto<List<SupplyUserDto>> getMyCommonSupply(Long categoryId, User user) {
-        List<Supply> commonSupplyList = supplyRepository.findByCategory_IdAndDepartmentAndDeletedFalse(categoryId, user.getDepartment());
-        List<SupplyUserDto> commonSupplyDtoList = new ArrayList<>();
-        for (Supply supply : commonSupplyList) {
-            commonSupplyDtoList.add(SupplyUserDto.of(supply));
-        }
-        return ResponseDto.success(commonSupplyDtoList);
     }
 }
