@@ -558,7 +558,7 @@ public class SupplyService {
                     .build());
         }
 
-        if (index != multipartFileList.size()) {
+        if (multipartFileList != null && index != multipartFileList.size()) {
             throw new CustomException(ErrorCode.NotMatchedAmountImages);
         }
 
