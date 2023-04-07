@@ -408,7 +408,7 @@ public class SupplyService {
 
     // naver 이미지 서치
     @Transactional(readOnly = true)
-    public ResponseDto<ImageResponseDto> getImageByNaver(String modelName) {
+    public ResponseDto<List<ImageResponseDto>> getImageByNaver(List<String> modelNameList) {
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
 
@@ -416,16 +416,21 @@ public class SupplyService {
         headers.add("X-Naver-Client-Secret", naverClientSecret);
         String body = "";
 
+        List<ImageResponseDto> imageResponseDtoList = new ArrayList<>();
         HttpEntity<String> requestEntity = new HttpEntity<String>(body, headers);
-        ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
 
-        HttpStatus httpStatus = responseEntity.getStatusCode();
-        int status = httpStatus.value();
-        log.info("NAVER API Status Code : " + status);
+        for (String modelName : modelNameList) {
+            ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
 
-        String response = responseEntity.getBody();
+            HttpStatus httpStatus = responseEntity.getStatusCode();
+            int status = httpStatus.value();
+            log.info("NAVER API Status Code : " + status);
 
-        return ResponseDto.success(fromJSONtoItems(response));
+            String response = responseEntity.getBody();
+            imageResponseDtoList.add(fromJSONtoItems(response));
+        }
+
+        return ResponseDto.success(imageResponseDtoList);
     }
 
 
