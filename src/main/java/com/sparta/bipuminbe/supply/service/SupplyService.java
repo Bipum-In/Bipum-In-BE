@@ -554,7 +554,7 @@ public class SupplyService {
                     .category(category)
                     .useType(user == null ? department == null ? null : UseType.COMMON : UseType.PERSONAL)
                     .status(user == null && department == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING)
-                    .department(department)
+                    .department(user == null && department != null ? department : null)
                     .createdAt(createdAt)
                     .deleted(false)
                     .build());
