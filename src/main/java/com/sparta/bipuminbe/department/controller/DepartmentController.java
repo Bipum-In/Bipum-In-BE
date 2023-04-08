@@ -4,6 +4,7 @@ import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.department.dto.DepartmentDto;
+import com.sparta.bipuminbe.department.dto.DeptByEmployeeDto;
 import com.sparta.bipuminbe.department.service.DepartmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -46,5 +47,12 @@ public class DepartmentController {
     public ResponseDto<String> deleteDept(@PathVariable Long deptId,
                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return departmentService.deleteDept(deptId, userDetails.getUser());
+    }
+
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @GetMapping("/dept/{deptId}")
+    @Operation(summary = "부서별 구성원 조회", description = "관리자 권한 필요.")
+    public ResponseDto<List<DeptByEmployeeDto>> getDeptByEmployee(@PathVariable Long deptId) {
+        return departmentService.getDeptByEmployee(deptId);
     }
 }

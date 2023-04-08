@@ -9,6 +9,7 @@ import com.sparta.bipuminbe.partners.dto.PartnersDto;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,5 +70,28 @@ public class PartnersService {
 
     private Boolean checkPartners(String partnersName) {
         return partnersRepository.existsByPartnersName(partnersName);
+    }
+
+    public ResponseDto<Page<PartnersDto>> getPartnersPage(int page, int size) {
+        Pageable pageable = getPageable(page, size);
+
+        Page<Partners> partners = partnersRepository.findAllByDeletedFalse(pageable);
+
+        List<PartnersDto> partnersDtoList = convertToDto(partners.getContent());
+
+        return ResponseDto.success(new PageImpl<>(partnersDtoList, partners.getPageable(), partners.getTotalElements()));
+    }
+
+    private Pageable getPageable(int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return PageRequest.of(page - 1, size, sort);
+    }
+
+    private List<PartnersDto> convertToDto(List<Partners> partners) {
+        List<PartnersDto> partnersDtoList = new ArrayList<>();
+        for (Partners partner : partners) {
+            partnersDtoList.add(PartnersDto.of(partner));
+        }
+        return partnersDtoList;
     }
 }

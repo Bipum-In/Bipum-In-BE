@@ -6,6 +6,7 @@ import com.sparta.bipuminbe.partners.dto.PartnersDto;
 import com.sparta.bipuminbe.partners.service.PartnersService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,16 @@ public class PartnersController {
     @Operation(summary = "협력 업체 목록", description = "SelectBox용")
     public ResponseDto<List<PartnersDto>> getPartnersList() {
         return partnersService.getPartnersList();
+    }
+
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @GetMapping("/partners/admin")
+    @Operation(summary = "협력 업체 관리 페이지", description = "관리자 설정 페이지 내 협력 업체 관리")
+    public ResponseDto<Page<PartnersDto>> getPartnersPage(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return partnersService.getPartnersPage(page, size);
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)

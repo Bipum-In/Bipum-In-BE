@@ -12,6 +12,7 @@ import com.sparta.bipuminbe.common.enums.UseType;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.department.dto.DepartmentDto;
+import com.sparta.bipuminbe.department.dto.DeptByEmployeeDto;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -112,5 +113,16 @@ public class DepartmentService {
         }
         departmentRepository.delete(getDept(deptId));
         return ResponseDto.success("부서 삭제 완료.");
+    }
+
+    public ResponseDto<List<DeptByEmployeeDto>> getDeptByEmployee(Long deptId) {
+        List<User> employees = userRepository.findByDeptByEmployee(deptId);
+        List<DeptByEmployeeDto> deptByEmployeeDtos = new ArrayList<>();
+
+        for(User employee : employees){
+            deptByEmployeeDtos.add(DeptByEmployeeDto.of(employee));
+        }
+
+        return ResponseDto.success(deptByEmployeeDtos);
     }
 }

@@ -15,6 +15,7 @@ public class PartnersDto {
     @NotNull
     private String partnersName;
     private String phone;
+    private String email;
     private String address;
 
     public static PartnersDto of(Partners partners) {
@@ -22,6 +23,7 @@ public class PartnersDto {
                 .partnersId(partners.getPartnersId())
                 .partnersName(partners.getPartnersName())
                 .phone(partners.getPhone())
+                .email(partners.getEmail())
                 .address(partners.getAddress())
                 .build();
     }
