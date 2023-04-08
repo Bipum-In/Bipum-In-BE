@@ -54,6 +54,7 @@ public class RequestsDetailsResponseDto {
                 .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
                 .requestStatus(request.getRequestStatus().getKorean())
 
+                .useType(supply.getUseType() == null ? null : supply.getUseType().getKorean())
                 .content(request.getContent())
                 .imageList(imageList)
 
@@ -68,8 +69,7 @@ public class RequestsDetailsResponseDto {
                 .modifiedAt(request.getModifiedAt());
 
         if (request.getRequestType().equals(RequestType.SUPPLY)) {
-            builder.categoryName(category == null ? null : category.getCategoryName())
-                    .useType(request.getUseType().getKorean());
+            builder.categoryName(category == null ? null : category.getCategoryName());
 
             if (request.getAcceptResult() == AcceptResult.ACCEPT) {
                 Supply allocatedSupply = request.getSupply();
@@ -79,7 +79,6 @@ public class RequestsDetailsResponseDto {
         } else {
             category = supply.getCategory();
             builder.categoryName(category.getCategoryName())
-                    .useType(supply.getUseType() == null ? null : supply.getUseType().getKorean())
                     .modelName(supply.getModelName())
                     .serialNum(supply.getSerialNum());
         }
