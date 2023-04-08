@@ -7,6 +7,7 @@ import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForAdmin;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForUser;
 import com.sparta.bipuminbe.dashboard.dto.AdminMainResponseDto;
+import com.sparta.bipuminbe.dashboard.dto.SearchTotalDto;
 import com.sparta.bipuminbe.dashboard.dto.UserMainResponseDto;
 import com.sparta.bipuminbe.dashboard.dto.UserSupplyDto;
 import com.sparta.bipuminbe.dashboard.service.DashboardService;
@@ -72,5 +73,12 @@ public class DashboardController {
     public ResponseDto<List<UserSupplyDto>> getCommonSupply(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                             @RequestParam(defaultValue = "") LargeCategory largeCategory) {
         return dashboardService.getCommonSupply(userDetails.getUser(), largeCategory);
+    }
+
+    @Secured(value = UserRoleEnum.Authority.ADMIN)
+    @GetMapping("/admin/main/search")
+    @Operation(summary = "상단 검색바를 통한 검색", description = "")
+    public ResponseDto<SearchTotalDto> searchTotal() {
+        return ResponseDto.success(new SearchTotalDto());
     }
 }
