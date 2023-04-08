@@ -500,9 +500,11 @@ public class SupplyService {
 
     //비품 복수 등록
     @Transactional
-    public ResponseDto<String> createSupplies(ExcelCoverDto excelCoverDto) throws IOException {
+    public List<Requests> createSupplies(ExcelCoverDto excelCoverDto, User admin) throws IOException {
         List<String> supplyExcelDtos = excelCoverDto.getJsonObjectList();
         List<MultipartFile> multipartFileList = excelCoverDto.getMultipartFileList();
+
+        List<Requests> requestsList = new ArrayList<>();
 
         ObjectMapper mapper = new ObjectMapper();
         int index = 0;
@@ -543,7 +545,7 @@ public class SupplyService {
                 }
             }
 
-            supplyRepository.save(Supply.builder()
+            Supply supply = supplyRepository.save(Supply.builder()
                     .serialNum(supplyExcelDto.getSerialNum())
                     .modelName(supplyExcelDto.getModelName())
                     .image(image)
@@ -556,12 +558,30 @@ public class SupplyService {
                     .createdAt(createdAt)
                     .deleted(false)
                     .build());
+
+            // user history 기록 생성.
+            if (supply.getUseType() != null) {
+                Requests requests = requestsRepository.save(Requests.builder()
+                        .requestType(RequestType.SUPPLY)
+                        .content("비품 사용 유저 내역을 위한 기록 생성.")
+                        .acceptResult(AcceptResult.ACCEPT)
+                        .requestStatus(RequestStatus.PROCESSED)
+                        .supply(supply)
+                        .user(supply.getUseType() == UseType.COMMON ? admin : user)
+                        .category(category)
+                        .useType(supply.getUseType())
+                        .department(supply.getUseType() == UseType.COMMON ? department : null)
+                        .admin(admin)
+                        .build());
+
+                requestsList.add(requests);
+            }
         }
 
         if (multipartFileList != null && index != multipartFileList.size()) {
             throw new CustomException(ErrorCode.NotMatchedAmountImages);
         }
 
-        return ResponseDto.success("비품 등록 성공");
+        return requestsList;
     }
 }
