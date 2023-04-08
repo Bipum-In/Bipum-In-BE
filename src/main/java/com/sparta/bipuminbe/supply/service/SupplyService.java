@@ -517,17 +517,17 @@ public class SupplyService {
                         .orElseThrow(() -> new CustomException(ErrorCode.NotFoundPartners));
             }
 
+            Department department = null;
+            if (supplyExcelDto.getDeptName() != null && supplyExcelDto.getDeptName().equals("")) {
+                department = departmentRepository.findByDeptNameAndDeletedFalse(supplyExcelDto.getDeptName()).orElseThrow(
+                        () -> new CustomException(ErrorCode.NotFoundDepartment));
+            }
+
             User user = null;
             if (supplyExcelDto.getEmpName() != null && !supplyExcelDto.getEmpName().equals("")) {
                 user = userRepository.findByEmpNameAndDepartment_DeptNameAndDeletedFalse
                         (supplyExcelDto.getEmpName(), supplyExcelDto.getDeptName()).orElseThrow(
                         () -> new CustomException(ErrorCode.NotFoundUser));
-            }
-
-            Department department = null;
-            if (supplyExcelDto.getDeptName() != null && supplyExcelDto.getDeptName().equals("")) {
-                department = departmentRepository.findByDeptNameAndDeletedFalse(supplyExcelDto.getDeptName()).orElseThrow(
-                        () -> new CustomException(ErrorCode.NotFoundDepartment));
             }
 
             String image = supplyExcelDto.getImage() == null || supplyExcelDto.getImage().equals("") ?
