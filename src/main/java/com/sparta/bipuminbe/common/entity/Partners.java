@@ -31,6 +31,9 @@ public class Partners extends TimeStamped {
     private String address;
 
     @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
     private Boolean deleted;
 
     @Builder
@@ -38,6 +41,7 @@ public class Partners extends TimeStamped {
         this.partnersName = partnersDto.getPartnersName();
         this.phone = partnersDto.getPhone();
         this.address = partnersDto.getAddress();
+        this.email = partnersDto.getEmail();
         this.deleted = false;
     }
 
@@ -45,5 +49,6 @@ public class Partners extends TimeStamped {
         this.partnersName = partnersDto.getPartnersName();
         this.phone = partnersDto.getPhone();
         this.address = partnersDto.getAddress();
+        this.email = partnersDto.getEmail();
     }
 }

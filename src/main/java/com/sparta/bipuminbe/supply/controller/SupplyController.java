@@ -55,9 +55,18 @@ public class SupplyController {
             "String partners, String empName, String deptName, String image <br>" +
             "위 2줄이 한뭉치로 stringify 후 리스트화 하여 보내야 한다.")
     public ResponseDto<String> createSupplies(
-            @ModelAttribute ExcelCoverDto excelCoverDto) throws IOException {
+            @ModelAttribute ExcelCoverDto excelCoverDto,
+    @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
-        return supplyService.createSupplies(excelCoverDto);
+        List<Requests> requests = supplyService.createSupplies(excelCoverDto, userDetails.getUser());
+
+        for(Requests request : requests){
+            if (request.getSupply().getUser().getId() != null) {
+                notificationService.sendForUser(userDetails.getUser(), request.getRequestId(), AcceptResult.ASSIGN);
+            }
+        }
+
+        return ResponseDto.success("비품 등록 성공");
     }
 
     //비품 조회
