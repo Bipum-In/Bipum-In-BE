@@ -115,6 +115,7 @@ public class DepartmentService {
         return ResponseDto.success("부서 삭제 완료.");
     }
 
+    @Transactional(readOnly = true)
     public ResponseDto<List<DeptByEmployeeDto>> getDeptByEmployee(Long deptId) {
         List<User> employees = userRepository.findByDeptByEmployee(deptId);
         List<DeptByEmployeeDto> deptByEmployeeDtos = new ArrayList<>();
