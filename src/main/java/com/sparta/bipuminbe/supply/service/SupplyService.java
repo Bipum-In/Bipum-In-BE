@@ -424,6 +424,7 @@ public class SupplyService {
         HttpEntity<String> requestEntity = new HttpEntity<String>(body, headers);
 
         for (String modelName : modelNameList) {
+            //
             Thread.sleep(100);
             ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
 
