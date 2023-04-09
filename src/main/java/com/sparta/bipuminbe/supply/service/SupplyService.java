@@ -508,28 +508,29 @@ public class SupplyService {
 
         ObjectMapper mapper = new ObjectMapper();
         int index = 0;
-        for (String supplyExcelString : supplyExcelDtos) {
-            SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelString, SupplyExcelDto.class);
+        for (int i = 0; i < supplyExcelDtos.size(); i++) {
+            SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelDtos.get(i), SupplyExcelDto.class);
+            String numberMessage = (i+1) + "번째 줄";
             Category category = categoryRepository.findByCategoryNameAndDeletedFalse(supplyExcelDto.getCategory()).orElseThrow(
-                    () -> new CustomException(ErrorCode.NotFoundCategory));
+                    () -> new CustomException.ExcelError(numberMessage, ErrorCode.NotFoundCategory));
 
             Partners partners = null;
             if (supplyExcelDto.getPartners() != null && !supplyExcelDto.getPartners().equals("")) {
                 partners = partnersRepository.findByPartnersNameAndDeletedFalse(supplyExcelDto.getPartners())
-                        .orElseThrow(() -> new CustomException(ErrorCode.NotFoundPartners));
+                        .orElseThrow(() -> new CustomException.ExcelError(numberMessage, ErrorCode.NotFoundPartners));
             }
 
             Department department = null;
             if (supplyExcelDto.getDeptName() != null && supplyExcelDto.getDeptName().equals("")) {
                 department = departmentRepository.findByDeptNameAndDeletedFalse(supplyExcelDto.getDeptName()).orElseThrow(
-                        () -> new CustomException(ErrorCode.NotFoundDepartment));
+                        () -> new CustomException.ExcelError(numberMessage, ErrorCode.NotFoundDepartment));
             }
 
             User user = null;
             if (supplyExcelDto.getEmpName() != null && !supplyExcelDto.getEmpName().equals("")) {
                 user = userRepository.findByEmpNameAndDepartment_DeptNameAndDeletedFalse
                         (supplyExcelDto.getEmpName(), supplyExcelDto.getDeptName()).orElseThrow(
-                        () -> new CustomException(ErrorCode.NotFoundUser));
+                        () -> new CustomException.ExcelError(numberMessage, ErrorCode.NotFoundUser));
             }
 
             String image = supplyExcelDto.getImage() == null || supplyExcelDto.getImage().equals("") ?
@@ -541,7 +542,7 @@ public class SupplyService {
                 try {
                     createdAt = LocalDate.parse(supplyExcelDto.getCreatedAt(), DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
                 } catch (Exception e) {
-                    throw new CustomException(ErrorCode.InValidTimePattern);
+                    throw new CustomException.ExcelError(numberMessage, ErrorCode.InValidTimePattern);
                 }
             }
 

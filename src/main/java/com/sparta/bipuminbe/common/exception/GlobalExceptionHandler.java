@@ -26,6 +26,12 @@ public class GlobalExceptionHandler {
                 .body(new ResponseDto.Error(e.getErrorCode().getMessage()));
     }
 
+    @ExceptionHandler(CustomException.ExcelError.class)
+    public ResponseEntity<ResponseDto.Error> ExcelErrorException(CustomException.ExcelError e) {
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(new ResponseDto.Error(e.getNumberMessage() + e.getErrorCode().getMessage()));
+    }
+
 //    @ExceptionHandler(Exception.class)
 //    public ResponseEntity<ResponseDto.Error> handlerException(Exception e) {
 //        log.error(e.toString() + " occured: {}", e.getMessage());

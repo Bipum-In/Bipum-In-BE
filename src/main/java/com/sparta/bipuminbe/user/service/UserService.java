@@ -1,7 +1,6 @@
 package com.sparta.bipuminbe.user.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
@@ -28,7 +27,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.*;
 
 @Slf4j
@@ -181,7 +179,7 @@ public class UserService {
         User foundUser = userRepository.findByUsernameAndDeletedFalse(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
         Department department = getDepartment(loginRequestDto.getDepartmentId());
-        foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone());
+        foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone(), foundUser.getAlarm());
         Boolean checkUser = foundUser.getEmpName() == null || foundUser.getDepartment() == null || foundUser.getPhone() == null;
 
         return ResponseDto.success(LoginResponseDto.of(foundUser, checkUser));
@@ -281,6 +279,13 @@ public class UserService {
             userMapByDept.put(deptName, userListByDept[deptNumber.get(deptName)]);
         }
         return ResponseDto.success(userMapByDept);
+    }
+
+    @Transactional
+    public ResponseDto<String> updateUser(UserUpdateRequestDto userUpdateRequestDto, User user) {
+        user.update(userUpdateRequestDto.getEmpName(), getDepartment(userUpdateRequestDto.getDeptId()),
+                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm());
+        return ResponseDto.success("정보 수정 완료");
     }
 
     //    @Transactional

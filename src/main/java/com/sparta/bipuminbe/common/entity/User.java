@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
+import com.sparta.bipuminbe.user.dto.UserUpdateRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -64,10 +65,11 @@ public class User extends TimeStamped {
         this.deleted = deleted;
     }
 
-    public void update(String empName, Department department, String phone) {
+    public void update(String empName, Department department, String phone, Boolean alarm) {
         this.empName = empName;
         this.department = department;
         this.phone = phone;
+        this.alarm = alarm;
     }
 
     public void switchAlarm(Boolean alarm) {

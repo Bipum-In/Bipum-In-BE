@@ -55,7 +55,6 @@ public enum ErrorCode {
     TokenIllegalArgumentException(HttpStatus.BAD_REQUEST, "JWT claims is empty, 잘못된 JWT 토큰 입니다."),
     RefreshTokenValidException(HttpStatus.BAD_REQUEST, "refreshToken이 유효하지 않습니다.");
 
-
     private final HttpStatus httpStatus;
     private final String message;
 }

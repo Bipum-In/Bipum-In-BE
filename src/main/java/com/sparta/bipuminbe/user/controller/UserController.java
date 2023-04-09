@@ -1,12 +1,12 @@
 package com.sparta.bipuminbe.user.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.user.dto.LoginRequestDto;
 import com.sparta.bipuminbe.user.dto.LoginResponseDto;
 import com.sparta.bipuminbe.user.dto.UserResponseDto;
+import com.sparta.bipuminbe.user.dto.UserUpdateRequestDto;
 import com.sparta.bipuminbe.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,15 +16,9 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +34,6 @@ public class UserController {
     @PostMapping("/login/google")
     public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(@RequestParam String code,
                                                                      @RequestParam String urlType) throws IOException {
-
         return userService.googleLogin(code, urlType);
     }
 
@@ -74,6 +67,14 @@ public class UserController {
     public ResponseDto<Map<String, Set<String>>> getAllUserList() {
         return userService.getAllUserList();
     }
+
+    @PutMapping
+    @Operation(summary = "유저 정보 수정", description = "보이는 대로 보내주시면 될 것 같습니다.")
+    public ResponseDto<String> updateUser(@RequestBody @Valid UserUpdateRequestDto userUpdateRequestDto,
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.updateUser(userUpdateRequestDto, userDetails.getUser());
+    }
+
 
     //    @Operation(summary = "로그인 처리", description = "카카오 계정정보 담은 Jwt토큰 발급")
 //    @PostMapping("/login")
