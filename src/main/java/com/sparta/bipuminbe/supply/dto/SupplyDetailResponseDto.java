@@ -29,6 +29,7 @@ public class SupplyDetailResponseDto {
     private String partnersName;
     private Long userId;
     private String empName;
+    private Long deptId;
     private String deptName;
 
     private String status;
@@ -54,6 +55,7 @@ public class SupplyDetailResponseDto {
         this.partnersName = partners == null ? null : partners.getPartnersName();
         this.userId = user == null ? null : user.getId();
         this.empName = useType == UseType.COMMON ? useType.getKorean() : user == null ? null : user.getEmpName();
+        this.deptId = useType == UseType.COMMON ? supply.getDepartment().getId() : null;
         this.deptName = useType == UseType.COMMON ? supply.getDepartment().getDeptName() :
                 user == null ? null : user.getDepartment().getDeptName();
 
