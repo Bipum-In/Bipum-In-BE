@@ -506,6 +506,10 @@ public class SupplyService {
         List<String> supplyExcelDtos = excelCoverDto.getJsonObjectList();
         List<MultipartFile> multipartFileList = excelCoverDto.getMultipartFileList();
 
+        if(supplyExcelDtos == null || supplyExcelDtos.size() <= 1) {
+            throw new CustomException(ErrorCode.ExcelAmountLessThanTwo);
+        }
+
         List<Requests> requestsList = new ArrayList<>();
 
         ObjectMapper mapper = new ObjectMapper();
