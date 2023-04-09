@@ -516,7 +516,13 @@ public class SupplyService {
         int index = 0;
         for (int i = 0; i < supplyExcelDtos.size(); i++) {
             SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelDtos.get(i), SupplyExcelDto.class);
-            String numberMessage = (i+1) + "번째 줄";
+            String numberMessage = (i+1) + "번째 줄 ";
+
+            // 이거 너무 비효율적인 것 같아서 save 할 때 생기는 오류를 잡는 방식으로 하고싶다.
+            if(supplyRepository.existsBySerialNum(supplyExcelDto.getSerialNum())){
+                throw new CustomException(ErrorCode.DuplicateSerialNum);
+            }
+
             Category category = categoryRepository.findByCategoryNameAndDeletedFalse(supplyExcelDto.getCategory()).orElseThrow(
                     () -> new CustomException.ExcelError(numberMessage, ErrorCode.NotFoundCategory));
 

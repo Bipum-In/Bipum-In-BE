@@ -83,4 +83,6 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
     // 유저 대쉬보드 공용 비품 보기 전환
     List<Supply> findByDepartmentAndCategory_LargeCategoryInAndDeletedFalseOrderByCategory_CategoryNameAsc
             (Department department, Collection<LargeCategory> largeCategories);
+
+    boolean existsBySerialNum(String serialNum);
 }

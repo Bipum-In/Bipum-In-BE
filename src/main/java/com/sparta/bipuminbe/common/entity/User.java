@@ -1,7 +1,6 @@
 package com.sparta.bipuminbe.common.entity;
 
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
-import com.sparta.bipuminbe.user.dto.UserUpdateRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
