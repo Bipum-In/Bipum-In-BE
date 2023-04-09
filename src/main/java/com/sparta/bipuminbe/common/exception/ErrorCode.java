@@ -38,6 +38,7 @@ public enum ErrorCode {
     ProcessedRequest(HttpStatus.BAD_REQUEST, "이미 처리된 요청입니다."),
     InValidTimePattern(HttpStatus.BAD_REQUEST, "날짜형식을 맞춰주세요. yyyy-MM-dd"),
     ExcelAmountLessThanTwo(HttpStatus.BAD_REQUEST, "최소 2개 이상의 엑셀 데이터만 저장 가능합니다."),
+    DuplicateSerialNum(HttpStatus.BAD_REQUEST, "해당 시리얼넘버의 비품이 이미 등록되어 있습니다."),
 
     JsonConvertError(HttpStatus.BAD_REQUEST, "Json 형식으로 변환에 실패했습니다."),
     UnAuthorized(HttpStatus.UNAUTHORIZED, "로그인을 해주세요."),
