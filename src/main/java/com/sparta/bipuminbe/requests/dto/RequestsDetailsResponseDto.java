@@ -54,7 +54,7 @@ public class RequestsDetailsResponseDto {
                 .acceptResult(request.getAcceptResult() == null ? null : request.getAcceptResult().getKorean())
                 .requestStatus(request.getRequestStatus().getKorean())
 
-                .useType(request.getUseType() == null ? null : supply.getUseType().getKorean())
+                .useType(request.getUseType() == null ? null : request.getUseType().getKorean())
                 .content(request.getContent())
                 .imageList(imageList)
 
