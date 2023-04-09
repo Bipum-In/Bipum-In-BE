@@ -175,7 +175,7 @@ public class SupplyController {
     // 비품 이미지 search
     @GetMapping("/supply/search")
     @Operation(summary = "naver Api를 통한 이미지 서치")
-    public ResponseDto<List<ImageResponseDto>> getImageByNaver(@RequestParam List<String> modelNameList) {
+    public ResponseDto<List<ImageResponseDto>> getImageByNaver(@RequestParam List<String> modelNameList) throws InterruptedException {
         return supplyService.getImageByNaver(modelNameList);
     }
 
