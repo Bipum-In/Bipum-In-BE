@@ -537,7 +537,7 @@ public class SupplyService {
             }
 
             Department department = null;
-            if (supplyExcelDto.getDeptName() != null && supplyExcelDto.getDeptName().equals("")) {
+            if (supplyExcelDto.getDeptName() != null && !supplyExcelDto.getDeptName().equals("")) {
                 department = departmentRepository.findByDeptNameAndDeletedFalse(supplyExcelDto.getDeptName()).orElseThrow(
                         () -> new CustomException.ExcelError(numberMessage, ErrorCode.NotFoundDepartment));
             }
