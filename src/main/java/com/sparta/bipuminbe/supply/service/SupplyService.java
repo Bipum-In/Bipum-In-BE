@@ -427,9 +427,10 @@ public class SupplyService {
         List<ImageResponseDto> imageResponseDtoList = new ArrayList<>();
         HttpEntity<String> requestEntity = new HttpEntity<String>(body, headers);
 
-        for (String modelName : modelNameList) {
-
-            Thread.sleep(20);
+        for (int i = 0; i < modelNameList.size(); i++) {
+            String modelName = modelNameList.get(i);
+            String errorMessage = (i+1) +"번째 줄 ";
+            Thread.sleep(10);
             ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
 
             HttpStatus httpStatus = responseEntity.getStatusCode();
@@ -437,7 +438,7 @@ public class SupplyService {
             log.info("NAVER API Status Code : " + status);
 
             String response = responseEntity.getBody();
-            imageResponseDtoList.add(fromJSONtoItems(response));
+            imageResponseDtoList.add(fromJSONtoItems(errorMessage, response));
         }
 
         return ResponseDto.success(imageResponseDtoList);
@@ -445,11 +446,11 @@ public class SupplyService {
 
 
     // Naver 이미지 Json 처리.
-    private ImageResponseDto fromJSONtoItems(String response) {
+    private ImageResponseDto fromJSONtoItems(String errorMessage, String response) {
         JSONObject rjson = new JSONObject(response);
         JSONArray items = rjson.getJSONArray("items");
         if (items.length() == 0) {
-            throw new CustomException(ErrorCode.InValidRequest);
+            throw new CustomException.ExcelError(errorMessage, ErrorCode.InValidRequest);
         }
         return ImageResponseDto.of(items.getJSONObject(0));
     }
