@@ -7,17 +7,17 @@ files:
     overwrite: yes
 
 permissions:
-  - object: /
+  - object: /home/ubuntu/app
     pattern: "**"
-    owner: my-codedeploy-app
-    group: my-codedeploy-deployment-group
+    owner: bipumin
+    group: ubuntu
 
 hooks:
   AfterInstall:
     - location: scripts/stop.sh
       timeout: 60
-      runas: ubuntu
+      runas: root
   ApplicationStart:
     - location: scripts/start.sh
       timeout: 60
-      runas: ubuntu
+      runas: root
