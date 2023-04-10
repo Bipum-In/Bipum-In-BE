@@ -10,6 +10,7 @@ import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
+import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -286,7 +288,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public ResponseDto<UserInfoResponseDto> getUserInfo(User user) {
-        return ResponseDto.success(UserInfoResponseDto.of(user));
+        // lazyInitialize 오류로 인해 user를 그대로 사용 못했음.
+        User foundUser = userRepository.findByIdAndDeletedFalse(user.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundUser));
+        return ResponseDto.success(UserInfoResponseDto.of(foundUser));
     }
 
     @Transactional
