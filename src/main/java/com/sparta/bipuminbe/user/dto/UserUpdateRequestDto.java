@@ -1,22 +1,25 @@
 package com.sparta.bipuminbe.user.dto;
 
 import lombok.Getter;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @Getter
+@Setter
 public class UserUpdateRequestDto {
-    @Pattern(regexp = "^[a-zA-Zㄱ-ㅎ가-힣 ]*${4,30}")
+    @Pattern(regexp = "^[a-zA-Z가-힣 ]*${4,30}")
     private String empName;
     @NotNull
-    @NotBlank
     private Long deptId;
     @NotNull
     @NotBlank
     private String phone;
     @NotNull
-    @NotBlank
     private Boolean alarm;
+    private String image;
+    private MultipartFile multipartFile;
 }

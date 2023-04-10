@@ -3,14 +3,12 @@ package com.sparta.bipuminbe.user.controller;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
-import com.sparta.bipuminbe.user.dto.LoginRequestDto;
-import com.sparta.bipuminbe.user.dto.LoginResponseDto;
-import com.sparta.bipuminbe.user.dto.UserResponseDto;
-import com.sparta.bipuminbe.user.dto.UserUpdateRequestDto;
+import com.sparta.bipuminbe.user.dto.*;
 import com.sparta.bipuminbe.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -68,10 +66,18 @@ public class UserController {
         return userService.getAllUserList();
     }
 
-    @PutMapping
+
+    @GetMapping("/myPage")
+    @Operation(summary = "마이페이지", description = "유저 마이페이지")
+    public ResponseDto<UserInfoResponseDto> getUserInfo(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.getUserInfo(userDetails.getUser());
+    }
+
+
+    @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "유저 정보 수정", description = "보이는 대로 보내주시면 될 것 같습니다.")
-    public ResponseDto<String> updateUser(@RequestBody @Valid UserUpdateRequestDto userUpdateRequestDto,
-                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseDto<String> updateUser(@ModelAttribute @Valid UserUpdateRequestDto userUpdateRequestDto,
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return userService.updateUser(userUpdateRequestDto, userDetails.getUser());
     }
 
