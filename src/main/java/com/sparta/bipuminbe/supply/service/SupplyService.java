@@ -55,7 +55,7 @@ public class SupplyService {
     @Transactional
     public Requests createSupply(SupplyRequestDto supplyRequestDto, User admin) throws IOException {
 
-        if(supplyRepository.existsBySerialNum(supplyRequestDto.getSerialNum())){
+        if (supplyRepository.existsBySerialNum(supplyRequestDto.getSerialNum())) {
             throw new CustomException(ErrorCode.DuplicateSerialNum);
         }
 
@@ -429,7 +429,7 @@ public class SupplyService {
 
         for (int i = 0; i < modelNameList.size(); i++) {
             String modelName = modelNameList.get(i);
-            String errorMessage = (i+1) +"번째 줄 ";
+            String errorMessage = (i + 1) + "번째 줄 ";
             Thread.sleep(50);
             ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
 
@@ -438,7 +438,7 @@ public class SupplyService {
             log.info("NAVER API Status Code : " + status);
 
             String response = responseEntity.getBody();
-            imageResponseDtoList.add(fromJSONtoItems(errorMessage, response));
+            imageResponseDtoList.add(fromJSONtoItems(modelNameList.size() == 1, errorMessage, response));
         }
 
         return ResponseDto.success(imageResponseDtoList);
@@ -446,11 +446,14 @@ public class SupplyService {
 
 
     // Naver 이미지 Json 처리.
-    private ImageResponseDto fromJSONtoItems(String errorMessage, String response) {
+    private ImageResponseDto fromJSONtoItems(Boolean isExcel, String errorMessage, String response) {
         JSONObject rjson = new JSONObject(response);
         JSONArray items = rjson.getJSONArray("items");
         if (items.length() == 0) {
-            throw new CustomException.ExcelError(errorMessage, ErrorCode.InValidRequest);
+            if (isExcel) {
+                throw new CustomException.ExcelError(errorMessage, ErrorCode.InValidRequest);
+            }
+            throw new CustomException(ErrorCode.InValidRequest);
         }
         return ImageResponseDto.of(items.getJSONObject(0));
     }
@@ -511,7 +514,7 @@ public class SupplyService {
         List<String> supplyExcelDtos = excelCoverDto.getJsonObjectList();
         List<MultipartFile> multipartFileList = excelCoverDto.getMultipartFileList();
 
-        if(supplyExcelDtos == null || supplyExcelDtos.size() <= 1) {
+        if (supplyExcelDtos == null || supplyExcelDtos.size() <= 1) {
             throw new CustomException(ErrorCode.ExcelAmountLessThanTwo);
         }
 
@@ -521,9 +524,9 @@ public class SupplyService {
         int index = 0;
         for (int i = 0; i < supplyExcelDtos.size(); i++) {
             SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelDtos.get(i), SupplyExcelDto.class);
-            String numberMessage = (i+1) + "번째 줄 ";
+            String numberMessage = (i + 1) + "번째 줄 ";
 
-            if(supplyRepository.existsBySerialNum(supplyExcelDto.getSerialNum())){
+            if (supplyRepository.existsBySerialNum(supplyExcelDto.getSerialNum())) {
                 throw new CustomException.ExcelError(numberMessage, ErrorCode.DuplicateSerialNum);
             }
 
