@@ -9,7 +9,7 @@ files:
 permissions:
   - object: /
     pattern: "**"
-    owner: bipumin
+    owner: ubuntu
     group: ubuntu
 
 hooks:
