@@ -12,20 +12,12 @@ import java.io.Serializable;
 public class LoginResponseDto{
     private Boolean checkUser;
     private Boolean isAdmin;
-    private String empName;
-    private String deptName;
-    private String image;
-    private Long userId;
     private UserRoleEnum userRole;
 
     public static LoginResponseDto of(User user, Boolean checkUser) {
         return LoginResponseDto.builder()
                 .checkUser(checkUser)
                 .isAdmin(user.getRole().equals(UserRoleEnum.ADMIN))
-                .empName(user.getEmpName())
-                .deptName(user.getDepartment() == null ? null : user.getDepartment().getDeptName())
-                .image(user.getImage())
-                .userId(user.getId())
                 .userRole(user.getRole())
                 .build();
     }
