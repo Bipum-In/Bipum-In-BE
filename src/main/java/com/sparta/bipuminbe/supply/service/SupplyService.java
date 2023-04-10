@@ -429,7 +429,7 @@ public class SupplyService {
 
         for (String modelName : modelNameList) {
 
-            Thread.sleep(10);
+            Thread.sleep(20);
             ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
 
             HttpStatus httpStatus = responseEntity.getStatusCode();
