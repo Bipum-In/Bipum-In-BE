@@ -438,7 +438,7 @@ public class SupplyService {
             log.info("NAVER API Status Code : " + status);
 
             String response = responseEntity.getBody();
-            imageResponseDtoList.add(fromJSONtoItems(modelNameList.size() == 1, errorMessage, response));
+            imageResponseDtoList.add(fromJSONtoItems(modelNameList.size() != 1, errorMessage, response));
         }
 
         return ResponseDto.success(imageResponseDtoList);

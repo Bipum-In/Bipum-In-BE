@@ -172,6 +172,8 @@ public class UserService {
                     build();
 
             userRepository.save(googleUser);
+        }else {
+            googleUser.refreshGoogleToken(accessToken.getAccess_token());
         }
 
         return googleUser;
@@ -230,8 +232,6 @@ public class UserService {
         // 비품 자동 반납.
         List<Supply> supplyList = supplyRepository.findByUser_IdAndDeletedFalse(googleUser.getId());
         for (Supply supply : supplyList) {
-            supply.returnSupply();
-
             // 비품 자동 반납에 의한 기록 생성.
             requestsRepository.save(Requests.builder()
                     .requestType(RequestType.RETURN)
@@ -243,6 +243,7 @@ public class UserService {
                     .user(googleUser)
                     .admin(googleUser)
                     .build());
+            supply.returnSupply();
         }
 
         // DB의 회원정보 삭제

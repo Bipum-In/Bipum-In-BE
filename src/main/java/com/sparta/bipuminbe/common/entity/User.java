@@ -75,4 +75,8 @@ public class User extends TimeStamped {
     public void switchAlarm(Boolean alarm) {
         this.alarm = !alarm;
     }
+
+    public void refreshGoogleToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
 }
