@@ -64,11 +64,12 @@ public class User extends TimeStamped {
         this.deleted = deleted;
     }
 
-    public void update(String empName, Department department, String phone, Boolean alarm) {
+    public void update(String empName, Department department, String phone, Boolean alarm, String image) {
         this.empName = empName;
         this.department = department;
         this.phone = phone;
         this.alarm = alarm;
+        this.image = image;
     }
 
     public void switchAlarm(Boolean alarm) {

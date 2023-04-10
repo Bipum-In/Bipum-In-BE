@@ -9,6 +9,7 @@ import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.common.s3.S3Uploader;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -27,6 +28,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.*;
 
 @Slf4j
@@ -40,6 +42,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final JwtUtil jwtUtil;
+    private final S3Uploader s3Uploader;
 
     //    @Value("${login.encrypt.algorithm}")
 //    private final String alg;
@@ -179,7 +182,7 @@ public class UserService {
         User foundUser = userRepository.findByUsernameAndDeletedFalse(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
         Department department = getDepartment(loginRequestDto.getDepartmentId());
-        foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone(), foundUser.getAlarm());
+        foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone(), foundUser.getAlarm(), foundUser.getImage());
         Boolean checkUser = foundUser.getEmpName() == null || foundUser.getDepartment() == null || foundUser.getPhone() == null;
 
         return ResponseDto.success(LoginResponseDto.of(foundUser, checkUser));
@@ -217,7 +220,7 @@ public class UserService {
                 googleUserDeleteRequest,
                 String.class
         );
-        if(response.getStatusCode() != HttpStatus.OK){
+        if (response.getStatusCode() != HttpStatus.OK) {
             throw new CustomException(ErrorCode.FailedRevokeGoogleAccessToken);
         }
 
@@ -281,10 +284,19 @@ public class UserService {
         return ResponseDto.success(userMapByDept);
     }
 
+    @Transactional(readOnly = true)
+    public ResponseDto<UserInfoResponseDto> getUserInfo(User user) {
+        return ResponseDto.success(UserInfoResponseDto.of(user));
+    }
+
     @Transactional
-    public ResponseDto<String> updateUser(UserUpdateRequestDto userUpdateRequestDto, User user) {
+    public ResponseDto<String> updateUser(UserUpdateRequestDto userUpdateRequestDto, User user) throws IOException {
+        String image = userUpdateRequestDto.getImage();
+        if (image == null || image.equals("")) {
+            image = s3Uploader.uploadFiles(userUpdateRequestDto.getMultipartFile(), "user");
+        }
         user.update(userUpdateRequestDto.getEmpName(), getDepartment(userUpdateRequestDto.getDeptId()),
-                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm());
+                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image);
         return ResponseDto.success("정보 수정 완료");
     }
 
