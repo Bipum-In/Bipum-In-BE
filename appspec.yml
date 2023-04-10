@@ -7,10 +7,10 @@ files:
     overwrite: yes
 
 permissions:
-  - object: /
+  - object: /home/ubuntu
     pattern: "**"
-    owner: root
-    group: root
+    owner: ubuntu
+    group: ubuntu
 
 hooks:
   AfterInstall:
