@@ -9,8 +9,8 @@ files:
 permissions:
   - object: /
     pattern: "**"
-    owner: ubuntu
-    group: ubuntu
+    owner: my-codedeploy-app
+    group: my-codedeploy-deployment-group
 
 hooks:
   AfterInstall:
