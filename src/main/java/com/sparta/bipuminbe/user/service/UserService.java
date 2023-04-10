@@ -286,7 +286,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public ResponseDto<UserInfoResponseDto> getUserInfo(User user) {
-        // lazyInitialize 오류로 인해 user를 그대로 사용 못했음.
+        // lazyInitialize 오류로 인해 user를 그대로 사용 못했음..
         User foundUser = userRepository.findByIdAndDeletedFalse(user.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
         return ResponseDto.success(UserInfoResponseDto.of(foundUser));
