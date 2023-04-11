@@ -3,8 +3,8 @@
 version: "3"
 services:
   web:
-    image: nginx  # 존재하는 nginx 이미지 사용
-    container_name: nginx   # Nginx Container 이름 지정
+    image: ubuntu/nginx  # 존재하는 nginx 이미지 사용
+    container_name: ubuntu/nginx   # Nginx Container 이름 지정
     ports:
       - "80:80"
     volumes:
