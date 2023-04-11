@@ -6,10 +6,9 @@ services:
     image: nginx  # 존재하는 nginx 이미지 사용
     container_name: nginx   # Nginx Container 이름 지정
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
     volumes:
-      - "/etc/nginx/:/etc/nginx/" # EC2 Nginx와 Docker Nginx Container 를 매핑
+      - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf # EC2 Nginx와 Docker Nginx Container 를 매핑
   spring1:
     build:
       context: .
