@@ -1,18 +1,13 @@
 FROM nginx
 
-#패키지 업데이트
-RUN apt-get update && apt-get -y install libgl1-mesa-glx
-
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
-
-# /etc/nginx/modules-enabled 경로 생성
-RUN mkdir /etc/nginx/modules-enabled
-
-# 기존 파일 삭제
-RUN rm /etc/nginx/modules-enabled/50-mod-http-geoip.conf
-
-# 새로운 파일 복사
-COPY ./50-mod-http-geoip.conf /etc/nginx/modules-enabled/50-mod-http-geoip.conf
+## /etc/nginx/modules-enabled 경로 생성
+#RUN mkdir /etc/nginx/modules-enabled
+#
+## 기존 파일 삭제
+#RUN rm /etc/nginx/modules-enabled/50-mod-http-geoip.conf
+#
+## 새로운 파일 복사
+#COPY ./50-mod-http-geoip.conf /etc/nginx/modules-enabled/50-mod-http-geoip.conf
 
 FROM azul/zulu-openjdk:17
 
