@@ -55,7 +55,11 @@ public enum ErrorCode {
     TokenExpiredJwtException(HttpStatus.BAD_REQUEST, "Expired JWT token, 만료된 JWT token 입니다."),
     TokenUnsupportedJwtException(HttpStatus.BAD_REQUEST, "Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다."),
     TokenIllegalArgumentException(HttpStatus.BAD_REQUEST, "JWT claims is empty, 잘못된 JWT 토큰 입니다."),
-    RefreshTokenValidException(HttpStatus.BAD_REQUEST, "refreshToken이 유효하지 않습니다.");
+    RefreshTokenValidException(HttpStatus.BAD_REQUEST, "refreshToken이 유효하지 않습니다."),
+    NotFoundRefreshToken(HttpStatus.SEE_OTHER, "refreshToken이 존재하지 않습니다."),
+    NotMatchedIp(HttpStatus.SEE_OTHER, "로그인 시점과 Ip가 일치하지 않습니다. 재로그인 해주세요."),
+    TokenNeedReIssue(HttpStatus.SEE_OTHER, "액세스 토큰이 만료되었습니다. 재발급 해주세요."),
+    InValidAccessToken(HttpStatus.BAD_REQUEST, "액세스 토큰이 유효하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
