@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.common.sse.repository;
 
 import com.sparta.bipuminbe.common.entity.Notification;
+import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForAdmin;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForUser;
 import org.springframework.data.domain.Page;
@@ -36,4 +37,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "WHERE n.created_at < date_add(now(), INTERVAL -1 DAY) " +
             "AND n.is_read = 'true' AND NOW()", nativeQuery = true)
     List<Notification> findOldNotification();
+
+    List<Notification> findByReceiver(User user);
 }
