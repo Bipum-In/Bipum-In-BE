@@ -10,8 +10,8 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   S3_BUCKET_NAME: bipumin
-  CODE_DEPLOY_APPLICATION_NAME: codedeployzdd
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: zddgroup
+  CODE_DEPLOY_APPLICATION_NAME: my-codedeploy-app
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: my-codedeploy-deployment-group
 
 permissions:
   contents: read
