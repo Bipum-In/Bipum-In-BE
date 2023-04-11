@@ -19,6 +19,8 @@ do
   RESPONSE=$(curl -s http://15.164.166.126:${IDLE_PORT})
   UP_COUNT=$(echo ${RESPONSE} | grep 'real' | wc -l)
 
+  echo ">RESPONSE : ${RESPONSE}"
+
   if [ ${UP_COUNT} -ge 1 ]
   then # $up_count >= 1 ("real" 문자열이 있는지 검증)
       echo "> Health check 성공"
