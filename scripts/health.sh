@@ -9,19 +9,21 @@ IDLE_PORT=$(find_idle_port)
 
 echo "> Health Check Start!"
 echo "> IDLE_PORT: $IDLE_PORT"
-echo "> curl -s http://15.164.166.126:$IDLE_PORT/"
+echo "> curl -s http://15.164.166.126:$IDLE_PORT/actuator/health"
 sleep 10
 
 for RETRY_COUNT in {1..10}
 do
-  echo "> curl -s http://15.164.166.126:${IDLE_PORT}"
+  echo "> curl -s http://15.164.166.126:${IDLE_PORT}/actuator/health"
 
-  RESPONSE=$(curl -s http://15.164.166.126:${IDLE_PORT})
-  UP_COUNT=$(echo ${RESPONSE} | grep 'real' | wc -l)
+  RESPONSE=$(curl -s http://15.164.166.126:${IDLE_PORT}/actuator/health)
+#  UP_COUNT=$(echo ${RESPONSE} | grep 'real' | wc -l)
+  STATUS=$(echo ${RESPONSE} | jq -r '.status')
 
   echo ">RESPONSE : ${RESPONSE}"
+  #healthcheck 전용 api 만들기
 
-  if [ ${UP_COUNT} -ge 1 ]
+  if [ "$STATUS" = "UP" ]
   then # $up_count >= 1 ("real" 문자열이 있는지 검증)
       echo "> Health check 성공"
       switch_proxy
