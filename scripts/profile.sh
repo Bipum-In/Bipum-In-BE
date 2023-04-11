@@ -8,7 +8,7 @@ function find_idle_profile()
     then
         CURRENT_PROFILE=real2
     else
-        CURRENT_PROFILE=$(sudo curl -s http://15.164.166.126/)
+        CURRENT_PROFILE=real1
     fi
 
     if [ ${CURRENT_PROFILE} == real1 ]
