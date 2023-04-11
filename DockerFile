@@ -1,20 +1,9 @@
-#FROM nginx
-
-## /etc/nginx/modules-enabled 경로 생성
-#RUN mkdir /etc/nginx/modules-enabled
+#FROM azul/zulu-openjdk:17
 #
-## 기존 파일 삭제
-#RUN rm /etc/nginx/modules-enabled/50-mod-http-geoip.conf
+### root 폴더에 파일 복사.
+#WORKDIR /root
+#COPY ./spring-webapp.jar .
 #
-## 새로운 파일 복사
-#COPY ./50-mod-http-geoip.conf /etc/nginx/modules-enabled/50-mod-http-geoip.conf
-
-FROM azul/zulu-openjdk:17
-
-## root 폴더에 파일 복사.
-WORKDIR /root
-COPY ./spring-webapp.jar .
-
-
-## 이미지가 실행될때 기본 명령어 입력. active에 담긴 프로필 명으로 이미지 실행되고, Port 번호 결정
-CMD nohup java -jar -Dspring.profiles.active=${active} spring-webapp.jar
+#
+### 이미지가 실행될때 기본 명령어 입력. active에 담긴 프로필 명으로 이미지 실행되고, Port 번호 결정
+#CMD nohup java -jar -Dspring.profiles.active=${active} spring-webapp.jar
