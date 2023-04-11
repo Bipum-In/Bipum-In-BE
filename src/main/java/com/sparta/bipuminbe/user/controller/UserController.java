@@ -96,6 +96,16 @@ public class UserController {
         return userService.updateUser(userUpdateRequestDto, userDetails.getUser());
     }
 
+
+    @Secured(UserRoleEnum.Authority.ADMIN)
+    @DeleteMapping
+    @Operation(summary = "회원 관리 기능(강퇴) *new Api*", description = "부서 관리 페이지 입니다.")
+    public ResponseDto<String> manageUser(@RequestParam Long userId,
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.manageUser(userId, userDetails.getUser());
+    }
+
+
     @Operation(summary = "리프레쉬 실험(액세스)", description = "리프레쉬 실험")
     @PostMapping("/login/toy")
     public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(@RequestParam String username,

@@ -68,6 +68,7 @@ public class UserService {
     @Value("${google.auth.server.redirect.url}")
     private String redirectServerUrl;
 
+
     @Transactional
     public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType, String ip) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
@@ -109,6 +110,7 @@ public class UserService {
                 .body(ResponseDto.success(LoginResponseDto.of(googleUser, checkUser)));
     }
 
+
     //     1. "인가 코드"로 "액세스 토큰" 요청
     private AccessTokenDto getToken(String code, String urlType) throws JsonProcessingException {
         String redirectUrl = urlType.equals("local") ? redirectLocalUrl : redirectServerUrl;
@@ -144,6 +146,7 @@ public class UserService {
         return objectMapper.readValue(response.getBody(), AccessTokenDto.class);
     }
 
+
     // 2. 토큰으로 구글 로그인 API 호출 : "액세스 토큰"으로 "구글 사용자 정보" 가져오기
     private GoogleUserInfoDto getGoogleUserInfo(AccessTokenDto accessToken) throws JsonProcessingException {
         // HTTP Header 생성
@@ -165,6 +168,7 @@ public class UserService {
 
         return objectMapper.readValue(response.getBody(), GoogleUserInfoDto.class);
     }
+
 
     // 3. 필요시에 회원가입
     private User registerGoogleUserIfNeeded(GoogleUserInfoDto googleUserInfo, AccessTokenDto accessToken) {
@@ -194,6 +198,7 @@ public class UserService {
         return googleUser;
     }
 
+
     @Transactional
     public ResponseDto<String> logout(String username) {
         Optional<RefreshToken> redisEntity = redisRepository.findById(username);
@@ -202,6 +207,7 @@ public class UserService {
         }
         return ResponseDto.success("로그아웃 성공");
     }
+
 
     @Transactional
     public ResponseDto<LoginResponseDto> loginAdd(LoginRequestDto loginRequestDto, User user) {
@@ -212,6 +218,7 @@ public class UserService {
         Boolean checkUser = foundUser.getEmpName() == null || foundUser.getDepartment() == null || foundUser.getPhone() == null;
         return ResponseDto.success(LoginResponseDto.of(foundUser, checkUser));
     }
+
 
     @Transactional(readOnly = true)
     public ResponseDto<List<UserResponseDto>> getUserByDept(Long deptId) {
@@ -227,6 +234,7 @@ public class UserService {
         return departmentRepository.findByIdAndDeletedFalse(deptId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundDepartment));
     }
+
 
     // 구글과 연결된 계정 삭제
     @Transactional
@@ -252,10 +260,19 @@ public class UserService {
         User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
 
-        // 비품 자동 반납.
-        List<Supply> supplyList = supplyRepository.findByUser_IdAndDeletedFalse(googleUser.getId());
-        for (Supply supply : supplyList) {
+        returnSuppliesByDeletedUser(user, user);
 
+        // DB의 회원정보 삭제
+        userRepository.deleteByGoogleId(googleUser.getGoogleId());
+
+        return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
+    }
+
+
+    // 비품 자동 반납.
+    public void returnSuppliesByDeletedUser(User user, User admin) {
+        List<Supply> supplyList = supplyRepository.findByUser_IdAndDeletedFalse(user.getId());
+        for (Supply supply : supplyList) {
             // 비품 자동 반납에 의한 기록 생성.
             requestsRepository.save(Requests.builder()
                     .requestType(RequestType.RETURN)
@@ -264,17 +281,13 @@ public class UserService {
                     .requestStatus(RequestStatus.PROCESSED)
                     .supply(supply)
                     .useType(supply.getUseType())
-                    .user(googleUser)
-                    .admin(googleUser)
+                    .user(user)
+                    .admin(admin)
                     .build());
             supply.returnSupply();
         }
-
-        // DB의 회원정보 삭제
-        userRepository.deleteByGoogleId(googleUser.getGoogleId());
-
-        return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
     }
+
 
     @Transactional(readOnly = true)
     public ResponseDto<Map<String, Set<String>>> getAllUserList() {
@@ -309,13 +322,19 @@ public class UserService {
         return ResponseDto.success(userMapByDept);
     }
 
+
     @Transactional(readOnly = true)
     public ResponseDto<UserInfoResponseDto> getUserInfo(User user) {
         // lazyInitialize 오류로 인해 user를 그대로 사용 못했음..
-        User foundUser = userRepository.findByIdAndDeletedFalse(user.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundUser));
+        User foundUser = getUser(user.getId());
         return ResponseDto.success(UserInfoResponseDto.of(foundUser));
     }
+
+    private User getUser(Long userId) {
+        return userRepository.findByIdAndDeletedFalse(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundUser));
+    }
+
 
     @Transactional
     public ResponseDto<String> updateUser(UserUpdateRequestDto userUpdateRequestDto, User user) throws IOException {
@@ -323,12 +342,12 @@ public class UserService {
         if (image == null || image.equals("")) {
             image = s3Uploader.uploadFiles(userUpdateRequestDto.getMultipartFile(), "user");
         }
-        User foundUser = userRepository.findByIdAndDeletedFalse(user.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundUser));
+        User foundUser = getUser(user.getId());
         foundUser.update(userUpdateRequestDto.getEmpName(), getDepartment(userUpdateRequestDto.getDeptId()),
                 userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image);
         return ResponseDto.success("정보 수정 완료");
     }
+
 
     @Transactional(readOnly = true)
     public ResponseDto<String> reIssueAccessToken(User user, String ip, HttpServletResponse httpServletResponse) {
@@ -342,6 +361,7 @@ public class UserService {
         httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
         return ResponseDto.success("토큰 재발급 완료.");
     }
+
 
     @Transactional(readOnly = true)
     public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(String username, String ip) {
@@ -376,6 +396,7 @@ public class UserService {
                 .body(ResponseDto.success(LoginResponseDto.of(googleUser, checkUser)));
     }
 
+
     @Transactional(readOnly = true)
     public ResponseDto<String> toyReissue(String username, String ip, HttpServletResponse httpServletResponse) {
         RefreshToken refreshToken = redisRepository.findById(username).orElseThrow(
@@ -390,6 +411,15 @@ public class UserService {
         String accessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
         httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
         return ResponseDto.success("토큰 재발급 완료.");
+    }
+
+
+    @Transactional
+    public ResponseDto<String> manageUser(Long userId, User admin) {
+        User user = getUser(userId);
+        returnSuppliesByDeletedUser(user, admin);
+        userRepository.delete(user);
+        return ResponseDto.success("유저 삭제 완료.");
     }
 
 
