@@ -9,14 +9,12 @@ IDLE_PORT=$(find_idle_port)
 
 echo "> Health Check Start!"
 echo "> IDLE_PORT: $IDLE_PORT"
-echo "> curl -s http://15.164.166.126:$IDLE_PORT/actuator/health"
+echo "> curl http://15.164.166.126:$IDLE_PORT/actuator/health"
 sleep 10
 
 for RETRY_COUNT in {1..10}
 do
-  echo "> curl -s http://15.164.166.126:${IDLE_PORT}/actuator/health"
-
-  RESPONSE=$(curl -s http://15.164.166.126:${IDLE_PORT}/actuator/health)
+  RESPONSE=$(curl http://15.164.166.126:${IDLE_PORT}/actuator/health)
 #  UP_COUNT=$(echo ${RESPONSE} | grep 'real' | wc -l)
   STATUS=$(echo ${RESPONSE} | jq -r '.status')
 
