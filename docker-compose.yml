@@ -28,4 +28,4 @@ services:
     volumes:
       - ./:/root/
     environment:
-      active: real2  # Dockerfile 실행될 때 환경변수를 사용할 수 있게 지정
+      active: real2  # Dockerfile 실행될 때 환경변수를 사용할 수 있게 지정.
