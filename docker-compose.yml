@@ -3,9 +3,6 @@
 version: "3"
 services:
   web:
-    build:
-      context: .
-      dockerfile: DockerFile
     image: nginx  # 존재하는 nginx 이미지 사용
     container_name: nginx   # Nginx Container 이름 지정
     ports:
@@ -13,7 +10,8 @@ services:
     volumes:
       - /etc/nginx/:/etc/nginx/      # EC2 Nginx와 Docker Nginx Container 를 매핑
   spring1:
-    build: .  # Dockerfile 실행
+    build:
+      dockerfile : DockerFile  # Dockerfile 실행
     image: spring   # 내가 만든 이미지 이름을 지정
     container_name: real1  # 컨테이너 이름 지정
     ports:
@@ -23,7 +21,8 @@ services:
     environment:
       active: real1  # Dockerfile 실행될 때 환경변수를 사용할 수 있게 지정
   spring2:
-    build: .  # Dockerfile 실행
+    build:
+      dockerfile : DockerFile # Dockerfile 실행
     image: spring
     container_name: real2
     ports:
