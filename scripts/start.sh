@@ -58,4 +58,4 @@ echo "> $JAR_NAME 를 profile=$IDLE_PROFILE 로 실행합니다."
 cd $REPOSITORY
 
 docker build -t spring ./
-docker run -d --name "$IDLE_PROFILE" -d -e active=$IDLE_PROFILE -p $IDLE_PORT:$IDLE_PORT spring
+docker run -d --name "$IDLE_PROFILE" -e active=$IDLE_PROFILE -p $IDLE_PORT:$IDLE_PORT spring
