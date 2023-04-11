@@ -5,7 +5,10 @@ FROM azul/zulu-openjdk:17
 WORKDIR /root
 COPY ./spring-webapp.jar .
 
-FROM ubuntu/nginx
+FROM nginx
+
+# /etc/nginx/modules-enabled 경로 생성
+RUN mkdir /etc/nginx/modules-enabled
 
 # 기존 파일 삭제
 RUN rm /etc/nginx/modules-enabled/50-mod-http-geoip.conf
