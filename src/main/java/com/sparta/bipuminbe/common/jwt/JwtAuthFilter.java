@@ -2,10 +2,9 @@ package com.sparta.bipuminbe.common.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
-import io.jsonwebtoken.Claims;
+import com.sparta.bipuminbe.common.enums.TokenType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,18 +24,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String accessToken = jwtUtil.resolveToken(request, TokenType.ACCESS);
+        String refreshToken = jwtUtil.resolveToken(request, TokenType.REFRESH);
 
-        String token = jwtUtil.resolveToken(request);
-
-        if(token != null) {
-            if(!jwtUtil.validateToken(token)){
-                jwtExceptionHandler(response, "Token Error", HttpStatus.UNAUTHORIZED.value());
-                return;
+        if (accessToken != null) {
+            if (jwtUtil.validateToken(accessToken)) {
+                setAuthentication(jwtUtil.getUserInfoFromToken(accessToken).getSubject());
             }
-            Claims info = jwtUtil.getUserInfoFromToken(token);
-            setAuthentication(info.getSubject());
+        } else if (refreshToken != null) {
+            if (jwtUtil.validateRefreshToken(refreshToken)) {
+                setAuthentication(jwtUtil.getUserInfoFromToken(refreshToken).getSubject());
+            }
         }
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
     }
 
     public void setAuthentication(String username) {
@@ -49,7 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     public void jwtExceptionHandler(HttpServletResponse response, String msg, int statusCode) {
         response.setStatus(statusCode);
-        response.setContentType("application/json");
+        response.setContentType("application/json;charset=UTF-8");  // 원래는 json만 있었는데 나중에 확인하자.
         try {
             String json = new ObjectMapper().writeValueAsString(new ResponseDto.Error(msg)); //ObjectMapper 매퍼를 통해 변환하여 반환new SecurityExceptionDto(statusCode, msg)
             response.getWriter().write(json);

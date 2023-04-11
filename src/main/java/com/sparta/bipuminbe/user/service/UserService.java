@@ -4,17 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
-import com.sparta.bipuminbe.common.enums.AcceptResult;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
-import com.sparta.bipuminbe.common.enums.RequestType;
+import com.sparta.bipuminbe.common.enums.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
+import com.sparta.bipuminbe.common.util.redis.RedisRepository;
+import com.sparta.bipuminbe.common.util.redis.RefreshToken;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.dto.*;
-import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.jwt.JwtUtil;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +27,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
@@ -37,12 +37,13 @@ import java.util.*;
 public class UserService {
     private final RequestsRepository requestsRepository;
     private final SupplyRepository supplyRepository;
-
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
+
+    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final S3Uploader s3Uploader;
+    private final RedisRepository redisRepository;
 
     //    @Value("${login.encrypt.algorithm}")
 //    private final String alg;
@@ -68,7 +69,7 @@ public class UserService {
     private String redirectServerUrl;
 
     @Transactional
-    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType, String ip) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         AccessTokenDto accessToken = getToken(code, urlType);
 
@@ -80,16 +81,32 @@ public class UserService {
         User googleUser = registerGoogleUserIfNeeded(googleUserInfo, accessToken);
 
         // 4. JWT 토큰 반환
+        // Token 생성 Access/Refresh + addHeader
         HttpHeaders responseHeader = new HttpHeaders();
-        String createToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole());
-        responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createToken);
+        String createdAccessToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.ACCESS);
+        String createdRefreshToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.REFRESH);
+        responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createdAccessToken);
+        responseHeader.add(JwtUtil.REFRESH_HEADER, createdRefreshToken);
 
+        Optional<RefreshToken> refreshToken = redisRepository.findById(googleUser.getUsername());
+        long expiration = jwtUtil.REFRESH_TOKEN_TIME / 1000;    // ms -> seconds
+
+        if (refreshToken.isPresent()) {
+            RefreshToken savedRefreshToken = refreshToken.get().updateToken(createdRefreshToken, expiration);
+            redisRepository.save(savedRefreshToken);
+        } else {
+            RefreshToken refreshToSave = RefreshToken.builder()
+                    .username(googleUser.getUsername())
+                    .ip(ip)
+                    .refreshToken(createdRefreshToken)
+                    .expiration(expiration).build();
+            redisRepository.save(refreshToSave);
+        }
         Boolean checkUser = googleUser.getDepartment() != null && googleUser.getEmpName() != null && googleUser.getPhone() != null;
 
         return ResponseEntity.ok()
                 .headers(responseHeader)
                 .body(ResponseDto.success(LoginResponseDto.of(googleUser, checkUser)));
-
     }
 
     //     1. "인가 코드"로 "액세스 토큰" 요청
@@ -178,13 +195,21 @@ public class UserService {
     }
 
     @Transactional
+    public ResponseDto<String> logout(String username) {
+        Optional<RefreshToken> redisEntity = redisRepository.findById(username);
+        if (redisEntity.isPresent()) {
+            redisRepository.deleteById(username);
+        }
+        return ResponseDto.success("로그아웃 성공");
+    }
+
+    @Transactional
     public ResponseDto<LoginResponseDto> loginAdd(LoginRequestDto loginRequestDto, User user) {
         User foundUser = userRepository.findByUsernameAndDeletedFalse(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
         Department department = getDepartment(loginRequestDto.getDepartmentId());
         foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone(), foundUser.getAlarm(), foundUser.getImage());
         Boolean checkUser = foundUser.getEmpName() == null || foundUser.getDepartment() == null || foundUser.getPhone() == null;
-
         return ResponseDto.success(LoginResponseDto.of(foundUser, checkUser));
     }
 
@@ -304,6 +329,69 @@ public class UserService {
                 userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image);
         return ResponseDto.success("정보 수정 완료");
     }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<String> reIssueAccessToken(User user, String ip, HttpServletResponse httpServletResponse) {
+        RefreshToken refreshToken = redisRepository.findById(user.getUsername()).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundRefreshToken));
+        if (!ip.equals(refreshToken.getIp())) {
+            redisRepository.deleteById(user.getUsername());
+            throw new CustomException(ErrorCode.NotMatchedIp);
+        }
+        String accessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
+        httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+        return ResponseDto.success("토큰 재발급 완료.");
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(String username, String ip) {
+        User googleUser = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
+        String createdAccessToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.ACCESS);
+        String createdRefreshToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.REFRESH);
+
+        // header에 올리기.
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createdAccessToken);
+        responseHeader.add(JwtUtil.REFRESH_HEADER, createdRefreshToken);
+
+        Optional<RefreshToken> refreshToken = redisRepository.findById(googleUser.getUsername());
+        long expiration = jwtUtil.REFRESH_TOKEN_TIME / 1000;    // ms -> seconds
+
+        if (refreshToken.isPresent()) {
+            RefreshToken savedRefreshToken = refreshToken.get().updateToken(createdRefreshToken, expiration);
+            redisRepository.save(savedRefreshToken);
+        } else {
+            RefreshToken refreshToSave = RefreshToken.builder()
+                    .username(googleUser.getUsername())
+                    .ip(ip)
+                    .refreshToken(createdRefreshToken)
+                    .expiration(expiration).build();
+            redisRepository.save(refreshToSave);
+        }
+
+        Boolean checkUser = googleUser.getDepartment() != null && googleUser.getEmpName() != null && googleUser.getPhone() != null;
+
+        return ResponseEntity.ok()
+                .headers(responseHeader)
+                .body(ResponseDto.success(LoginResponseDto.of(googleUser, checkUser)));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<String> toyReissue(String username, String ip, HttpServletResponse httpServletResponse) {
+        RefreshToken refreshToken = redisRepository.findById(username).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundRefreshToken));
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundUser));
+
+        if (!ip.equals(refreshToken.getIp())) {
+            throw new CustomException(ErrorCode.NotMatchedIp);
+        }
+
+        String accessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
+        httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+        return ResponseDto.success("토큰 재발급 완료.");
+    }
+
 
     //    @Transactional
 //    //code -> 인가코드. 카카오에서 Param으로 넘겨준다.
