@@ -26,6 +26,6 @@ services:
     ports:
       - 8082:8082
     volumes:
-      - ./:/root/
+      - ./:/home/ubuntu/app/
     environment:
       active: real2  # Dockerfile 실행될 때 환경변수를 사용할 수 있게 지정.
