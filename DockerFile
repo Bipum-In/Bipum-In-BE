@@ -1,5 +1,8 @@
 FROM nginx
 
+#패키지 업데이트
+RUN apt-get update && apt-get -y install libgl1-mesa-glx
+
 # /etc/nginx/modules-enabled 경로 생성
 RUN mkdir /etc/nginx/modules-enabled
 
