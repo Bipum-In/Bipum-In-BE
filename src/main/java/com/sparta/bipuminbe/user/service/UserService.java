@@ -103,7 +103,9 @@ public class UserService {
                     .expiration(expiration).build();
             redisRepository.save(refreshToSave);
         }
-        Boolean checkUser = googleUser.getDepartment() != null && googleUser.getEmpName() != null && googleUser.getPhone() != null;
+
+        Boolean checkUser = googleUser.getDepartment() != null && googleUser.getEmpName() != null
+                && googleUser.getPhone() != null && googleUser.getPassword() != null;
 
         return ResponseEntity.ok()
                 .headers(responseHeader)
@@ -176,15 +178,11 @@ public class UserService {
         User googleUser = userRepository.findByUsername(googleUserInfo.getEmail()).orElse(null);
 
         if (googleUser == null) { // 유저가 없으면 새로 회원가입..
-            // password: random UUID
-            String password = UUID.randomUUID().toString();
-            String encodedPassword = passwordEncoder.encode(password);
 
             //Username이 이메일이므로 주의
             googleUser = User.builder().
                     googleId(googleUserInfo.getId()).
                     username(googleUserInfo.getEmail()).
-                    password(encodedPassword).
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
                     role(UserRoleEnum.ADMIN).
@@ -214,11 +212,14 @@ public class UserService {
         User foundUser = userRepository.findByUsernameAndDeletedFalse(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
         Department department = getDepartment(loginRequestDto.getDepartmentId());
-        foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone(), foundUser.getAlarm(), foundUser.getImage());
-        Boolean checkUser = foundUser.getEmpName() == null || foundUser.getDepartment() == null || foundUser.getPhone() == null;
+        String encodedPassword = passwordEncoder.encode(loginRequestDto.getPassword());
+
+        foundUser.update(loginRequestDto.getEmpName(), department, loginRequestDto.getPhone(),
+                foundUser.getAlarm(), foundUser.getImage(), encodedPassword);
+        Boolean checkUser = foundUser.getEmpName() == null || foundUser.getDepartment() == null
+                || foundUser.getPhone() == null || encodedPassword == null;
         return ResponseDto.success(LoginResponseDto.of(foundUser, checkUser));
     }
-
 
     @Transactional(readOnly = true)
     public ResponseDto<List<UserResponseDto>> getUserByDept(Long deptId) {
@@ -344,7 +345,7 @@ public class UserService {
         }
         User foundUser = getUser(user.getId());
         foundUser.update(userUpdateRequestDto.getEmpName(), getDepartment(userUpdateRequestDto.getDeptId()),
-                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image);
+                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image, user.getPassword());
         return ResponseDto.success("정보 수정 완료");
     }
 
@@ -420,6 +421,11 @@ public class UserService {
         returnSuppliesByDeletedUser(user, admin);
         userRepository.delete(user);
         return ResponseDto.success("유저 삭제 완료.");
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseDto<Boolean> checkUser(CheckUserDto checkUserDto, User user) {
+        return ResponseDto.success(passwordEncoder.matches(checkUserDto.getPassword(), user.getPassword()));
     }
 
 
