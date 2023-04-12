@@ -10,11 +10,12 @@ import javax.validation.constraints.Pattern;
 public class LoginRequestDto {
     @NotNull
     private Long departmentId;
+    @NotBlank
     @Pattern(regexp = "^[a-zA-Zㄱ-ㅎ가-힣 ]*${4,30}")
     private String empName;
-    @NotNull
     @NotBlank
     private String phone;
+    @NotBlank
     @Pattern(regexp = "^[0-9]*${6}")
     private String password;
 }
