@@ -8,6 +8,7 @@ import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,7 +35,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (jwtUtil.validateToken(accessToken) == TokenState.VALID) {
                 setAuthentication(jwtUtil.getUserInfoFromToken(accessToken).getSubject());
             } else if (jwtUtil.validateToken(accessToken) == TokenState.EXPIRED) {
-                jwtExceptionHandler(response, ErrorCode.TokenExpiredJwtException);
+                jwtExceptionHandler(response, "NEED REISSUE", HttpStatus.SEE_OTHER);
+                return;
             }
         } else if (refreshToken != null) {
             if (jwtUtil.validateRefreshToken(refreshToken)) {
@@ -52,11 +54,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
     }
 
-    public void jwtExceptionHandler(HttpServletResponse response, ErrorCode errorCode) {
-        response.setStatus(errorCode.getHttpStatus().value());
+    public void jwtExceptionHandler(HttpServletResponse response, String message, HttpStatus httpStatus) {
+        response.setStatus(httpStatus.value());
         response.setContentType("application/json;charset=UTF-8");  // 원래는 json만 있었는데 나중에 확인하자.
         try {
-            String json = new ObjectMapper().writeValueAsString(new CustomException(errorCode)); //ObjectMapper 매퍼를 통해 변환하여 반환new SecurityExceptionDto(statusCode, msg)
+            String json = new ObjectMapper().writeValueAsString(new ResponseDto(httpStatus.value(), message));
             response.getWriter().write(json);
         } catch (Exception e) {
             log.error(e.getMessage());
