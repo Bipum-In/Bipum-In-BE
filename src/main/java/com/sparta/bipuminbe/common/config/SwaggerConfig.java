@@ -38,7 +38,7 @@ public class SwaggerConfig {
                         .name(refreshName)
                         .type(SecurityScheme.Type.HTTP) // HTTP 방식
                         .scheme("bearer")
-                        .bearerFormat("JWT"));
+                        .bearerFormat("REFRESH"));
 
         return new OpenAPI().info(info).addSecurityItem(securityRequirement)
                 .components(components);
