@@ -184,7 +184,7 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public ResponseDto<SearchTotalDto> searchTotal(String keyword, User user, UserRoleEnum role) {
-        Pageable pageable = getPageable(0, 3);
+        Pageable pageable = getPageable(1, 3);
         String likeKeyword = "%" + keyword + "%";
 
         // Supply List
