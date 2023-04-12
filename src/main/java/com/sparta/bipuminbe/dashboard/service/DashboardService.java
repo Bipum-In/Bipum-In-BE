@@ -184,11 +184,15 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public ResponseDto<SearchTotalDto> searchTotal(String keyword, User user, UserRoleEnum role) {
-        Pageable pageable = getPageable(1, 3);
+        Pageable pageable = getPageable_JPQL(1, 3);
         String likeKeyword = "%" + keyword + "%";
 
         // Supply List
-        Set<Category> categorySet = new HashSet<>(categoryRepository.findAll());
+        Set<Long> categorySet = new HashSet<>();
+        List<Category> categoryList = categoryRepository.findByDeletedFalse();
+        for (Category category : categoryList) {
+            categorySet.add(category.getId());
+        }
         Set<SupplyStatusEnum> supplyStatusEnumSet = getStatusQuerySet(role);
 
         Page<Supply> supplyList = supplyRepository.getSupplyList(likeKeyword, categorySet, supplyStatusEnumSet, pageable);
@@ -197,22 +201,30 @@ public class DashboardService {
         // Requests List
         Set<RequestStatus> requestStatusSet = new HashSet<>(List.of(RequestStatus.values()));
         Set<RequestType> requestTypeSet = new HashSet<>(List.of(RequestType.values()));
-        Set<User> userSet = getUserQuerySet(user, role);
+        Set<Long> userIdSet = getUserIdQuerySet(user, role);
 
-        Page<Requests> requestList = requestsRepository.getRequestsList(likeKeyword, requestTypeSet, requestStatusSet, userSet, pageable);
+        Page<Requests> requestList = requestsRepository.getRequestsList(likeKeyword, requestTypeSet, requestStatusSet, userIdSet, pageable);
         List<RequestsSearchDto> requestsSearchDtoList = convertToRequestsSearchDtoList(requestList.getContent());
 
         return ResponseDto.success(SearchTotalDto.of(supplySearchDtoList, requestsSearchDtoList));
     }
 
-    private Set<User> getUserQuerySet(User user, UserRoleEnum role) {
-        Set<User> userSet = new HashSet<>();
+    private Pageable getPageable_JPQL(int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return PageRequest.of(page - 1, size, sort);
+    }
+
+    private Set<Long> getUserIdQuerySet(User user, UserRoleEnum role) {
+        Set<Long> userIdSet = new HashSet<>();
         if (role == UserRoleEnum.ADMIN) {
-            userSet.addAll(userRepository.findByDeletedFalse());
+            List<User> userList = userRepository.findByDeletedFalse();
+            for (User foundUser : userList) {
+                userIdSet.add(foundUser.getId());
+            }
         } else {
-            userSet.add(user);
+            userIdSet.add(user.getId());
         }
-        return userSet;
+        return userIdSet;
     }
 
     private Set<SupplyStatusEnum> getStatusQuerySet(UserRoleEnum role) {

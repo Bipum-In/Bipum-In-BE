@@ -32,17 +32,17 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
     @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'STOCK' AND deleted = false", nativeQuery = true)
     Long countStock(@Param("categoryId") Long categoryId);
 
-    @Query(value = "SELECT s FROM Supply s " +
+    @Query(value = "SELECT distinct s FROM Supply s " +
             "inner join Category c on s.category = c " +
             "left join users u on s.user = u " +
             "LEFT JOIN Partners p on s.partners = p " +
             "left join Department d on u.department = d " +
             "WHERE (u.empName LIKE :keyword OR d.deptName LIKE :keyword OR c.categoryName LIKE :keyword " +
             "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword OR p.partnersName LIKE :keyword) " +
-            "AND c IN :categoryQuery " +
+            "AND c.id IN :categoryIdQuery " +
             "AND s.status IN :statusQuery " +
-            "AND s.deleted = false ")
-    Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Category> categoryQuery,
+            "AND s.deleted = false")
+    Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryIdQuery") Set<Long> categoryIdQuery,
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
 
     Optional<List<Supply>> findByUser_IdAndCategory_LargeCategoryInAndDeletedFalse(Long id, Set<LargeCategory> categoryQuery);

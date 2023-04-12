@@ -61,7 +61,7 @@ public class RequestsService {
 //        );
         if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
-            if(requestsRequestDto.getUseType() == null) {
+            if (requestsRequestDto.getUseType() == null) {
                 throw new CustomException(ErrorCode.NotAllowedMethod);
             }
             Requests createRequests = requestsRepository.save(Requests.builder()
@@ -214,11 +214,11 @@ public class RequestsService {
             (String keyword, RequestType type, RequestStatus status, int page, int size, User user, UserRoleEnum role) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
-        Set<User> userQuery = getUserSet(user, role);
+        Set<Long> userIdQuery = getUserIdSet(user, role);
         Pageable pageable = getPageable(page, size);
 
         Page<Requests> requestsList = requestsRepository.
-                getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, userQuery, pageable);
+                getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, userIdQuery, pageable);
 
         List<RequestsPageResponseDto> requestsDtoList = convertToDto(requestsList.getContent());
 
@@ -226,12 +226,15 @@ public class RequestsService {
     }
 
     // 유저가 admin이면 전체 조회, user라면 자기꺼만 조회.
-    private Set<User> getUserSet(User user, UserRoleEnum role) {
-        Set<User> userQuery = new HashSet<>();
+    private Set<Long> getUserIdSet(User user, UserRoleEnum role) {
+        Set<Long> userQuery = new HashSet<>();
         if (role.equals(UserRoleEnum.ADMIN)) {
-            userQuery.addAll(userRepository.findByDeletedFalse());
+            List<User> userList = userRepository.findByDeletedFalse();
+            for (User foundUser : userList) {
+                userQuery.add(foundUser.getId());
+            }
         } else {
-            userQuery.add(user);
+            userQuery.add(user.getId());
         }
         return userQuery;
     }

@@ -135,7 +135,7 @@ public class SupplyService {
     //비품 조회
     @Transactional(readOnly = true)
     public ResponseDto<Page<SupplyResponseDto>> getSupplyList(String keyword, Long categoryId, SupplyStatusEnum status, int page, int size) {
-        Set<Category> categoryQuery = getCategoryQuerySet(categoryId);
+        Set<Long> categoryQuery = getCategoryQuerySet(categoryId);
         Set<SupplyStatusEnum> statusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page, size);
 
@@ -144,15 +144,17 @@ public class SupplyService {
         return ResponseDto.success(new PageImpl<>(supplyResponseDtoList, supplies.getPageable(), supplies.getTotalElements()));
     }
 
-    private Set<Category> getCategoryQuerySet(Long categoryId) {
-        Set<Category> categoryQuerySet = new HashSet<>();
+    private Set<Long> getCategoryQuerySet(Long categoryId) {
+        Set<Long> categoryQuerySet = new HashSet<>();
         if (categoryId == null) {
             List<Category> categoryList = categoryRepository.findByDeletedFalse();
-            categoryQuerySet.addAll(categoryList);
+            for (Category category : categoryList) {
+                categoryQuerySet.add(category.getId());
+            }
         } else {
             Category category = categoryRepository.findById(categoryId).orElseThrow(
                     () -> new CustomException(ErrorCode.NotFoundCategory));
-            categoryQuerySet.add(category);
+            categoryQuerySet.add(category.getId());
         }
         return categoryQuerySet;
     }

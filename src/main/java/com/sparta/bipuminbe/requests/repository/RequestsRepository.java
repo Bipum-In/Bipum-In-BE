@@ -30,10 +30,11 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
             "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
             "AND r.requestType IN :requestTypeQuery " +
             "AND r.requestStatus IN :requestStatusQuery " +
-            "AND u IN :userQuery " +
+            "AND u.id IN :userIdQuery " +
             "order by r.createdAt desc")
     Page<Requests> getRequestsList(@Param("keyword") String keyword, @Param("requestTypeQuery") Set<RequestType> requestTypeQuery,
-                                   @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery, Set<User> userQuery, Pageable pageable);
+                                   @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery,
+                                   @Param("userIdQuery") Set<Long> userIdQuery, Pageable pageable);
 
     @Query(value = "SELECT COUNT(*) FROM requests " +
             "WHERE requests.request_type = 'SUPPLY' AND request_status != 'PROCESSED'", nativeQuery = true)
