@@ -106,20 +106,28 @@ public class UserController {
     }
 
 
-    @Operation(summary = "리프레쉬 실험(액세스)", description = "리프레쉬 실험")
-    @PostMapping("/login/toy")
-    public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(@RequestParam String username,
-                                                                  @RequestParam String ip) throws IOException {
-        return userService.toyLogin(username, ip);
+    @PostMapping("/check")
+    @Operation(summary = "유저 2차 비밀번호 확인", description = "유저 2차 비밀번호 확인")
+    public ResponseDto<Boolean> checkUser(@RequestBody CheckUserDto checkUserDto,
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.checkUser(checkUserDto, userDetails.getUser());
     }
 
-    @Operation(summary = "리프레쉬 실험(재발급)", description = "리프레쉬 실험")
-    @PostMapping("/reissue/toy")
-    public ResponseDto<String> toyReissue(@RequestParam String username,
-                                          @RequestParam String ip,
-                                          HttpServletResponse httpServletResponse) throws IOException {
-        return userService.toyReissue(username, ip, httpServletResponse);
-    }
+
+//    @Operation(summary = "리프레쉬 실험(액세스)", description = "리프레쉬 실험")
+//    @PostMapping("/login/toy")
+//    public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(@RequestParam String username,
+//                                                                  @RequestParam String ip) throws IOException {
+//        return userService.toyLogin(username, ip);
+//    }
+//
+//    @Operation(summary = "리프레쉬 실험(재발급)", description = "리프레쉬 실험")
+//    @PostMapping("/reissue/toy")
+//    public ResponseDto<String> toyReissue(@RequestParam String username,
+//                                          @RequestParam String ip,
+//                                          HttpServletResponse httpServletResponse) throws IOException {
+//        return userService.toyReissue(username, ip, httpServletResponse);
+//    }
 
 
     //    @Operation(summary = "로그인 처리", description = "카카오 계정정보 담은 Jwt토큰 발급")
