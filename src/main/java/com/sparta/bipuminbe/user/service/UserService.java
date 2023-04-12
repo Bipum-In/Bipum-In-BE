@@ -187,7 +187,7 @@ public class UserService {
                     username(googleUserInfo.getEmail()).
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
-                    refreshToken(accessToken.getRefresh_token()).
+//                    refreshToken(accessToken.getRefresh_token()).
                     role(UserRoleEnum.ADMIN).
                     alarm(true).
                     deleted(false).
@@ -339,10 +339,14 @@ public class UserService {
         if (image == null || image.equals("")) {
             image = s3Uploader.uploadFiles(userUpdateRequestDto.getMultipartFile(), "user");
         }
-        String password = passwordEncoder.encode(userUpdateRequestDto.getPassword());
+
+        String password = userUpdateRequestDto.getPassword();
+        if(password != null){
+            password = passwordEncoder.encode(userUpdateRequestDto.getPassword());
+        }
         User foundUser = getUser(user.getId());
         foundUser.update(userUpdateRequestDto.getEmpName(), getDepartment(userUpdateRequestDto.getDeptId()),
-                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image, password);
+                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image, password == null ? user.getPassword() : password);
         return ResponseDto.success("정보 수정 완료");
     }
 
