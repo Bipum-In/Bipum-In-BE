@@ -1,5 +1,6 @@
 package com.sparta.bipuminbe.user.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
@@ -68,7 +69,7 @@ public class UserController {
     @Operation(summary = "구글 연결 끊기", description = "앱과 연결된 구글 계정 연결 끊기")
     @PostMapping("/delete")
     public ResponseDto<String> deleteUser(HttpServletRequest request,
-                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws JsonProcessingException {
         String bearerToken = request.getHeader("Authorization");
 
         return userService.deleteUser(userDetails.getUser(), bearerToken);

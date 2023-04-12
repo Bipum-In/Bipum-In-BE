@@ -128,6 +128,7 @@ public class UserService {
         body.add("client_secret", clientSecret); // 클라이언트 Secret
         body.add("redirect_uri", redirectUrl);
         body.add("grant_type", "authorization_code");
+        body.add("access_type", "offline");
 
         // HTTP 요청 보내기1
         HttpEntity<MultiValueMap<String, String>> googleTokenRequest =
@@ -185,6 +186,7 @@ public class UserService {
                     username(googleUserInfo.getEmail()).
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
+                    refreshToken(accessToken.getRefresh_token()).
                     role(UserRoleEnum.ADMIN).
                     alarm(true).
                     deleted(false).
@@ -239,24 +241,17 @@ public class UserService {
 
     // 구글과 연결된 계정 삭제
     @Transactional
-    public ResponseDto<String> deleteUser(User user, String bearerToken) {
-        //HTTP 헤더 생성
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", bearerToken);
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+    public ResponseDto<String> deleteUser(User user, String bearerToken) throws JsonProcessingException {
+        // 유저에 있는 Access 토큰은 로그인 시에 생성된 Access 토큰이기 때문에, 삭제 시 갱신이 필요함.
 
-        // HTTP 요청 보내기
-        HttpEntity<MultiValueMap<String, String>> googleUserDeleteRequest = new HttpEntity<>(headers);
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response = rt.exchange(
-                "https://accounts.google.com/o/oauth2/revoke?token=" + user.getAccessToken(),
-                HttpMethod.GET,
-                googleUserDeleteRequest,
-                String.class
-        );
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw new CustomException(ErrorCode.FailedRevokeGoogleAccessToken);
-        }
+        // refresh 토큰으로 Access토큰 갱신
+        AccessTokenDto accessToken = refreshToken(user);
+
+        //현재 유저에 있는 Access 토큰을 갱신된 토큰으로 교체
+        user.refreshGoogleToken(accessToken.getAccess_token());
+
+        // 구글 API와 통신을 통해 연결 끊기
+        unlinkGoogleAPI(user, bearerToken);
 
         User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
@@ -359,6 +354,7 @@ public class UserService {
             redisRepository.deleteById(user.getUsername());
             throw new CustomException(ErrorCode.NotMatchedIp);
         }
+
         String accessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
         httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
         return ResponseDto.success("토큰 재발급 완료.");
@@ -587,4 +583,51 @@ public class UserService {
 //        byte[] hmacBytes = mac.doFinal(data);
 //        return Base64.getEncoder().encodeToString(hmacBytes);
 //    }
+    public AccessTokenDto refreshToken(User user) throws JsonProcessingException {
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // HTTP Body 생성
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", clientId); // 클라이언트 Id
+        body.add("client_secret", clientSecret); // 클라이언트 Secret
+        body.add("refresh_token", user.getRefreshToken()); // Refresh Token
+        body.add("grant_type", "refresh_token");
+
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> googleTokenRequest =
+                new HttpEntity<>(body, headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://oauth2.googleapis.com/token",
+                HttpMethod.POST,
+                googleTokenRequest,
+                String.class
+        );
+
+        // HTTP 응답 (JSON) -> 액세스 토큰 파싱
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(response.getBody(), AccessTokenDto.class);
+    }
+
+    public void unlinkGoogleAPI(User user, String bearerToken){
+        //HTTP 헤더 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", bearerToken);
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> googleUserDeleteRequest = new HttpEntity<>(headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://accounts.google.com/o/oauth2/revoke?token=" + user.getAccessToken(),
+                HttpMethod.GET,
+                googleUserDeleteRequest,
+                String.class
+        );
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw new CustomException(ErrorCode.FailedRevokeGoogleAccessToken);
+        }
+    }
 }
