@@ -1,5 +1,6 @@
 package com.sparta.bipuminbe.common.jwt;
 
+import com.sparta.bipuminbe.common.enums.TokenState;
 import com.sparta.bipuminbe.common.enums.TokenType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
@@ -77,14 +78,14 @@ public class JwtUtil {
     }
 
     // accessToken 검증
-    public Boolean validateToken(String accessToken) {
+    public TokenState validateToken(String accessToken) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken);
-            return true;
+            return TokenState.VALID;
         } catch (SecurityException | MalformedJwtException e) {
             throw new CustomException(ErrorCode.TokenSecurityExceptionOrMalformedJwtException);
         } catch (ExpiredJwtException e) {
-            throw new CustomException(ErrorCode.TokenNeedReIssue);
+            return TokenState.EXPIRED;
         } catch (UnsupportedJwtException e) {
             throw new CustomException(ErrorCode.TokenUnsupportedJwtException);
         } catch (IllegalArgumentException e) {
@@ -95,7 +96,7 @@ public class JwtUtil {
     // refreshToken 토큰 검증
     public Boolean validateRefreshToken(String refreshToken) {
         // 1차 토큰 검증
-        if (!validateToken(refreshToken)) {
+        if (validateToken(refreshToken) != TokenState.VALID) {
             return false;
         }
 
