@@ -338,9 +338,10 @@ public class UserService {
         if (image == null || image.equals("")) {
             image = s3Uploader.uploadFiles(userUpdateRequestDto.getMultipartFile(), "user");
         }
+        String password = passwordEncoder.encode(userUpdateRequestDto.getPassword());
         User foundUser = getUser(user.getId());
         foundUser.update(userUpdateRequestDto.getEmpName(), getDepartment(userUpdateRequestDto.getDeptId()),
-                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image, user.getPassword());
+                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image, password);
         return ResponseDto.success("정보 수정 완료");
     }
 

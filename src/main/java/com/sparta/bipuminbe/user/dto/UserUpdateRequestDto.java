@@ -13,6 +13,8 @@ import javax.validation.constraints.Pattern;
 public class UserUpdateRequestDto {
     @Pattern(regexp = "^[a-zA-Z가-힣 ]*${4,30}")
     private String empName;
+    @Pattern(regexp = "^[0-9]*${6}")
+    private String password;
     @NotNull
     private Long deptId;
     @NotNull
