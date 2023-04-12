@@ -1,32 +1,9 @@
-#version: 0.0
-#os: linux
-#
-#files:
-#  - source:  /
-#    destination: /home/ubuntu/app
-#    overwrite: yes
-#
-#permissions:
-#  - object: /
-#    pattern: "**"
-#    owner: ubuntu
-#    group: ubuntu
-#
-#hooks:
-#  AfterInstall:
-#    - location: scripts/stop.sh
-#      timeout: 60
-#      runas: root
-#  ApplicationStart:
-#    - location: scripts/start.sh
-#      timeout: 60
-#      runas: root
-
 version: 0.0
 os: linux
+
 files:
   - source:  /
-    destination: /home/ubuntu/app/
+    destination: /home/ubuntu/app
     overwrite: yes
 
 permissions:
@@ -40,13 +17,36 @@ hooks:
     - location: scripts/stop.sh
       timeout: 60
       runas: root
-
   ApplicationStart:
     - location: scripts/start.sh
       timeout: 60
       runas: root
 
-  ValidateService:
-    - location: scripts/health.sh
-      timeout: 60
-      runas: root
+#version: 0.0
+#os: linux
+#files:
+#  - source:  /
+#    destination: /home/ubuntu/app/
+#    overwrite: yes
+#
+#permissions:
+#  - object: /
+#    pattern: "**"
+#    owner: root
+#    group: root
+#
+#hooks:
+#  AfterInstall:
+#    - location: scripts/stop.sh
+#      timeout: 60
+#      runas: root
+#
+#  ApplicationStart:
+#    - location: scripts/start.sh
+#      timeout: 60
+#      runas: root
+#
+#  ValidateService:
+#    - location: scripts/health.sh
+#      timeout: 60
+#      runas: root

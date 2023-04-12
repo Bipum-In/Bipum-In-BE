@@ -1,9 +1,9 @@
-
-FROM azul/zulu-openjdk:17
-
-## root 폴더에 파일 복사.
-WORKDIR /root
-COPY ./spring-webapp.jar .
-
-## 이미지가 실행될때 기본 명령어 입력. active에 담긴 프로필 명으로 이미지 실행되고, Port 번호 결정
-CMD nohup java -jar -Dspring.profiles.active=${active} spring-webapp.jar
+#FROM azul/zulu-openjdk:17
+#
+### root 폴더에 파일 복사.
+#WORKDIR /root
+#COPY ./spring-webapp.jar .
+#
+#
+### 이미지가 실행될때 기본 명령어 입력. active에 담긴 프로필 명으로 이미지 실행되고, Port 번호 결정
+#CMD nohup java -jar -Dspring.profiles.active=${active} spring-webapp.jar
