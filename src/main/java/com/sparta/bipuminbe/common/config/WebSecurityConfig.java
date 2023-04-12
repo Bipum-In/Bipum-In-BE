@@ -82,8 +82,7 @@ public class WebSecurityConfig {
 
         // 특정 헤더를 클라이언트 측에서 사용할 수 있게 지정
         // 만약 지정하지 않는다면, Authorization 헤더 내의 토큰 값을 사용할 수 없음
-        config.addExposedHeader(jwtUtil.AUTHORIZATION_HEADER);
-        config.addExposedHeader(jwtUtil.REFRESH_HEADER);
+        config.addExposedHeader("*");
 
         // 본 요청에 허용할 HTTP method(예비 요청에 대한 응답 헤더에 추가됨)
         config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
