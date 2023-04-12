@@ -214,11 +214,11 @@ public class RequestsService {
             (String keyword, RequestType type, RequestStatus status, int page, int size, User user, UserRoleEnum role) {
         Set<RequestType> requestTypeQuery = getTypeSet(type);
         Set<RequestStatus> requestStatusQuery = getStatusSet(status);
-        Set<Long> userIdQuery = getUserIdSet(user, role);
+        Set<User> userQuery = getUserSet(user, role);
         Pageable pageable = getPageable(page, size);
 
         Page<Requests> requestsList = requestsRepository.
-                getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, userIdQuery, pageable);
+                getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, userQuery, pageable);
 
         List<RequestsPageResponseDto> requestsDtoList = convertToDto(requestsList.getContent());
 
@@ -226,17 +226,14 @@ public class RequestsService {
     }
 
     // 유저가 admin이면 전체 조회, user라면 자기꺼만 조회.
-    private Set<Long> getUserIdSet(User user, UserRoleEnum role) {
-        Set<Long> userIdQuery = new HashSet<>();
+    private Set<User> getUserSet(User user, UserRoleEnum role) {
+        Set<User> userQuery = new HashSet<>();
         if (role.equals(UserRoleEnum.ADMIN)) {
-            List<User> userList = userRepository.findByDeletedFalse();
-            for (User user1 : userList) {
-                userIdQuery.add(user1.getId());
-            }
+            userQuery.addAll(userRepository.findByDeletedFalse());
         } else {
-            userIdQuery.add(user.getId());
+            userQuery.add(user);
         }
-        return userIdQuery;
+        return userQuery;
     }
 
     // list 추출 조건용 requestType Set 리스트.

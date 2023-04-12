@@ -1,5 +1,6 @@
 package com.sparta.bipuminbe.supply.repository;
 
+import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
@@ -37,11 +38,11 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             "LEFT JOIN Partners p on s.partners = p " +
             "left join Department d on u.department = d " +
             "WHERE (u.empName LIKE :keyword OR d.deptName LIKE :keyword OR c.categoryName LIKE :keyword " +
-            "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
-            "AND c.id IN :categoryQuery " +
+            "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword OR p.partnersName LIKE :keyword) " +
+            "AND c IN :categoryQuery " +
             "AND s.status IN :statusQuery " +
             "AND s.deleted = false ")
-    Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Long> categoryQuery,
+    Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryQuery") Set<Category> categoryQuery,
                                @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
 
     Optional<List<Supply>> findByUser_IdAndCategory_LargeCategoryInAndDeletedFalse(Long id, Set<LargeCategory> categoryQuery);

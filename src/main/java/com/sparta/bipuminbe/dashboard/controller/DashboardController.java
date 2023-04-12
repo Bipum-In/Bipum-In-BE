@@ -49,7 +49,7 @@ public class DashboardController {
     @GetMapping(value = "/admin/main/alarm")
     public ResponseDto<Page<NotificationResponseForAdmin>> getAdminAlarm(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                          @RequestParam(defaultValue = "1") int page,
-                                                                         @RequestParam(defaultValue = "10") int size){
+                                                                         @RequestParam(defaultValue = "10") int size) {
         return dashboardService.getAdminAlarm(userDetails.getUser(), page, size);
     }
 
@@ -57,13 +57,13 @@ public class DashboardController {
     @GetMapping(value = "/main/alarm")
     public ResponseDto<Page<NotificationResponseForUser>> getUserAlarm(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                        @RequestParam(defaultValue = "1") int page,
-                                                                       @RequestParam(defaultValue = "10") int size){
+                                                                       @RequestParam(defaultValue = "10") int size) {
         return dashboardService.getUserAlarm(userDetails.getUser(), page, size);
     }
 
     @Operation(summary = "클릭한 알림 읽음 처리")
     @PutMapping(value = "/main/read/{notificationId}")
-    public ResponseDto<String> notificationRead(@PathVariable Long notificationId){
+    public ResponseDto<String> notificationRead(@PathVariable Long notificationId) {
         return dashboardService.notificationRead(notificationId);
     }
 
@@ -77,8 +77,16 @@ public class DashboardController {
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/main/search")
-    @Operation(summary = "상단 검색바를 통한 검색", description = "")
-    public ResponseDto<SearchTotalDto> searchTotal() {
-        return ResponseDto.success(new SearchTotalDto());
+    @Operation(summary = "상단 검색바를 통한 검색(Admin) *신규 Api*", description = "keyword만 보내주면 됩니다. 안보내도 됩니다.")
+    public ResponseDto<SearchTotalDto> searchAdminTotal(@RequestParam(defaultValue = "") String keyword,
+                                                        @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return dashboardService.searchTotal(keyword, userDetails.getUser(), UserRoleEnum.ADMIN);
+    }
+
+    @GetMapping("/main/search")
+    @Operation(summary = "상단 검색바를 통한 검색(User) *신규 Api*", description = "keyword만 보내주면 됩니다. 안보내도 됩니다.")
+    public ResponseDto<SearchTotalDto> searchUserTotal(@RequestParam(defaultValue = "") String keyword,
+                                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return dashboardService.searchTotal(keyword, userDetails.getUser(), UserRoleEnum.USER);
     }
 }
