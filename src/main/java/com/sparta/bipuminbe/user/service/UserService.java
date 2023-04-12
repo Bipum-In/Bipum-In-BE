@@ -27,6 +27,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
@@ -70,7 +71,7 @@ public class UserService {
 
 
     @Transactional
-    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType, String ip) throws JsonProcessingException {
+    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         AccessTokenDto accessToken = getToken(code, urlType);
 
@@ -98,7 +99,7 @@ public class UserService {
         } else {
             RefreshToken refreshToSave = RefreshToken.builder()
                     .username(googleUser.getUsername())
-                    .ip(ip)
+                    .ip(httpServletRequest.getRemoteAddr())
                     .refreshToken(createdRefreshToken)
                     .expiration(expiration).build();
             redisRepository.save(refreshToSave);
@@ -347,10 +348,10 @@ public class UserService {
 
 
     @Transactional(readOnly = true)
-    public ResponseDto<String> reIssueAccessToken(User user, String ip, HttpServletResponse httpServletResponse) {
+    public ResponseDto<String> reIssueAccessToken(User user, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         RefreshToken refreshToken = redisRepository.findById(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRefreshToken));
-        if (!ip.equals(refreshToken.getIp())) {
+        if (!httpServletRequest.getRemoteAddr().equals(refreshToken.getIp())) {
             redisRepository.deleteById(user.getUsername());
             throw new CustomException(ErrorCode.NotMatchedIp);
         }

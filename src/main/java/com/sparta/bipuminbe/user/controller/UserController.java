@@ -34,8 +34,8 @@ public class UserController {
     @PostMapping("/login/google")
     public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(@RequestParam String code,
                                                                      @RequestParam String urlType,
-                                                                     @RequestParam String ip) throws IOException {
-        return userService.googleLogin(code, urlType, ip);
+                                                                     HttpServletRequest httpServletRequest) throws IOException {
+        return userService.googleLogin(code, urlType, httpServletRequest);
     }
 
     @Operation(summary = "로그아웃", description = "Redis refreshToken 제거.")
@@ -46,9 +46,9 @@ public class UserController {
 
     @Operation(summary = "토큰 재발급", description = "Refresh Token 을 보내줘야 합니다.")
     @PostMapping("/reissue") // access token이 만료됐을 경우
-    public ResponseDto<String> reIssueAccessToken(HttpServletResponse httpServletResponse, String ip,
-                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return userService.reIssueAccessToken(userDetails.getUser(), ip, httpServletResponse);
+    public ResponseDto<String> reIssueAccessToken(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                  HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        return userService.reIssueAccessToken(userDetails.getUser(), httpServletRequest, httpServletResponse);
     }
 
     //로그인 시, 부서와 유저이름이 없는 경우 반드시 추가입력하게 유도
@@ -120,14 +120,6 @@ public class UserController {
     public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(@RequestParam String username,
                                                                   @RequestParam String ip) throws IOException {
         return userService.toyLogin(username, ip);
-    }
-
-    @Operation(summary = "리프레쉬 실험(재발급)", description = "리프레쉬 실험")
-    @PostMapping("/reissue/toy")
-    public ResponseDto<String> toyReissue(@RequestParam String username,
-                                          @RequestParam String ip,
-                                          HttpServletResponse httpServletResponse) throws IOException {
-        return userService.toyReissue(username, ip, httpServletResponse);
     }
 
 
