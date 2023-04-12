@@ -3,7 +3,7 @@ package com.sparta.bipuminbe.dashboard.service;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
-import com.sparta.bipuminbe.common.enums.LargeCategory;
+import com.sparta.bipuminbe.common.enums.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForAdmin;
@@ -12,6 +12,7 @@ import com.sparta.bipuminbe.common.sse.repository.NotificationRepository;
 import com.sparta.bipuminbe.dashboard.dto.*;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
+import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +31,7 @@ public class DashboardService {
     private final SupplyRepository supplyRepository;
     private final RequestsRepository requestsRepository;
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
 
     // 관리자 대시보드
     @Transactional(readOnly = true)
@@ -177,5 +179,65 @@ public class DashboardService {
             supplyDtoList.add(UserSupplyDto.of(supply));
         }
         return supplyDtoList;
+    }
+
+
+    @Transactional(readOnly = true)
+    public ResponseDto<SearchTotalDto> searchTotal(String keyword, User user, UserRoleEnum role) {
+        Pageable pageable = getPageable(0, 3);
+        String likeKeyword = "%" + keyword + "%";
+
+        // Supply List
+        Set<Category> categorySet = new HashSet<>(categoryRepository.findAll());
+        Set<SupplyStatusEnum> supplyStatusEnumSet = getStatusQuerySet(role);
+
+        Page<Supply> supplyList = supplyRepository.getSupplyList(likeKeyword, categorySet, supplyStatusEnumSet, pageable);
+        List<SupplySearchDto> supplySearchDtoList = convertToSupplySearchDtoList(supplyList.getContent());
+
+        // Requests List
+        Set<RequestStatus> requestStatusSet = new HashSet<>(List.of(RequestStatus.values()));
+        Set<RequestType> requestTypeSet = new HashSet<>(List.of(RequestType.values()));
+        Set<User> userSet = getUserQuerySet(user, role);
+
+        Page<Requests> requestList = requestsRepository.getRequestsList(likeKeyword, requestTypeSet, requestStatusSet, userSet, pageable);
+        List<RequestsSearchDto> requestsSearchDtoList = convertToRequestsSearchDtoList(requestList.getContent());
+
+        return ResponseDto.success(SearchTotalDto.of(supplySearchDtoList, requestsSearchDtoList));
+    }
+
+    private Set<User> getUserQuerySet(User user, UserRoleEnum role) {
+        Set<User> userSet = new HashSet<>();
+        if (role == UserRoleEnum.ADMIN) {
+            userSet.addAll(userRepository.findByDeletedFalse());
+        } else {
+            userSet.add(user);
+        }
+        return userSet;
+    }
+
+    private Set<SupplyStatusEnum> getStatusQuerySet(UserRoleEnum role) {
+        Set<SupplyStatusEnum> statusQuery = new HashSet<>();
+        if (role == UserRoleEnum.ADMIN) {
+            statusQuery.addAll(List.of(SupplyStatusEnum.values()));
+        } else {
+            statusQuery.add(SupplyStatusEnum.STOCK);
+        }
+        return statusQuery;
+    }
+
+    private List<RequestsSearchDto> convertToRequestsSearchDtoList(List<Requests> requestList) {
+        List<RequestsSearchDto> requestsSearchDtoList = new ArrayList<>();
+        for (Requests request : requestList) {
+            requestsSearchDtoList.add(RequestsSearchDto.of(request));
+        }
+        return requestsSearchDtoList;
+    }
+
+    private List<SupplySearchDto> convertToSupplySearchDtoList(List<Supply> supplyList) {
+        List<SupplySearchDto> supplySearchDtoList = new ArrayList<>();
+        for (Supply supply : supplyList) {
+            supplySearchDtoList.add(SupplySearchDto.of(supply));
+        }
+        return supplySearchDtoList;
     }
 }

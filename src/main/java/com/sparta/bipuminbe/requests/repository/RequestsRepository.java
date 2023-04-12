@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.requests.repository;
 
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
+import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
@@ -29,10 +30,10 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
             "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
             "AND r.requestType IN :requestTypeQuery " +
             "AND r.requestStatus IN :requestStatusQuery " +
-            "AND u.id IN :userIdQuery " +
+            "AND u IN :userQuery " +
             "order by r.createdAt desc")
     Page<Requests> getRequestsList(@Param("keyword") String keyword, @Param("requestTypeQuery") Set<RequestType> requestTypeQuery,
-                                   @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery, Set<Long> userIdQuery, Pageable pageable);
+                                   @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery, Set<User> userQuery, Pageable pageable);
 
     @Query(value = "SELECT COUNT(*) FROM requests " +
             "WHERE requests.request_type = 'SUPPLY' AND request_status != 'PROCESSED'", nativeQuery = true)
