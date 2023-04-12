@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -99,7 +100,7 @@ public class UserService {
         } else {
             RefreshToken refreshToSave = RefreshToken.builder()
                     .username(googleUser.getUsername())
-                    .ip(httpServletRequest.getRemoteAddr())
+                    .ip(getClientIp(httpServletRequest))
                     .refreshToken(createdRefreshToken)
                     .expiration(expiration).build();
             redisRepository.save(refreshToSave);
@@ -111,6 +112,38 @@ public class UserService {
         return ResponseEntity.ok()
                 .headers(responseHeader)
                 .body(ResponseDto.success(LoginResponseDto.of(googleUser, checkUser)));
+    }
+
+
+    public static String getClientIp(HttpServletRequest request) {
+        String clientIp = null;
+        boolean isIpInHeader = false;
+
+        List<String> headerList = new ArrayList<>();
+        headerList.add("X-Forwarded-For");
+        headerList.add("HTTP_CLIENT_IP");
+        headerList.add("HTTP_X_FORWARDED_FOR");
+        headerList.add("HTTP_X_FORWARDED");
+        headerList.add("HTTP_FORWARDED_FOR");
+        headerList.add("HTTP_FORWARDED");
+        headerList.add("Proxy-Client-IP");
+        headerList.add("WL-Proxy-Client-IP");
+        headerList.add("HTTP_VIA");
+        headerList.add("IPV6_ADR");
+
+        for (String header : headerList) {
+            clientIp = request.getHeader(header);
+            if (StringUtils.hasText(clientIp) && !clientIp.equals("unknown")) {
+                isIpInHeader = true;
+                break;
+            }
+        }
+
+        if (!isIpInHeader) {
+            clientIp = request.getRemoteAddr();
+        }
+
+        return clientIp;
     }
 
 
@@ -341,7 +374,7 @@ public class UserService {
         }
 
         String password = userUpdateRequestDto.getPassword();
-        if(password != null){
+        if (password != null) {
             password = passwordEncoder.encode(userUpdateRequestDto.getPassword());
         }
         User foundUser = getUser(user.getId());
@@ -355,7 +388,7 @@ public class UserService {
     public ResponseDto<String> reIssueAccessToken(User user, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         RefreshToken refreshToken = redisRepository.findById(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRefreshToken));
-        if (!httpServletRequest.getRemoteAddr().equals(refreshToken.getIp())) {
+        if (!getClientIp(httpServletRequest).equals(refreshToken.getIp())) {
             redisRepository.deleteById(user.getUsername());
             throw new CustomException(ErrorCode.NotMatchedIp);
         }
@@ -371,7 +404,8 @@ public class UserService {
         User googleUser = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
         String createdAccessToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.ACCESS);
         String createdRefreshToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.REFRESH);
-        log.info(httpServletRequest.getRemoteAddr());
+        // 나중에 제거 해줘야 함.
+        log.info(getClientIp(httpServletRequest));
         // header에 올리기.
         HttpHeaders responseHeader = new HttpHeaders();
         responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createdAccessToken);
@@ -386,7 +420,7 @@ public class UserService {
         } else {
             RefreshToken refreshToSave = RefreshToken.builder()
                     .username(googleUser.getUsername())
-                    .ip(httpServletRequest.getRemoteAddr())
+                    .ip(getClientIp(httpServletRequest))
                     .refreshToken(createdRefreshToken)
                     .expiration(expiration).build();
             redisRepository.save(refreshToSave);
@@ -616,7 +650,7 @@ public class UserService {
         return objectMapper.readValue(response.getBody(), AccessTokenDto.class);
     }
 
-    public void unlinkGoogleAPI(User user, String bearerToken){
+    public void unlinkGoogleAPI(User user, String bearerToken) {
         //HTTP 헤더 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", bearerToken);
