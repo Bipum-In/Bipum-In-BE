@@ -118,7 +118,7 @@ public class UserController {
     @Operation(summary = "리프레쉬 실험(액세스)", description = "리프레쉬 실험")
     @PostMapping("/login/toy")
     public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(@RequestParam String username,
-                                                                  @RequestParam String ip) throws IOException {
+                                                                  @RequestParam String ip) {
         return userService.toyLogin(username, ip);
     }
 
