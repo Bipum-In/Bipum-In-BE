@@ -2,7 +2,10 @@ package com.sparta.bipuminbe.common.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
+import com.sparta.bipuminbe.common.enums.TokenState;
 import com.sparta.bipuminbe.common.enums.TokenType;
+import com.sparta.bipuminbe.common.exception.CustomException;
+import com.sparta.bipuminbe.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -28,8 +31,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String refreshToken = jwtUtil.resolveToken(request, TokenType.REFRESH);
 
         if (accessToken != null) {
-            if (jwtUtil.validateToken(accessToken)) {
+            if (jwtUtil.validateToken(accessToken) == TokenState.VALID) {
                 setAuthentication(jwtUtil.getUserInfoFromToken(accessToken).getSubject());
+            } else if (jwtUtil.validateToken(accessToken) == TokenState.EXPIRED) {
+                jwtExceptionHandler(response, ErrorCode.TokenExpiredJwtException);
             }
         } else if (refreshToken != null) {
             if (jwtUtil.validateRefreshToken(refreshToken)) {
@@ -47,11 +52,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
     }
 
-    public void jwtExceptionHandler(HttpServletResponse response, String msg, int statusCode) {
-        response.setStatus(statusCode);
+    public void jwtExceptionHandler(HttpServletResponse response, ErrorCode errorCode) {
+        response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json;charset=UTF-8");  // 원래는 json만 있었는데 나중에 확인하자.
         try {
-            String json = new ObjectMapper().writeValueAsString(new ResponseDto.Error(msg)); //ObjectMapper 매퍼를 통해 변환하여 반환new SecurityExceptionDto(statusCode, msg)
+            String json = new ObjectMapper().writeValueAsString(new CustomException(errorCode)); //ObjectMapper 매퍼를 통해 변환하여 반환new SecurityExceptionDto(statusCode, msg)
             response.getWriter().write(json);
         } catch (Exception e) {
             log.error(e.getMessage());
