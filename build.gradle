@@ -36,8 +36,6 @@ dependencies {
 
 //	//healthcheck 관련
 //	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	// h2
-	runtimeOnly 'com.h2database:h2'
 	//json
 	implementation group: 'org.json', name: 'json', version: '20220924'
 	//Swagger
@@ -46,8 +44,8 @@ dependencies {
 	implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
 	//Aws S3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-	
-	
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 //	//oauth2 관련
 //	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'

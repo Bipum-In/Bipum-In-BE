@@ -1,5 +1,6 @@
 package com.sparta.bipuminbe.common.sse.contoller;
 
+import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.common.sse.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,5 +31,11 @@ public class NotificationController {
     @Scheduled(cron = "0 0 0 1/1 * ? *") // 매일 자정 실행한다.
     public void deleteOldNotification(){
         notificationService.deleteOldNotification();
+    }
+
+    @Operation(summary = "알림 전체 삭제", description = "읽었든 안읽었든 삭제합니다.")
+    @DeleteMapping(value = "/notification")
+    public ResponseDto<String> deleteNotifications(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return notificationService.deleteNotifications(userDetails.getUser());
     }
 }

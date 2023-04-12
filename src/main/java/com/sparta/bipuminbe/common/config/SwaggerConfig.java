@@ -17,19 +17,25 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
 
         Info info = new Info()
-                .title("Kurly copy API 문서") // 타이틀
+                .title("Bipum-In API 문서") // 타이틀
                 .version("1.0") // 문서 버전
-                .description("Kurly api docs") // 문서 설명
+                .description("Bipum-In api docs") // 문서 설명
                 .contact(new Contact());
 
         // SecuritySecheme명
         String jwtSchemeName = "Authorization";
+        String refreshName = "Refresh";
         // API 요청헤더에 인증정보 포함
-        SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwtSchemeName);
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwtSchemeName).addList(refreshName);
         // SecuritySchemes 등록
         Components components = new Components()
                 .addSecuritySchemes(jwtSchemeName, new SecurityScheme()
                         .name(jwtSchemeName)
+                        .type(SecurityScheme.Type.HTTP) // HTTP 방식
+                        .scheme("bearer")
+                        .bearerFormat("JWT"))
+                .addSecuritySchemes(refreshName, new SecurityScheme()
+                        .name(refreshName)
                         .type(SecurityScheme.Type.HTTP) // HTTP 방식
                         .scheme("bearer")
                         .bearerFormat("JWT"));

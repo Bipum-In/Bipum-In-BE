@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -31,8 +32,22 @@ public class UserController {
     @Operation(summary = "로그인 처리", description = "구글 계정정보 담은 Jwt토큰 발급")
     @PostMapping("/login/google")
     public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(@RequestParam String code,
-                                                                     @RequestParam String urlType) throws IOException {
-        return userService.googleLogin(code, urlType);
+                                                                     @RequestParam String urlType,
+                                                                     @RequestParam String ip) throws IOException {
+        return userService.googleLogin(code, urlType, ip);
+    }
+
+    @Operation(summary = "로그아웃", description = "Redis refreshToken 제거.")
+    @PostMapping("/logout")
+    public ResponseDto<String> logout(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.logout(userDetails.getUsername());
+    }
+
+    @Operation(summary = "토큰 재발급", description = "Refresh Token 을 보내줘야 합니다.")
+    @PostMapping("/reissue") // access token이 만료됐을 경우
+    public ResponseDto<String> reIssueAccessToken(HttpServletResponse httpServletResponse, String ip,
+                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.reIssueAccessToken(userDetails.getUser(), ip, httpServletResponse);
     }
 
     //로그인 시, 부서와 유저이름이 없는 경우 반드시 추가입력하게 유도
@@ -79,6 +94,31 @@ public class UserController {
     public ResponseDto<String> updateUser(@ModelAttribute @Valid UserUpdateRequestDto userUpdateRequestDto,
                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return userService.updateUser(userUpdateRequestDto, userDetails.getUser());
+    }
+
+
+    @Secured(UserRoleEnum.Authority.ADMIN)
+    @DeleteMapping
+    @Operation(summary = "회원 관리 기능(강퇴) *new Api*", description = "부서 관리 페이지 입니다.")
+    public ResponseDto<String> manageUser(@RequestParam Long userId,
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.manageUser(userId, userDetails.getUser());
+    }
+
+
+    @Operation(summary = "리프레쉬 실험(액세스)", description = "리프레쉬 실험")
+    @PostMapping("/login/toy")
+    public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(@RequestParam String username,
+                                                                  @RequestParam String ip) throws IOException {
+        return userService.toyLogin(username, ip);
+    }
+
+    @Operation(summary = "리프레쉬 실험(재발급)", description = "리프레쉬 실험")
+    @PostMapping("/reissue/toy")
+    public ResponseDto<String> toyReissue(@RequestParam String username,
+                                          @RequestParam String ip,
+                                          HttpServletResponse httpServletResponse) throws IOException {
+        return userService.toyReissue(username, ip, httpServletResponse);
     }
 
 

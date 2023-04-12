@@ -1,11 +1,7 @@
 package com.sparta.bipuminbe.common.entity;
 
-import com.sparta.bipuminbe.common.entity.Requests;
-import com.sparta.bipuminbe.common.entity.TimeStamped;
-import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.NotificationType;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

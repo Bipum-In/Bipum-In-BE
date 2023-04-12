@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.common.sse.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
@@ -296,5 +297,11 @@ public class NotificationService {
         for(Notification notification : notifications){
             notificationRepository.deleteById(notification.getId());
         }
+    }
+
+    @Transactional
+    public ResponseDto<String> deleteNotifications(User user) {
+        notificationRepository.deleteAll(notificationRepository.findByReceiver(user));
+        return ResponseDto.success("알림 삭제 완료.");
     }
 }
