@@ -367,11 +367,11 @@ public class UserService {
 
 
     @Transactional(readOnly = true)
-    public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(String username, String ip) {
+    public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(String username, HttpServletRequest httpServletRequest) {
         User googleUser = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
         String createdAccessToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.ACCESS);
         String createdRefreshToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.REFRESH);
-
+        log.info(httpServletRequest.getRemoteAddr());
         // header에 올리기.
         HttpHeaders responseHeader = new HttpHeaders();
         responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createdAccessToken);
@@ -386,7 +386,7 @@ public class UserService {
         } else {
             RefreshToken refreshToSave = RefreshToken.builder()
                     .username(googleUser.getUsername())
-                    .ip(ip)
+                    .ip(httpServletRequest.getRemoteAddr())
                     .refreshToken(createdRefreshToken)
                     .expiration(expiration).build();
             redisRepository.save(refreshToSave);
