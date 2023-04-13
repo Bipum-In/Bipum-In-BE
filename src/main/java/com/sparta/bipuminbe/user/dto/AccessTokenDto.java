@@ -14,5 +14,5 @@ public class AccessTokenDto {
     private String scope;
     private String token_type;
     private String id_token;
-    private String refresh_token;
+//    private String refresh_token;
 }

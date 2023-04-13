@@ -33,8 +33,8 @@ public class User extends TimeStamped {
     @Column(nullable = false)
     private String accessToken;
 
-    @Column(nullable = false)
-    private String refreshToken;
+//    @Column(nullable = false)
+//    private String refreshToken;
 
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
@@ -51,7 +51,7 @@ public class User extends TimeStamped {
 
     @Builder
     public User(String googleId, String username, String password, String empName, String phone,
-                String image, String accessToken, String refreshToken, UserRoleEnum role, Boolean alarm, Department department, Boolean deleted) {
+                String image, String accessToken, UserRoleEnum role, Boolean alarm, Department department, Boolean deleted) {
         this.googleId = googleId;
         this.username = username;
         this.password = password;
@@ -59,7 +59,7 @@ public class User extends TimeStamped {
         this.phone = phone;
         this.image = image;
         this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
+//        this.refreshToken = refreshToken;
         this.role = role;
         this.alarm = alarm;
         this.department = department;

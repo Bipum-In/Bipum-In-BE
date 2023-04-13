@@ -77,7 +77,6 @@ public class UserService {
         AccessTokenDto accessToken = getToken(code, urlType);
 
         log.info("accessToken : " + accessToken.getAccess_token());
-        log.info("refreshToken : " + accessToken.getRefresh_token());
 
         // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
         GoogleUserInfoDto googleUserInfo = getGoogleUserInfo(accessToken);
@@ -165,8 +164,8 @@ public class UserService {
         body.add("client_secret", clientSecret); // 클라이언트 Secret
         body.add("redirect_uri", redirectUrl);
         body.add("grant_type", "authorization_code");
-        body.add("access_type", "offline");
-        body.add("prompt", "consent");
+//        body.add("access_type", "offline");
+//        body.add("prompt", "consent");
 
         // HTTP 요청 보내기1
         HttpEntity<MultiValueMap<String, String>> googleTokenRequest =
@@ -224,7 +223,7 @@ public class UserService {
                     username(googleUserInfo.getEmail()).
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
-                    refreshToken(accessToken.getRefresh_token()).
+//                    refreshToken(accessToken.getRefresh_token()).
                     role(UserRoleEnum.ADMIN).
                     alarm(true).
                     deleted(false).
@@ -276,31 +275,31 @@ public class UserService {
                 () -> new CustomException(ErrorCode.NotFoundDepartment));
     }
 
-
-    // 구글과 연결된 계정 삭제
-    @Transactional
-    public ResponseDto<String> deleteUser(User user, String bearerToken) throws JsonProcessingException {
-        // 유저에 있는 Access 토큰은 로그인 시에 생성된 Access 토큰이기 때문에, 삭제 시 갱신이 필요함.
-
-        // refresh 토큰으로 Access토큰 갱신
-        AccessTokenDto accessToken = refreshToken(user);
-
-        //현재 유저에 있는 Access 토큰을 갱신된 토큰으로 교체
-        user.refreshGoogleToken(accessToken.getAccess_token());
-
-        // 구글 API와 통신을 통해 연결 끊기
-        unlinkGoogleAPI(user, bearerToken);
-
-        User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundUser));
-
-        returnSuppliesByDeletedUser(user, user);
-
-        // DB의 회원정보 삭제
-        userRepository.deleteByGoogleId(googleUser.getGoogleId());
-
-        return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
-    }
+//
+//    // 구글과 연결된 계정 삭제
+//    @Transactional
+//    public ResponseDto<String> deleteUser(User user, String bearerToken) throws JsonProcessingException {
+//        // 유저에 있는 Access 토큰은 로그인 시에 생성된 Access 토큰이기 때문에, 삭제 시 갱신이 필요함.
+//
+//        // refresh 토큰으로 Access토큰 갱신
+//        AccessTokenDto accessToken = refreshToken(user);
+//
+//        //현재 유저에 있는 Access 토큰을 갱신된 토큰으로 교체
+//        user.refreshGoogleToken(accessToken.getAccess_token());
+//
+//        // 구글 API와 통신을 통해 연결 끊기
+//        unlinkGoogleAPI(user, bearerToken);
+//
+//        User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
+//                () -> new CustomException(ErrorCode.NotFoundUser));
+//
+//        returnSuppliesByDeletedUser(user, user);
+//
+//        // DB의 회원정보 삭제
+//        userRepository.deleteByGoogleId(googleUser.getGoogleId());
+//
+//        return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
+//    }
 
 
     // 비품 자동 반납.
@@ -626,33 +625,33 @@ public class UserService {
 //        byte[] hmacBytes = mac.doFinal(data);
 //        return Base64.getEncoder().encodeToString(hmacBytes);
 //    }
-    public AccessTokenDto refreshToken(User user) throws JsonProcessingException {
-        // HTTP Header 생성
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
-        // HTTP Body 생성
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("client_id", clientId); // 클라이언트 Id
-        body.add("client_secret", clientSecret); // 클라이언트 Secret
-        body.add("refresh_token", user.getRefreshToken()); // Refresh Token
-        body.add("grant_type", "refresh_token");
-
-        // HTTP 요청 보내기
-        HttpEntity<MultiValueMap<String, String>> googleTokenRequest =
-                new HttpEntity<>(body, headers);
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response = rt.exchange(
-                "https://oauth2.googleapis.com/token",
-                HttpMethod.POST,
-                googleTokenRequest,
-                String.class
-        );
-
-        // HTTP 응답 (JSON) -> 액세스 토큰 파싱
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(response.getBody(), AccessTokenDto.class);
-    }
+//    public AccessTokenDto refreshToken(User user) throws JsonProcessingException {
+//        // HTTP Header 생성
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+//
+//        // HTTP Body 생성
+//        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+//        body.add("client_id", clientId); // 클라이언트 Id
+//        body.add("client_secret", clientSecret); // 클라이언트 Secret
+//        body.add("refresh_token", user.getRefreshToken()); // Refresh Token
+//        body.add("grant_type", "refresh_token");
+//
+//        // HTTP 요청 보내기
+//        HttpEntity<MultiValueMap<String, String>> googleTokenRequest =
+//                new HttpEntity<>(body, headers);
+//        RestTemplate rt = new RestTemplate();
+//        ResponseEntity<String> response = rt.exchange(
+//                "https://oauth2.googleapis.com/token",
+//                HttpMethod.POST,
+//                googleTokenRequest,
+//                String.class
+//        );
+//
+//        // HTTP 응답 (JSON) -> 액세스 토큰 파싱
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        return objectMapper.readValue(response.getBody(), AccessTokenDto.class);
+//    }
 
     public void unlinkGoogleAPI(User user, String bearerToken) {
         //HTTP 헤더 생성
