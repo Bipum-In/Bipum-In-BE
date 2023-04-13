@@ -58,13 +58,16 @@ public class DashboardService {
 
         // 요청 현황
         Map<String, Long> countMap = new HashMap<>();
-        countMap.put("supplyRequests", requestsRepository.countSupply());
-        countMap.put("returnRequests", requestsRepository.countReturn());
-        countMap.put("repairRequests", requestsRepository.countRepair());
-        countMap.put("ReportRequests", requestsRepository.countReport());
+
+        countMap.put("supplyRequests", requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.SUPPLY, RequestStatus.PROCESSED));
+        countMap.put("returnRequests", requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.RETURN, RequestStatus.PROCESSED));
+        countMap.put("repairRequests", requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPAIR, RequestStatus.PROCESSED));
+        countMap.put("ReportRequests", requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPORT, RequestStatus.PROCESSED));
         countMap.put("UnProcessedRequests",
-                requestsRepository.countSupply() + requestsRepository.countReturn() +
-                        requestsRepository.countRepair() + requestsRepository.countReport());
+                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.SUPPLY, RequestStatus.PROCESSED) +
+                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.RETURN, RequestStatus.PROCESSED) +
+                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPAIR, RequestStatus.PROCESSED) +
+                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPORT, RequestStatus.PROCESSED));
 
         // 요청 종류별 최신 수정일자
         Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
