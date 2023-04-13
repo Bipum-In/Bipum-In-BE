@@ -162,7 +162,6 @@ public class UserService {
             redirectUrl = urlType.equals("local") ? redirectLocalDeleteUrl : redirectServerDeleteUrl;
         }
 
-
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -248,13 +247,9 @@ public class UserService {
 
     @Transactional
     public ResponseDto<String> logout(String username) {
-        Optional<RefreshToken> redisEntity = redisRepository.findById(username);
-        if (redisEntity.isPresent()) {
-            redisRepository.deleteById(username);
-        }
+        deleteRefreshToken(username);
         return ResponseDto.success("로그아웃 성공");
     }
-
 
     @Transactional
     public ResponseDto<LoginResponseDto> loginAdd(LoginRequestDto loginRequestDto, User user) {
@@ -299,6 +294,8 @@ public class UserService {
 
         User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
+
+        deleteRefreshToken(googleUser.getUsername());
 
         returnSuppliesByDeletedUser(user, user);
 
@@ -682,5 +679,12 @@ public class UserService {
         User foundUser = getUser(user.getId());
         foundUser.changePassword(passwordEncoder.encode(changePasswordDto.getPassword()));
         return ResponseDto.success("비밀번호 수정 완료.");
+    }
+
+    private void deleteRefreshToken(String username) {
+        Optional<RefreshToken> redisEntity = redisRepository.findById(username);
+        if (redisEntity.isPresent()) {
+            redisRepository.deleteById(username);
+        }
     }
 }
