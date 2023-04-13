@@ -8,6 +8,8 @@ import com.sparta.bipuminbe.common.enums.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
+import com.sparta.bipuminbe.common.util.redis.EmailCode;
+import com.sparta.bipuminbe.common.util.redis.EmailRedisRepository;
 import com.sparta.bipuminbe.common.util.redis.RedisRepository;
 import com.sparta.bipuminbe.common.util.redis.RefreshToken;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
@@ -19,8 +21,15 @@ import com.sparta.bipuminbe.common.jwt.JwtUtil;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +39,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -39,6 +51,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final EmailRedisRepository emailRedisRepository;
     private final ImageRepository imageRepository;
     private final RequestsRepository requestsRepository;
     private final SupplyRepository supplyRepository;
@@ -49,6 +62,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final S3Uploader s3Uploader;
     private final RedisRepository redisRepository;
+    private final JavaMailSender javaMailSender;
 
     //    @Value("${login.encrypt.algorithm}")
 //    private final String alg;
@@ -76,6 +90,8 @@ public class UserService {
     private String redirectLocalDeleteUrl;
     @Value("${google.auth.server.redirect.url.delete}")
     private String redirectServerDeleteUrl;
+    @Value("spring.mail.username")
+    private String from;
 
     @Transactional
     public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType, HttpServletRequest httpServletRequest) throws JsonProcessingException {
@@ -158,9 +174,9 @@ public class UserService {
     //     1. "인가 코드"로 "액세스 토큰" 요청
     private AccessTokenDto getToken(String code, String urlType, GoogleTokenType googleTokenType) throws JsonProcessingException {
         String redirectUrl = "";
-        if(googleTokenType == GoogleTokenType.LOGIN){
+        if (googleTokenType == GoogleTokenType.LOGIN) {
             redirectUrl = urlType.equals("local") ? redirectLocalUrl : redirectServerUrl;
-        }else {
+        } else {
             redirectUrl = urlType.equals("local") ? redirectLocalDeleteUrl : redirectServerDeleteUrl;
         }
 
@@ -235,7 +251,7 @@ public class UserService {
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
 //                    refreshToken(accessToken.getRefresh_token()).
-                    role(UserRoleEnum.ADMIN).
+        role(UserRoleEnum.ADMIN).
                     alarm(true).
                     deleted(false).
                     build();
@@ -708,7 +724,26 @@ public class UserService {
 
 
     @Transactional(readOnly = true)
-    public ResponseDto<String> findPassword(User user) {
-        return ResponseDto.success("임시");
+    public ResponseDto<String> sendPassword(User user) throws MessagingException, IOException {
+
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+        mimeMessageHelper.setFrom(from);
+        mimeMessageHelper.setTo(user.getUsername());
+        mimeMessageHelper.setSubject("[비품인] 임시 비밀번호 인증 코드");
+
+        String pwCode = RandomStringUtils.randomNumeric(6);
+        File file = new File("src/main/resources/templates/sendEmail.html");
+        Document doc = Jsoup.parse(file, "UTF-8");
+        Element element = doc.getElementById("pwCode");
+        element.appendText(pwCode);
+        String content = doc.html();
+        mimeMessageHelper.setText(content, true);
+        javaMailSender.send(mimeMessage);
+
+        User foundUser = getUser(user.getId());
+        foundUser.changePassword(passwordEncoder.encode(pwCode));
+
+        return ResponseDto.success("이메일 전송 완료.");
     }
 }

@@ -11,10 +11,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -126,10 +128,10 @@ public class UserController {
     }
 
 
-    @GetMapping("/password")
-    @Operation(summary = "비밀번호 찾기", description = "비밀번호 찾기")
-    public ResponseDto<String> findPassword(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return userService.findPassword(userDetails.getUser());
+    @PostMapping("/password")
+    @Operation(summary = "임시 비밀번호 받기", description = "비밀번호 찾기")
+    public ResponseDto<String> sendPassword(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws MessagingException, IOException {
+        return userService.sendPassword(userDetails.getUser());
     }
 
 
