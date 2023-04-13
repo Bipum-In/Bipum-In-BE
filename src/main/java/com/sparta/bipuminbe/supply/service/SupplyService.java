@@ -10,6 +10,7 @@ import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
 import com.sparta.bipuminbe.partners.repository.PartnersRepository;
+import com.sparta.bipuminbe.requests.repository.ImageRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.dto.*;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -37,6 +38,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class SupplyService {
+    private final ImageRepository imageRepository;
     private final DepartmentRepository departmentRepository;
     private final SupplyRepository supplyRepository;
     private final UserRepository userRepository;
@@ -315,6 +317,12 @@ public class SupplyService {
                         .department(supply.getUseType() == UseType.COMMON ? supply.getDepartment() : null)
                         .admin(admin)
                         .build());
+
+                imageRepository.save(Image.builder()
+                        .image(supply.getImage())
+                        .requests(request)
+                        .build());
+
                 supply.returnSupply();
 
                 // 반납 요청 담기
@@ -323,7 +331,7 @@ public class SupplyService {
 
             // 다음 유저 비품 요청 생성. (기록용)
             if (supplyRequestDto.getUseType() != null) {
-                Requests request = Requests.builder()
+                Requests request = requestsRepository.save(Requests.builder()
                         .content(content)
                         .requestType(RequestType.SUPPLY)
                         .requestStatus(RequestStatus.PROCESSED)
@@ -334,8 +342,8 @@ public class SupplyService {
                         .useType(supplyRequestDto.getUseType())
                         .department(supplyRequestDto.getUseType() == UseType.COMMON ? department : null)
                         .admin(admin)
-                        .build();
-                requestsRepository.save(request);
+                        .build());
+
                 supply.allocateSupply(request, department);
 
                 // 비품 요청 담기

@@ -11,6 +11,7 @@ import com.sparta.bipuminbe.common.s3.S3Uploader;
 import com.sparta.bipuminbe.common.util.redis.RedisRepository;
 import com.sparta.bipuminbe.common.util.redis.RefreshToken;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
+import com.sparta.bipuminbe.requests.repository.ImageRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
 import com.sparta.bipuminbe.user.dto.*;
@@ -38,6 +39,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final ImageRepository imageRepository;
     private final RequestsRepository requestsRepository;
     private final SupplyRepository supplyRepository;
     private final UserRepository userRepository;
@@ -320,7 +322,7 @@ public class UserService {
         List<Supply> supplyList = supplyRepository.findByUser_IdAndDeletedFalse(user.getId());
         for (Supply supply : supplyList) {
             // 비품 자동 반납에 의한 기록 생성.
-            requestsRepository.save(Requests.builder()
+            Requests request = requestsRepository.save(Requests.builder()
                     .requestType(RequestType.RETURN)
                     .content("유저 탈퇴에 의한 비품 자동 반납")
                     .acceptResult(AcceptResult.ACCEPT)
@@ -330,6 +332,12 @@ public class UserService {
                     .user(user)
                     .admin(admin)
                     .build());
+
+            imageRepository.save(Image.builder()
+                    .image(supply.getImage())
+                    .requests(request)
+                    .build());
+
             supply.returnSupply();
         }
     }
