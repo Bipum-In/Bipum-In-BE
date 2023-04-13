@@ -24,7 +24,7 @@ public class Image {
     private Requests requests;
 
     @Builder
-    public Image(String image, Requests requests){
+    public Image(String image, Requests requests) {
         this.image = image;
         this.requests = requests;
     }

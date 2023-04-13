@@ -220,7 +220,7 @@ public class UserService {
                     username(googleUserInfo.getEmail()).
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
-                    refreshToken("accessToken.getRefresh_token()").
+                    refreshToken(accessToken.getRefresh_token()).
                     role(UserRoleEnum.ADMIN).
                     alarm(true).
                     deleted(false).

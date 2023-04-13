@@ -29,6 +29,10 @@ public class Notification extends TimeStamped {
     @Column(nullable = false)
     private Boolean isRead;
 
+    // 카운트에 포함 되는가.
+    @Column(nullable = false)
+    private Boolean isCount;
+
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 

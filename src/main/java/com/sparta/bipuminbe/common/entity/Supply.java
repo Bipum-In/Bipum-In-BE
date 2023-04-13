@@ -94,7 +94,7 @@ public class Supply extends TimeStamped {
 
     public void repairSupply() {
         status = status.equals(SupplyStatusEnum.REPAIRING)
-                ? this.user == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING
+                ? this.useType == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING
                 : SupplyStatusEnum.REPAIRING;
     }
 
