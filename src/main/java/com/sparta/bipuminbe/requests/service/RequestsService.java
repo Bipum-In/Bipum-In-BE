@@ -229,7 +229,7 @@ public class RequestsService {
     private Set<Long> getUserIdSet(User user, UserRoleEnum role) {
         Set<Long> userQuery = new HashSet<>();
         if (role.equals(UserRoleEnum.ADMIN)) {
-            List<User> userList = userRepository.findByDeletedFalse();
+            List<User> userList = userRepository.findAll();
             for (User foundUser : userList) {
                 userQuery.add(foundUser.getId());
             }

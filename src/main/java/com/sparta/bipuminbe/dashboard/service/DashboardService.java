@@ -217,7 +217,7 @@ public class DashboardService {
     private Set<Long> getUserIdQuerySet(User user, UserRoleEnum role) {
         Set<Long> userIdSet = new HashSet<>();
         if (role == UserRoleEnum.ADMIN) {
-            List<User> userList = userRepository.findByDeletedFalse();
+            List<User> userList = userRepository.findAll();
             for (User foundUser : userList) {
                 userIdSet.add(foundUser.getId());
             }
