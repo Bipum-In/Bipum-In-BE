@@ -12,7 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 @SQLDelete(sql = "UPDATE users SET deleted = true, phone = null, image = null, " +
-        "username = uuid(), google_id = uuid(), access_token = uuid() WHERE id = ?")
+        "username = '탈퇴한 유저#' + id, google_id = uuid(), access_token = uuid() WHERE id = ?")
 //@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class User extends TimeStamped {
     @Id
