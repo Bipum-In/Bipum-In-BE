@@ -374,6 +374,11 @@ public class SupplyService {
                 .admin(admin)
                 .build());
 
+        imageRepository.save(Image.builder()
+                .image(supply.getImage())
+                .requests(request)
+                .build());
+
         // 폐기될 비품에 걸려있는 요청 거절 처리.
         List<Requests> requestList = requestsRepository.findBySupply_SupplyIdAndRequestStatusNot(supplyId, RequestStatus.PROCESSED);
         for (Requests requests : requestList) {
