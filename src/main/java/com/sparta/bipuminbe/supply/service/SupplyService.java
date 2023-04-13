@@ -349,7 +349,7 @@ public class SupplyService {
 
     //비품 폐기
     @Transactional
-    public Requests deleteSupply(Long supplyId, User user) {
+    public Requests deleteSupply(Long supplyId, User admin) {
 
         Supply supply = getSupply(supplyId);
 
@@ -362,10 +362,15 @@ public class SupplyService {
                 .acceptResult(AcceptResult.DISPOSE)
                 .supply(supply)
                 .useType(supply.getUseType())
-                .user(user)
-                .admin(user)
+                .user(admin)
+                .admin(admin)
                 .build());
 
+        // 폐기될 비품에 걸려있는 요청 거절 처리.
+        List<Requests> requestList = requestsRepository.findBySupply_SupplyIdAndRequestStatusNot(supplyId, RequestStatus.PROCESSED);
+        for (Requests requests : requestList) {
+            requests.processingRequest(AcceptResult.DECLINE, content, null, admin);
+        }
         supplyRepository.delete(supply);
         return request;
     }

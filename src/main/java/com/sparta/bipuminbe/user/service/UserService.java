@@ -297,12 +297,21 @@ public class UserService {
 
         deleteRefreshToken(googleUser.getUsername());
 
+        // 비품 자동 반납
         returnSuppliesByDeletedUser(user, user);
-
+        // 유저의 처리전 요청 거절 처리.
+        declineRequestsByDeletedUser(user);
         // DB의 회원정보 삭제
         userRepository.deleteByGoogleId(googleUser.getGoogleId());
 
         return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
+    }
+
+    private void declineRequestsByDeletedUser(User user) {
+        List<Requests> requestList = requestsRepository.findByUser_IdAndRequestStatusNot(user.getId(), RequestStatus.PROCESSED);
+        for (Requests requests : requestList) {
+            requests.processingRequest(AcceptResult.DECLINE, "유저 탈퇴에 의한 요청 거절 처리", null, user);
+        }
     }
 
 

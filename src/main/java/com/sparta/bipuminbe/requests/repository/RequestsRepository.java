@@ -72,4 +72,9 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
     LocalDateTime repairUserModifiedAt(@Param("userId") Long id);
     @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPORT'", nativeQuery = true)
     LocalDateTime reportUserModifiedAt(@Param("userId") Long id);
+
+    // 비품 폐기 전 요청들 처리.
+    List<Requests> findBySupply_SupplyIdAndRequestStatusNot(Long supplyId, RequestStatus requestStatus);
+
+    List<Requests> findByUser_IdAndRequestStatusNot(Long id, RequestStatus requestStatus);
 }
