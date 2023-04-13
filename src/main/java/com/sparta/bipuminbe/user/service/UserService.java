@@ -166,6 +166,7 @@ public class UserService {
         body.add("redirect_uri", redirectUrl);
         body.add("grant_type", "authorization_code");
         body.add("access_type", "offline");
+        body.add("prompt", "consent");
 
         // HTTP 요청 보내기1
         HttpEntity<MultiValueMap<String, String>> googleTokenRequest =
