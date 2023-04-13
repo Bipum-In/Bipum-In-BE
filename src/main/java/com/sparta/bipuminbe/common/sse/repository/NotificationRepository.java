@@ -2,6 +2,7 @@ package com.sparta.bipuminbe.common.sse.repository;
 
 import com.sparta.bipuminbe.common.entity.Notification;
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.NotificationType;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForAdmin;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseForUser;
 import org.springframework.data.domain.Page;
@@ -39,4 +40,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findOldNotification();
 
     List<Notification> findByReceiver(User user);
+
+    long countByReceiver_IdAndNotificationTypeAndIncludeCountTrue(Long id, NotificationType notificationType);
+
+    List<Notification> findByReceiver_IdAndNotificationTypeAndIncludeCountTrue(Long id, NotificationType notificationType);
 }
