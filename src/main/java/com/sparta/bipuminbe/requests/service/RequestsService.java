@@ -9,6 +9,7 @@ import com.sparta.bipuminbe.common.enums.RequestType;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
+import com.sparta.bipuminbe.common.sse.repository.NotificationRepository;
 import com.sparta.bipuminbe.common.util.sms.SmsUtil;
 import com.sparta.bipuminbe.requests.dto.*;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
@@ -38,6 +39,7 @@ public class RequestsService {
     private final S3Uploader s3Uploader;
     private final SmsUtil smsUtil;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public RequestsResponseDto createRequests(RequestsRequestDto requestsRequestDto, User user) throws Exception {
@@ -200,10 +202,11 @@ public class RequestsService {
 
         // 본인의 요청인지 확인
         checkPermission(requests, user);
-
         // 처리 전 요청인지 확인
         checkProcessing(requests);
 
+        List<Notification> notificationList = notificationRepository.findByRequest_RequestId(requestId);
+        notificationRepository.deleteAll(notificationList);
         requestsRepository.deleteById(requestId);
 
         return ResponseDto.success("요청 삭제 완료");
