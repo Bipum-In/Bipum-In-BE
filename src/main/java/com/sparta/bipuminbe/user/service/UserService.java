@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -275,31 +276,29 @@ public class UserService {
                 () -> new CustomException(ErrorCode.NotFoundDepartment));
     }
 
-//
-//    // 구글과 연결된 계정 삭제
-//    @Transactional
-//    public ResponseDto<String> deleteUser(User user, String bearerToken) throws JsonProcessingException {
-//        // 유저에 있는 Access 토큰은 로그인 시에 생성된 Access 토큰이기 때문에, 삭제 시 갱신이 필요함.
-//
-//        // refresh 토큰으로 Access토큰 갱신
-//        AccessTokenDto accessToken = refreshToken(user);
-//
-//        //현재 유저에 있는 Access 토큰을 갱신된 토큰으로 교체
-//        user.refreshGoogleToken(accessToken.getAccess_token());
-//
-//        // 구글 API와 통신을 통해 연결 끊기
-//        unlinkGoogleAPI(user, bearerToken);
-//
-//        User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
-//                () -> new CustomException(ErrorCode.NotFoundUser));
-//
-//        returnSuppliesByDeletedUser(user, user);
-//
-//        // DB의 회원정보 삭제
-//        userRepository.deleteByGoogleId(googleUser.getGoogleId());
-//
-//        return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
-//    }
+
+    // 구글과 연결된 계정 삭제
+    @Transactional
+    public ResponseDto<String> deleteUser(User user, String bearerToken, String code, String urlType) throws JsonProcessingException {
+        // 유저에 있는 Access 토큰은 로그인 시에 생성된 Access 토큰이기 때문에, 삭제 시 갱신이 필요함. refresh 토큰 null 이슈로 인한 처리
+        AccessTokenDto accessToken = getToken(code, urlType);
+
+        //현재 유저에 있는 Access 토큰을 갱신된 토큰으로 교체
+        user.refreshGoogleToken(accessToken.getAccess_token());
+
+        // 구글 API와 통신을 통해 연결 끊기
+        unlinkGoogleAPI(user, bearerToken);
+
+        User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundUser));
+
+        returnSuppliesByDeletedUser(user, user);
+
+        // DB의 회원정보 삭제
+        userRepository.deleteByGoogleId(googleUser.getGoogleId());
+
+        return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
+    }
 
 
     // 비품 자동 반납.
@@ -625,6 +624,7 @@ public class UserService {
 //        byte[] hmacBytes = mac.doFinal(data);
 //        return Base64.getEncoder().encodeToString(hmacBytes);
 //    }
+
 //    public AccessTokenDto refreshToken(User user) throws JsonProcessingException {
 //        // HTTP Header 생성
 //        HttpHeaders headers = new HttpHeaders();
