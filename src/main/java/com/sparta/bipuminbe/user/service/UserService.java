@@ -76,6 +76,9 @@ public class UserService {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         AccessTokenDto accessToken = getToken(code, urlType);
 
+        log.info("accessToken : " + accessToken.getAccess_token());
+        log.info("refreshToken : " + accessToken.getRefresh_token());
+
         // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
         GoogleUserInfoDto googleUserInfo = getGoogleUserInfo(accessToken);
         log.info("구글 사용자 정보 : " + googleUserInfo.getId() + ", " + googleUserInfo.getEmail() + ", " + googleUserInfo.getName()
@@ -163,6 +166,7 @@ public class UserService {
         body.add("redirect_uri", redirectUrl);
         body.add("grant_type", "authorization_code");
         body.add("access_type", "offline");
+        body.add("prompt", "consent");
 
         // HTTP 요청 보내기1
         HttpEntity<MultiValueMap<String, String>> googleTokenRequest =
