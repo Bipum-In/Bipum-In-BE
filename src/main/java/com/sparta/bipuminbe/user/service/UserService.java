@@ -79,7 +79,7 @@ public class UserService {
 
         log.info("accessToken : " + accessToken.getAccess_token());
 
-        // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
+        // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기.
         GoogleUserInfoDto googleUserInfo = getGoogleUserInfo(accessToken);
         log.info("구글 사용자 정보 : " + googleUserInfo.getId() + ", " + googleUserInfo.getEmail() + ", " + googleUserInfo.getName()
                 + ", " + googleUserInfo.getPicture());
