@@ -70,12 +70,15 @@ public class UserService {
     private String redirectLocalUrl;
     @Value("${google.auth.server.redirect.url}")
     private String redirectServerUrl;
-
+    @Value("${http://localhost:3000/login}")
+    private String redirectLocalDeleteUrl;
+    @Value("${http://hanghae77.s3-website.ap-northeast-2.amazonaws.com/delete-user}")
+    private String redirectServerDeleteUrl;
 
     @Transactional
     public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        AccessTokenDto accessToken = getToken(code, urlType);
+        AccessTokenDto accessToken = getToken(code, urlType, GoogleTokenType.LOGIN);
 
         log.info("accessToken : " + accessToken.getAccess_token());
 
@@ -151,8 +154,14 @@ public class UserService {
 
 
     //     1. "인가 코드"로 "액세스 토큰" 요청
-    private AccessTokenDto getToken(String code, String urlType) throws JsonProcessingException {
-        String redirectUrl = urlType.equals("local") ? redirectLocalUrl : redirectServerUrl;
+    private AccessTokenDto getToken(String code, String urlType, GoogleTokenType googleTokenType) throws JsonProcessingException {
+        String redirectUrl = "";
+        if(googleTokenType == GoogleTokenType.LOGIN){
+            redirectUrl = urlType.equals("local") ? redirectLocalUrl : redirectServerUrl;
+        }else {
+            redirectUrl = urlType.equals("local") ? redirectLocalDeleteUrl : redirectServerDeleteUrl;
+        }
+
 
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
@@ -280,7 +289,7 @@ public class UserService {
     @Transactional
     public ResponseDto<String> deleteUser(User user, String bearerToken, String code, String urlType) throws JsonProcessingException {
         // 유저에 있는 Access 토큰은 로그인 시에 생성된 Access 토큰이기 때문에, 삭제 시 갱신이 필요함. refresh 토큰 null 이슈로 인한 처리
-        AccessTokenDto accessToken = getToken(code, urlType);
+        AccessTokenDto accessToken = getToken(code, urlType, GoogleTokenType.DELETE);
 
         //현재 유저에 있는 Access 토큰을 갱신된 토큰으로 교체
         user.refreshGoogleToken(accessToken.getAccess_token());

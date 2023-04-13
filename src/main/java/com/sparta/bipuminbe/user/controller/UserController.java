@@ -35,6 +35,7 @@ public class UserController {
     public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(@RequestParam String code,
                                                                      @RequestParam String urlType,
                                                                      HttpServletRequest httpServletRequest) throws IOException {
+
         return userService.googleLogin(code, urlType, httpServletRequest);
     }
 
