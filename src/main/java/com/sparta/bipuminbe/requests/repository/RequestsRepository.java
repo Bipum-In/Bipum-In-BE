@@ -36,20 +36,24 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
                                    @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery,
                                    @Param("userIdQuery") Set<Long> userIdQuery, Pageable pageable);
 
-    @Query(value = "SELECT COUNT(*) FROM requests " +
-            "WHERE requests.request_type = 'SUPPLY' AND request_status != 'PROCESSED'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM requests r " +
+            "LEFT JOIN supply s on r.supply_id = s.supply_id " +
+            "WHERE r.request_type = 'SUPPLY' AND r.request_status != 'PROCESSED'" , nativeQuery = true)
     Long countSupply();
 
-    @Query(value = "SELECT COUNT(*) FROM requests " +
-            "WHERE requests.request_type = 'RETURN' AND request_status != 'PROCESSED'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM requests r " +
+            "LEFT JOIN supply s on r.supply_id = s.supply_id  " +
+            "WHERE r.request_type = 'RETURN' AND r.request_status != 'PROCESSED'", nativeQuery = true)
     Long countReturn();
 
-    @Query(value = "SELECT COUNT(*) FROM requests " +
-            "WHERE requests.request_type = 'REPAIR' AND request_status != 'PROCESSED'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM requests r " +
+            "LEFT JOIN supply s on r.supply_id = s.supply_id  " +
+            "WHERE r.request_type = 'REPAIR' AND r.request_status != 'PROCESSED'", nativeQuery = true)
     Long countRepair();
 
-    @Query(value = "SELECT COUNT(*) FROM requests " +
-            "WHERE requests.request_status = 'REPORT' AND request_status != 'PROCESSED'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM requests r " +
+            "LEFT JOIN supply s on r.supply_id = s.supply_id  " +
+            "WHERE r.request_status = 'REPORT' AND r.request_status != 'PROCESSED'", nativeQuery = true)
     Long countReport();
 
     @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'SUPPLY'", nativeQuery = true)
