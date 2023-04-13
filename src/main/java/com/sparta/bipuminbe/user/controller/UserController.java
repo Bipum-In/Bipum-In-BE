@@ -124,6 +124,15 @@ public class UserController {
                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.changePassword(changePasswordDto, userDetails.getUser());
     }
+
+
+    @GetMapping("/password")
+    @Operation(summary = "비밀번호 찾기", description = "비밀번호 찾기")
+    public ResponseDto<String> findPassword(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.findPassword(userDetails.getUser());
+    }
+
+
     @Operation(summary = "리프레쉬 실험(액세스)", description = "리프레쉬 실험")
     @PostMapping("/login/toy")
     public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(@RequestParam String username,

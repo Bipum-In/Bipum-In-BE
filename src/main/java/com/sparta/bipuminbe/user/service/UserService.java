@@ -674,6 +674,7 @@ public class UserService {
         }
     }
 
+
     @Transactional
     public ResponseDto<String> changePassword(ChangePasswordDto changePasswordDto, User user) {
         User foundUser = getUser(user.getId());
@@ -686,5 +687,11 @@ public class UserService {
         if (redisEntity.isPresent()) {
             redisRepository.deleteById(username);
         }
+    }
+
+
+    @Transactional(readOnly = true)
+    public ResponseDto<String> findPassword(User user) {
+        return ResponseDto.success("임시");
     }
 }

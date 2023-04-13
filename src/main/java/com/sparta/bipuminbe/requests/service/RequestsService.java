@@ -3,16 +3,13 @@ package com.sparta.bipuminbe.requests.service;
 import com.sparta.bipuminbe.category.repository.CategoryRepository;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.entity.*;
-import com.sparta.bipuminbe.common.enums.AcceptResult;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
-import com.sparta.bipuminbe.common.enums.RequestType;
+import com.sparta.bipuminbe.common.enums.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
 import com.sparta.bipuminbe.common.sse.repository.NotificationRepository;
 import com.sparta.bipuminbe.common.util.sms.SmsUtil;
 import com.sparta.bipuminbe.requests.dto.*;
-import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.requests.repository.ImageRepository;
 import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.supply.repository.SupplyRepository;
@@ -73,7 +70,7 @@ public class RequestsService {
                     .category(category)
                     .user(user)
                     .useType(requestsRequestDto.getUseType())
-                    .department(user.getDepartment())
+                    .department(requestsRequestDto.getUseType() == UseType.COMMON ? user.getDepartment() : null)
                     .build());
 
             requestId = createRequests.getRequestId();
