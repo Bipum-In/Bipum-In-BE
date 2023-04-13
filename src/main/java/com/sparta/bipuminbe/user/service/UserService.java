@@ -70,9 +70,9 @@ public class UserService {
     private String redirectLocalUrl;
     @Value("${google.auth.server.redirect.url}")
     private String redirectServerUrl;
-    @Value("${http://localhost:3000/login}")
+    @Value("${google.auth.local.redirect.url.delete}")
     private String redirectLocalDeleteUrl;
-    @Value("${http://hanghae77.s3-website.ap-northeast-2.amazonaws.com/delete-user}")
+    @Value("${google.auth.server.redirect.url.delete}")
     private String redirectServerDeleteUrl;
 
     @Transactional
