@@ -249,8 +249,7 @@ public class UserService {
 
     @Transactional
     public ResponseDto<LoginResponseDto> loginAdd(LoginRequestDto loginRequestDto, User user) {
-        User foundUser = userRepository.findByUsernameAndDeletedFalse(user.getUsername()).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundUser));
+        User foundUser = getUser(user.getId());
         Department department = getDepartment(loginRequestDto.getDepartmentId());
         String encodedPassword = passwordEncoder.encode(loginRequestDto.getPassword());
 
@@ -375,13 +374,9 @@ public class UserService {
             image = s3Uploader.uploadFiles(userUpdateRequestDto.getMultipartFile(), "user");
         }
 
-        String password = userUpdateRequestDto.getPassword();
-        if (password != null) {
-            password = passwordEncoder.encode(userUpdateRequestDto.getPassword());
-        }
         User foundUser = getUser(user.getId());
         foundUser.update(userUpdateRequestDto.getEmpName(), getDepartment(userUpdateRequestDto.getDeptId()),
-                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image, password == null ? user.getPassword() : password);
+                userUpdateRequestDto.getPhone(), userUpdateRequestDto.getAlarm(), image, foundUser.getPassword());
         return ResponseDto.success("정보 수정 완료");
     }
 
@@ -671,5 +666,12 @@ public class UserService {
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new CustomException(ErrorCode.FailedRevokeGoogleAccessToken);
         }
+    }
+
+    @Transactional
+    public ResponseDto<String> changePassword(ChangePasswordDto changePasswordDto, User user) {
+        User foundUser = getUser(user.getId());
+        foundUser.changePassword(passwordEncoder.encode(changePasswordDto.getPassword()));
+        return ResponseDto.success("비밀번호 수정 완료.");
     }
 }

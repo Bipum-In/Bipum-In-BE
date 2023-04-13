@@ -117,6 +117,12 @@ public class UserController {
     }
 
 
+    @PutMapping("/password")
+    @Operation(summary = "비밀번호 변경", description = "비밀번호 변경")
+    public ResponseDto<String> changePassword(@RequestBody ChangePasswordDto changePasswordDto,
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.changePassword(changePasswordDto, userDetails.getUser());
+    }
     @Operation(summary = "리프레쉬 실험(액세스)", description = "리프레쉬 실험")
     @PostMapping("/login/toy")
     public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(@RequestParam String username,

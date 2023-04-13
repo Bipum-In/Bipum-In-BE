@@ -75,6 +75,10 @@ public class User extends TimeStamped {
         this.password = password;
     }
 
+    public void changePassword(String password) {
+        this.password = password;
+    }
+
     public void switchAlarm(Boolean alarm) {
         this.alarm = !alarm;
     }
