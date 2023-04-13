@@ -31,7 +31,7 @@ public class RequestsAdminDetailsResponseDto {
     private String deptName;
     private String empName;
     private String username;
-    private String phone;
+    private String phoneNum;
 
     private String comment;
     private LocalDateTime createdAt;
@@ -62,7 +62,7 @@ public class RequestsAdminDetailsResponseDto {
                 .deptName(department.getDeptName())
                 .empName(user.getEmpName())
                 .username(user.getUsername())
-                .phone(user.getPhone())
+                .phoneNum(user.getPhone())
 
                 .comment(request.getComment())
                 .createdAt(request.getCreatedAt())

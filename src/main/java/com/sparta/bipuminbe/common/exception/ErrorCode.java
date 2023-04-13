@@ -25,7 +25,7 @@ public enum ErrorCode {
     NotMatchedAmountImages(HttpStatus.BAD_REQUEST, "누락된 이미지가 존재합니다."),
     InvalidBase64(HttpStatus.BAD_REQUEST, "Base64 파일이 잘못되었습니다."),
 
-    NotFoundNotification(HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
+    NotFoundNotification(HttpStatus.NOT_FOUND, "삭제된 요청입니다."),
     NotAllowedMethod(HttpStatus.METHOD_NOT_ALLOWED, "잘못된 요청입니다."),
     NoPermission(HttpStatus.BAD_REQUEST, "해당 요청에 대한 권한이 없습니다."),
     NotFoundSupply(HttpStatus.NOT_FOUND, "해당 비품이 존재하지 않습니다."),
