@@ -80,7 +80,7 @@ public class NotificationService {
         return emitter;
     }
 
-    private String makeTimeIncludeId(Long userId){
+    private String makeTimeIncludeId(Long userId) {
         return userId + "_" + System.currentTimeMillis();
     }
 
@@ -123,7 +123,7 @@ public class NotificationService {
         String content = createForUserMessage(request, receiver, isAccepted);
 
         // 관리자가 직접 유저를 배정한 건은 승인으로 간주함
-        if(isAccepted == AcceptResult.ASSIGN){
+        if (isAccepted == AcceptResult.ASSIGN) {
             isAccepted = AcceptResult.ACCEPT;
         }
 
@@ -157,7 +157,7 @@ public class NotificationService {
         );
     }
 
-//     유저가 요청을 보내면 관리자들에게 알림을 보낸다.
+    //     유저가 요청을 보내면 관리자들에게 알림을 보낸다.
     @Transactional
     public void sendForAdmin(Long requestsId, User sender) {
         Requests request = requestsRepository.findById(requestsId).orElseThrow(
@@ -171,7 +171,7 @@ public class NotificationService {
         List<User> receiverList = userRepository.findByRoleAndAlarmAndDeletedFalse(UserRoleEnum.ADMIN, true);
 
         // 각 Admin 마다 알림을 전송한다.
-        for(User receiver : receiverList){
+        for (User receiver : receiverList) {
             Notification notification = notificationRepository.save(createNotification(sender, receiver, content, request, NotificationType.REQUEST, null));
             String receiverId = String.valueOf(receiver.getId());
             String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -221,19 +221,19 @@ public class NotificationService {
         }
 
         // 관리자가 직접 비품의 유저를 설정한 건
-        if(isAccepted.name().equals("ASSIGN") && request.getRequestType().name().equals("SUPPLY")){
+        if (isAccepted.name().equals("ASSIGN") && request.getRequestType().name().equals("SUPPLY")) {
             return "관리자에 의해 " + request.getSupply().getModelName() + " "
                     + categoryName + " 비품이 배정되었습니다.";
         }
 
         // 관리자가 배정된 비품을 다른 사용자에게 지급할 때 기존사용자에게 보낼 메시지
-        if(isAccepted.name().equals("ASSIGN") && request.getRequestType().name().equals("RETURN") ){
+        if (isAccepted.name().equals("ASSIGN") && request.getRequestType().name().equals("RETURN")) {
             return "관리자에 의해 " + request.getSupply().getModelName() + " "
                     + categoryName + " 비품이 반납되었습니다.";
         }
 
         // 관리자가 비품을 폐기할 때, 기존 사용자에게 보낼 메시지
-        if(isAccepted.name().equals("ASSIGN") && request.getSupply().getDeleted() ){
+        if (isAccepted.name().equals("ASSIGN") && request.getSupply().getDeleted()) {
             return "관리자에 의해 " + request.getSupply().getModelName() + " "
                     + categoryName + " 비품이 폐기되었습니다.";
         }
@@ -244,11 +244,11 @@ public class NotificationService {
                 + " 비품이 폐기처리되었습니다.";
     }
 
-    private String creatForAdminMessage(Requests request, User sender){
+    private String creatForAdminMessage(Requests request, User sender) {
         String categoryName = getCategoryName(request);
         String requestType = request.getRequestType().getKorean();
 
-        if(requestType.equals("보고서 결재")){
+        if (requestType.equals("보고서 결재")) {
             return sender.getEmpName() + " 님이 " + categoryName + " "
                     + requestType + "를 요청하셨습니다.";
         }
@@ -264,12 +264,12 @@ public class NotificationService {
                 request.getCategory().getCategoryName();
     }
 
-    private String convertToJson(User sender, Notification notification){
+    private String convertToJson(User sender, Notification notification) {
         String jsonResult = "";
 
         NotificationResponseDto notificationResponseDto = NotificationResponseDto.of(notification, sender.getImage());
 
-        try{
+        try {
             jsonResult = objectMapper.writeValueAsString(notificationResponseDto);
         } catch (JsonProcessingException e) {
             throw new CustomException(ErrorCode.JsonConvertError);
@@ -294,7 +294,7 @@ public class NotificationService {
         List<Notification> notifications = notificationRepository.findOldNotification();
 
         log.info("총 " + notifications.size() + " 건의 알림 삭제");
-        for(Notification notification : notifications){
+        for (Notification notification : notifications) {
             notificationRepository.deleteById(notification.getId());
         }
     }
@@ -303,5 +303,23 @@ public class NotificationService {
     public ResponseDto<String> deleteNotifications(User user) {
         notificationRepository.deleteAll(notificationRepository.findByReceiver(user));
         return ResponseDto.success("알림 삭제 완료.");
+    }
+
+
+    @Transactional(readOnly = true)
+    public ResponseDto<Long> countNotifications(User user, UserRoleEnum role) {
+        return ResponseDto.success(notificationRepository.countByReceiver_IdAndNotificationTypeAndIncludeCountTrue(user.getId(),
+                role == UserRoleEnum.ADMIN ? NotificationType.REQUEST : NotificationType.PROCESSED));
+    }
+
+
+    @Transactional(readOnly = true)
+    public ResponseDto<String> resetCount(User user, UserRoleEnum role) {
+        List<Notification> notificationList = notificationRepository.findByReceiver_IdAndNotificationTypeAndIncludeCountTrue(user.getId(),
+                role == UserRoleEnum.ADMIN ? NotificationType.REQUEST : NotificationType.PROCESSED);
+        for (Notification notification : notificationList) {
+            notification.notCount();
+        }
+        return ResponseDto.success("알림 카운트 초기화 완료.");
     }
 }

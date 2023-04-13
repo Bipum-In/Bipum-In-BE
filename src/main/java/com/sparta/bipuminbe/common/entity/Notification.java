@@ -29,9 +29,9 @@ public class Notification extends TimeStamped {
     @Column(nullable = false)
     private Boolean isRead;
 
-    // 카운트에 포함 되는가.
+    // 종모양 카운트에 포함 되는가.
     @Column(nullable = false)
-    private Boolean isCount;
+    private Boolean includeCount;
 
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
@@ -71,9 +71,15 @@ public class Notification extends TimeStamped {
         this.request = request;
         this.notificationType = notificationType;
         this.acceptResult = acceptResult;
+        this.includeCount = true;
     }
 
-    public void read(){
+    public void read() {
         this.isRead = true;
+        this.includeCount = false;
+    }
+
+    public void notCount() {
+        this.includeCount = false;
     }
 }
