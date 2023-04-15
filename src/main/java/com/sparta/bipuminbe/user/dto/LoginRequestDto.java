@@ -11,7 +11,7 @@ public class LoginRequestDto {
     @NotNull
     private Long departmentId;
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Zㄱ-ㅎ가-힣 ]*${4,30}")
+    @Pattern(regexp = "^[a-zA-Z가-힣 ]*${4,30}")
     private String empName;
     @NotBlank
     private String phone;

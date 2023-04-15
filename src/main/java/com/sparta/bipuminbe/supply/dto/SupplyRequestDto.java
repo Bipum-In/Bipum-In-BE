@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 
@@ -16,14 +17,13 @@ import java.time.LocalDateTime;
 public class SupplyRequestDto {
     @NotNull
     private LargeCategory largeCategory;
-    @NotNull
     @NotBlank
     private String categoryName;
-    @NotNull
     @NotBlank
+    @Pattern(regexp = "[ㄱ-ㅎㅏ-ㅣ]*${4,30}")
     private String modelName;
-    @NotNull
     @NotBlank
+    @Pattern(regexp = "[ㄱ-ㅎㅏ-ㅣ]*${4,50}")
     private String serialNum;
     private Long partnersId;
     private UseType useType;

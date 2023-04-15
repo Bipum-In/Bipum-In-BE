@@ -14,7 +14,6 @@ import java.util.List;
 public class RequestsRequestDto {
     private Long supplyId;
     private Long categoryId;
-    @NotNull
     @NotBlank
     private String content;
     @NotNull

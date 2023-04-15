@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 @Getter
 @Valid
@@ -16,10 +17,9 @@ import javax.validation.constraints.NotNull;
 public class CategoryDto {
     private Long categoryId;
     @NotNull
-    @NotBlank
     private String largeCategory;
-    @NotNull
     @NotBlank
+    @Pattern(regexp = "^[0-9a-zA-Z가-힣 ]*${4,30}")
     private String categoryName;
 
     public static CategoryDto of(Category category) {

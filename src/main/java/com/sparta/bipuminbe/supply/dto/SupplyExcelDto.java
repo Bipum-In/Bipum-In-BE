@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 @Getter
@@ -14,14 +15,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SupplyExcelDto {
-    @NotNull
     @NotBlank
     private String category; // 비품 종류
-    @NotNull
     @NotBlank
+    @Pattern(regexp = "[ㄱ-ㅎㅏ-ㅣ]*${4,30}")
     private String modelName; // 제품명
-    @NotNull
     @NotBlank
+    @Pattern(regexp = "[ㄱ-ㅎㅏ-ㅣ]*${4,50}")
     private String serialNum; // 시리얼 넘버
     private String createdAt; // 등록일자
     private String partners; // 협력업체

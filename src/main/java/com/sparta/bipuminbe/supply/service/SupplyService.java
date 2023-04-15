@@ -100,10 +100,7 @@ public class SupplyService {
 
         // 폐기된 비품 중 같은 SerialNum 존재 하는지 체크.
         // 존재한다면 재등록 비품 처리. (이름 및 시리얼 넘버만 변경.)
-        Optional<Supply> deletedSupply = supplyRepository.findBySerialNumAndDeletedTrue(supplyRequestDto.getSerialNum());
-        if(deletedSupply.isPresent()) {
-            deletedSupply.get().reEnroll();
-        }
+        checkDeletedSupply(supplyRequestDto.getSerialNum());
 
         Supply newSupply = Supply.builder()
                 .serialNum(supplyRequestDto.getSerialNum())
@@ -138,6 +135,15 @@ public class SupplyService {
         }
 
         return null;
+    }
+
+    // 폐기된 비품 중 같은 SerialNum 존재 하는지 체크.
+    // 존재한다면 재등록 비품 처리. (이름 및 시리얼 넘버만 변경.)
+    private void checkDeletedSupply(String serialNum) {
+        Optional<Supply> deletedSupply = supplyRepository.findBySerialNumAndDeletedTrue(serialNum);
+        if(deletedSupply.isPresent()) {
+            deletedSupply.get().reEnroll();
+        }
     }
 
 
@@ -551,6 +557,7 @@ public class SupplyService {
             SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelDtos.get(i), SupplyExcelDto.class);
             String numberMessage = (i + 1) + "번째 줄 ";
 
+            checkDeletedSupply(supplyExcelDto.getSerialNum());
             if (supplyRepository.existsBySerialNum(supplyExcelDto.getSerialNum())) {
                 throw new CustomException.ExcelError(numberMessage, ErrorCode.DuplicateSerialNum);
             }
