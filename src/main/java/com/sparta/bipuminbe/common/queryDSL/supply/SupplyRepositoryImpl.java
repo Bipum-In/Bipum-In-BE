@@ -1,7 +1,9 @@
 package com.sparta.bipuminbe.common.queryDSL.supply;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.bipuminbe.common.entity.QSupply;
+import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

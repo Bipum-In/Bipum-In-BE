@@ -103,8 +103,8 @@ public class DashboardService {
         userCountMap.put("userCountReport", requestsRepository.countMyRequestByType(RequestType.REPORT, RequestStatus.PROCESSED, user.getId()));
 
         userCountMap.put("UnProcessedUserRequests",
-                userCountMap.get("supplyRequests") + userCountMap.get("returnRequests")
-                        + userCountMap.get("repairRequests") + userCountMap.get("ReportRequests"));
+                userCountMap.get("userCountSupply") + userCountMap.get("userCountReturn")
+                        + userCountMap.get("userCountRepair") + userCountMap.get("userCountReport"));
 
 //                requestsRepository.userCountSupply(user.getId()) + requestsRepository.userCountReturn(user.getId()) +
 //                        requestsRepository.userCountRepair(user.getId()) + requestsRepository.userCountReport(user.getId()));
