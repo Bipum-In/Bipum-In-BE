@@ -17,7 +17,7 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
     public Long countRequestByType(RequestType requestType, RequestStatus requestStatus) {
         QRequests requests = QRequests.requests;
         return (long) queryFactory.selectFrom(requests)
-                .where(requests.requestType.eq(requestType).and(requests.requestStatus.eq(requestStatus)))
+                .where(requests.requestType.eq(requestType).and(requests.requestStatus.ne(requestStatus)))
                 .fetch().size();
     }
 
@@ -32,7 +32,7 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
         return (long) queryFactory.selectFrom(requests)
                 .where(requests.user.id.eq(userId)
                         .and(requests.requestType.eq(requestType))
-                        .and(requests.requestStatus.eq(requestStatus)))
+                        .and(requests.requestStatus.ne(requestStatus)))
                 .fetch().size();
     }
 
