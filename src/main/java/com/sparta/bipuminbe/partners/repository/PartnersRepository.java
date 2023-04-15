@@ -19,4 +19,7 @@ public interface PartnersRepository extends JpaRepository<Partners, Long> {
     Optional<Partners> findByPartnersNameAndDeletedFalse(String partners);
 
     Page<Partners> findAllByDeletedFalse(Pageable pageable);
+
+    // 삭제된 협력업체에서 동일 이름 체크.
+    Optional<Partners> findByPartnersNameAndDeletedTrue(String partnersName);
 }

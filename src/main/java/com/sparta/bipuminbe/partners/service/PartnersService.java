@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +39,17 @@ public class PartnersService {
         if (checkPartners(partnersDto.getPartnersName())) {
             throw new CustomException(ErrorCode.DuplicatedPartners);
         }
+        checkDeletedPartners(partnersDto.getPartnersName());
         partnersRepository.save(Partners.builder().partnersDto(partnersDto).build());
         return ResponseDto.success("협력 업체 등록 완료.");
+    }
+
+    // 삭제된 협력업체 체크
+    private void checkDeletedPartners(String partnersName) {
+        Optional<Partners> partners = partnersRepository.findByPartnersNameAndDeletedTrue(partnersName);
+        if (partners.isPresent()) {
+            partners.get().reEnroll();
+        }
     }
 
     @Transactional
@@ -48,6 +58,7 @@ public class PartnersService {
         if (!partners.getPartnersName().equals(partnersDto.getPartnersName()) && checkPartners(partnersDto.getPartnersName())) {
             throw new CustomException(ErrorCode.DuplicatedPartners);
         }
+        checkDeletedPartners(partnersDto.getPartnersName());
         partners.update(partnersDto);
         return ResponseDto.success("협력 업체 정보 수정 완료.");
     }

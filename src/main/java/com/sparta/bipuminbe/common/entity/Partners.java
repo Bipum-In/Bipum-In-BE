@@ -51,4 +51,8 @@ public class Partners extends TimeStamped {
         this.address = partnersDto.getAddress();
         this.email = partnersDto.getEmail();
     }
+
+    public void reEnroll() {
+        this.partnersName = this.partnersName + "(재등록됨#" + partnersId + ")";
+    }
 }
