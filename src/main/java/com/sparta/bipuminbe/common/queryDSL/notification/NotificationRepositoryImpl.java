@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationRepositoryImpl implements NotificationRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
-
+    //
     // 기존에 join한 데이터를 받아오는 방법을 어떻게 변경할 것인지가 관건
     public Page<NotificationResponseForAdmin> findUserNotification(Long adminId, Pageable pageable) {
 //        QNotification notification = QNotification.notification;
