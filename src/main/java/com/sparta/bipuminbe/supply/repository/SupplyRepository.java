@@ -7,6 +7,7 @@ import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
+import com.sparta.bipuminbe.common.queryDSL.supply.SupplyRepositoryCustom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,19 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface SupplyRepository extends JpaRepository<Supply, Long> {
-
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND deleted = false", nativeQuery = true)
-    Long countTotal(@Param("categoryId") Long categoryId);
-
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'USING' AND deleted = false", nativeQuery = true)
-    Long countUse(@Param("categoryId") Long categoryId);
-
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'REPAIRING' AND deleted = false", nativeQuery = true)
-    Long countRepair(@Param("categoryId") Long categoryId);
-
-    @Query(value = "SELECT COUNT(*) FROM supply WHERE supply.category_id = :categoryId AND supply.status = 'STOCK' AND deleted = false", nativeQuery = true)
-    Long countStock(@Param("categoryId") Long categoryId);
+public interface SupplyRepository extends JpaRepository<Supply, Long>, SupplyRepositoryCustom {
 
     @Query(value = "SELECT distinct s FROM Supply s " +
             "inner join Category c on s.category = c " +

@@ -27,7 +27,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public ResponseDto<List<CategoryDto>> getCategoryList(String largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
-        List<Category> categoryList = categoryRepository.findByLargeCategoryInAndDeletedFalseOrderByCategoryName(categoryQuery);
+        List<Category> categoryList = categoryRepository.findCategoryInLargeCategory(categoryQuery);
         return ResponseDto.success(convertToDtoList(categoryList));
     }
 
