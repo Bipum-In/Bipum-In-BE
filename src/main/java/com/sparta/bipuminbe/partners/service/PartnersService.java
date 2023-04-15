@@ -80,7 +80,7 @@ public class PartnersService {
     }
 
     private Boolean checkPartners(String partnersName) {
-        return partnersRepository.existsByPartnersName(partnersName);
+        return partnersRepository.existsByPartnersNameAndDeletedFalse(partnersName);
     }
 
     public ResponseDto<Page<PartnersDto>> getPartnersPage(int page, int size) {
