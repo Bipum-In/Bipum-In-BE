@@ -50,7 +50,7 @@ public class WebSecurityConfig {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authorizeRequests()
-                .antMatchers("/api/user/login/google").permitAll()
+                .antMatchers("/api/user/login/google/").permitAll()
                 .antMatchers("/api/user/login/toy").permitAll()
                 // swagger
                 .antMatchers("/swagger-ui/**").permitAll()

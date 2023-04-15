@@ -6,6 +6,7 @@ import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
+import com.sparta.bipuminbe.common.queryDSL.requests.RequestsRepositoryCustom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,7 +18,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public interface RequestsRepository extends JpaRepository<Requests, Long> {
+public interface RequestsRepository extends JpaRepository<Requests, Long>, RequestsRepositoryCustom {
 
     boolean existsBySupply_SupplyIdAndRequestStatusNot(Long supplyId, RequestStatus requestStatus);
 
@@ -36,42 +37,21 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
                                    @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery,
                                    @Param("userIdQuery") Set<Long> userIdQuery, Pageable pageable);
 
-    long countByRequestTypeAndRequestStatusNot(RequestType requestType, RequestStatus requestStatus);
+//    long countByRequestTypeAndRequestStatusNot(RequestType requestType, RequestStatus requestStatus);
 
-    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'SUPPLY'", nativeQuery = true)
-    LocalDateTime supplyModifiedAt();
-
-    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'RETURN'", nativeQuery = true)
-    LocalDateTime returnModifiedAt();
-
-    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'REPAIR'", nativeQuery = true)
-    LocalDateTime repairModifiedAt();
-
-    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_status = 'REPORT'", nativeQuery = true)
-    LocalDateTime reportModifiedAt();
-
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'SUPPLY' AND request_status != 'PROCESSED'" , nativeQuery = true)
-    Long userCountSupply(@Param("userId") Long id);
-
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'RETURN' AND request_status != 'PROCESSED'", nativeQuery = true)
-    Long userCountReturn(@Param("userId") Long id);
-
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPAIR' AND request_status != 'PROCESSED'", nativeQuery = true)
-    Long userCountRepair(@Param("userId") Long id);
-
-    @Query(value = "SELECT COUNT(*) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPORT' AND request_status != 'PROCESSED'", nativeQuery = true)
-    Long userCountReport(@Param("userId") Long id);
+//    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'SUPPLY'", nativeQuery = true)
+//    LocalDateTime supplyModifiedAt();
+//
+//    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'RETURN'", nativeQuery = true)
+//    LocalDateTime returnModifiedAt();
+//
+//    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'REPAIR'", nativeQuery = true)
+//    LocalDateTime repairModifiedAt();
+//
+//    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_status = 'REPORT'", nativeQuery = true)
+//    LocalDateTime reportModifiedAt();
 
     Page<Requests> findBySupply_SupplyIdAndRequestTypeInAndAcceptResult(Long supplyId, Set<RequestType> requestTypeQuery, AcceptResult accept, Pageable pageable);
-
-    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'SUPPLY'", nativeQuery = true)
-    LocalDateTime supplyUserModifiedAt(@Param("userId") Long id);
-    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'RETURN'", nativeQuery = true)
-    LocalDateTime returnUserModifiedAt(@Param("userId") Long id);
-    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPAIR'", nativeQuery = true)
-    LocalDateTime repairUserModifiedAt(@Param("userId") Long id);
-    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.user_id = :userId AND requests.request_type = 'REPORT'", nativeQuery = true)
-    LocalDateTime reportUserModifiedAt(@Param("userId") Long id);
 
     // 비품 폐기 전 요청들 처리.
     List<Requests> findBySupply_SupplyIdAndRequestStatusNot(Long supplyId, RequestStatus requestStatus);

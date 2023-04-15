@@ -41,6 +41,15 @@ public class UserController {
         return userService.googleLogin(code, urlType, httpServletRequest);
     }
 
+//    @Operation(summary = "로그인 처리", description = "구글 계정정보 담은 Jwt토큰 발급")
+//    @PostMapping("/login/google")
+//    public ResponseDto<AccessTokenDto> googleLogin(@RequestParam String code,
+//                                      @RequestParam String urlType) throws IOException {
+//        String seras = "";
+////        return userService.googleLogin(code, urlType, httpServletRequest);
+//        return userService.googleLoginTest(code, urlType);
+//    }
+
     @Operation(summary = "로그아웃", description = "Redis refreshToken 제거.")
     @PostMapping("/logout")
     public ResponseDto<String> logout(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -128,11 +137,11 @@ public class UserController {
     }
 
 
-    @PostMapping("/password")
-    @Operation(summary = "임시 비밀번호 받기", description = "비밀번호 찾기")
-    public ResponseDto<String> sendPassword(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws MessagingException, IOException {
-        return userService.sendPassword(userDetails.getUser());
-    }
+//    @PostMapping("/password")
+//    @Operation(summary = "임시 비밀번호 받기", description = "비밀번호 찾기")
+//    public ResponseDto<String> sendPassword(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws MessagingException, IOException {
+//        return userService.sendPassword(userDetails.getUser());
+//    }
 
 
     @Operation(summary = "리프레쉬 실험(액세스)", description = "리프레쉬 실험")
