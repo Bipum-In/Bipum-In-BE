@@ -79,7 +79,7 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
     List<Supply> findByDepartment_Id(Long id);
 
     // 카테고리 삭제 전 비품 체크.
-    boolean existsByCategory_Id(Long id);
+    boolean existsByCategory_IdAndDeletedFalse(Long categoryId);
 
     // 유저 대쉬보드 공용 비품 보기 전환
     List<Supply> findByDepartmentAndCategory_LargeCategoryInAndDeletedFalseOrderByCategory_CategoryNameAsc

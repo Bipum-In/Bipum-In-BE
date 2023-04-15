@@ -97,7 +97,7 @@ public class CategoryService {
 
     @Transactional
     public ResponseDto<String> deleteCategory(Long categoryId) {
-        if (supplyRepository.existsByCategory_Id(categoryId)) {
+        if (supplyRepository.existsByCategory_IdAndDeletedFalse(categoryId)) {
             throw new CustomException(ErrorCode.ExistsSupplyInCategory);
         }
 
