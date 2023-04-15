@@ -86,4 +86,6 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             (Department department, Collection<LargeCategory> largeCategories);
 
     boolean existsBySerialNum(String serialNum);
+
+    Optional<Supply> findBySerialNumAndDeletedTrue(String serialNum);
 }

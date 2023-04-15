@@ -56,7 +56,7 @@ public class Supply extends TimeStamped {
 
     @Builder
     public Supply(String serialNum, String modelName, String image, SupplyStatusEnum status, Partners partners, User user,
-                  Category category, UseType useType, Department department, Boolean deleted, LocalDateTime createdAt) {
+                  Category category, UseType useType, Department department, Boolean deleted) {
         this.serialNum = serialNum;
         this.modelName = modelName;
         this.image = image;
@@ -67,7 +67,15 @@ public class Supply extends TimeStamped {
         this.useType = useType;
         this.department = department;
         this.deleted = deleted;
+    }
+
+    public void changeCreatedAt(LocalDateTime createdAt) {
         super.insertCreatedAt(createdAt);
+    }
+
+    public void reEnroll() {
+        this.serialNum = "재등록된 비품#" + supplyId;
+        this.modelName = "재등록된 비품#" + supplyId;
     }
 
     public void update(Partners partners, String image) {

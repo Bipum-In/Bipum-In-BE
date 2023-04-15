@@ -98,6 +98,13 @@ public class SupplyService {
                     () -> new CustomException(ErrorCode.NotFoundDepartment));
         }
 
+        // 폐기된 비품 중 같은 SerialNum 존재 하는지 체크.
+        // 존재한다면 재등록 비품 처리. (이름 및 시리얼 넘버만 변경.)
+        Optional<Supply> deletedSupply = supplyRepository.findBySerialNumAndDeletedTrue(supplyRequestDto.getSerialNum());
+        if(deletedSupply.isPresent()) {
+            deletedSupply.get().reEnroll();
+        }
+
         Supply newSupply = Supply.builder()
                 .serialNum(supplyRequestDto.getSerialNum())
                 .modelName(supplyRequestDto.getModelName())
@@ -593,9 +600,9 @@ public class SupplyService {
                     .useType(user == null ? department == null ? null : UseType.COMMON : UseType.PERSONAL)
                     .status(user == null && department == null ? SupplyStatusEnum.STOCK : SupplyStatusEnum.USING)
                     .department(user == null && department != null ? department : null)
-                    .createdAt(createdAt)
                     .deleted(false)
                     .build());
+            supply.changeCreatedAt(createdAt);
 
             // user history 기록 생성.
             if (supply.getUseType() != null) {
