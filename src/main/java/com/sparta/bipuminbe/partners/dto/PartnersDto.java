@@ -16,7 +16,7 @@ import javax.validation.constraints.Pattern;
 public class PartnersDto {
     private Long partnersId;
     @NotBlank
-    @Pattern(regexp = "[ㄱ-ㅎㅏ-ㅣ]*${4,30}")
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]*${4,30}")
     private String partnersName;
     @NotBlank
     private String phone;

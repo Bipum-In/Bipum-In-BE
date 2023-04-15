@@ -20,10 +20,10 @@ public class SupplyRequestDto {
     @NotBlank
     private String categoryName;
     @NotBlank
-    @Pattern(regexp = "[ㄱ-ㅎㅏ-ㅣ]*${4,30}")
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]*${4,30}")
     private String modelName;
     @NotBlank
-    @Pattern(regexp = "[ㄱ-ㅎㅏ-ㅣ]*${4,50}")
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]*${4,50}")
     private String serialNum;
     private Long partnersId;
     private UseType useType;
