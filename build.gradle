@@ -4,6 +4,8 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
+apply plugin: "io.spring.dependency-management"
+
 group = 'com.sparta'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
@@ -16,6 +18,10 @@ configurations {
 
 repositories {
 	mavenCentral()
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
 }
 
 dependencies {
@@ -34,8 +40,16 @@ dependencies {
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
 
-//	//healthcheck 관련
-//	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	//querydsl 추가
+	implementation("com.querydsl:querydsl-core") // querydsl
+	implementation("com.querydsl:querydsl-jpa") // querydsl
+	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa" // querydsl JPAAnnotationProcessor 사용 지정
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+
+	//	//healthcheck 관련
+	//	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 	//json
 	implementation group: 'org.json', name: 'json', version: '20220924'
 	//Swagger
@@ -54,8 +68,19 @@ dependencies {
 //	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+// querydsl에서 사용할 경로 설정
+def querydslDir = "src/main/generated"
+
+sourceSets {
+	main.java.srcDirs += [ querydslDir ]
+}
+
+tasks.named("compileJava") {
+	options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+}
+
+clean.doLast {
+	file(querydslDir).deleteDir()
 }
 
 jar {

@@ -37,16 +37,16 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public ResponseDto<AdminMainResponseDto> getAdminMain(User admin, LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
-        List<Category> categoryList = categoryRepository.findByLargeCategoryInAndDeletedFalseOrderByCategoryName(categoryQuery);
+        List<Category> categoryList = categoryRepository.findCategoryInLargeCategory(categoryQuery);
 
         List<SupplyCountDto> responseDtos = new ArrayList();
         // 카테고리별 총 수량, 사용중, 수리중, 재고량 계산
         for (Category category : categoryList) {
 
             Long totalCount = supplyRepository.countTotal(category.getId());
-            Long useCount = supplyRepository.countUse(category.getId());
-            Long repairCount = supplyRepository.countRepair(category.getId());
-            Long stockCount = supplyRepository.countStock(category.getId());
+            Long useCount = supplyRepository.countBySupplyStatus(category.getId(), SupplyStatusEnum.USING);
+            Long repairCount = supplyRepository.countBySupplyStatus(category.getId(), SupplyStatusEnum.REPAIRING);
+            Long stockCount = supplyRepository.countBySupplyStatus(category.getId(), SupplyStatusEnum.STOCK);
 
             if (totalCount == 0) {
                 continue;
@@ -59,22 +59,24 @@ public class DashboardService {
         // 요청 현황
         Map<String, Long> countMap = new HashMap<>();
 
-        countMap.put("supplyRequests", requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.SUPPLY, RequestStatus.PROCESSED));
-        countMap.put("returnRequests", requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.RETURN, RequestStatus.PROCESSED));
-        countMap.put("repairRequests", requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPAIR, RequestStatus.PROCESSED));
-        countMap.put("ReportRequests", requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPORT, RequestStatus.PROCESSED));
+        countMap.put("supplyRequests", requestsRepository.countRequestByType(RequestType.SUPPLY, RequestStatus.PROCESSED));
+        countMap.put("returnRequests", requestsRepository.countRequestByType(RequestType.RETURN, RequestStatus.PROCESSED));
+        countMap.put("repairRequests", requestsRepository.countRequestByType(RequestType.REPAIR, RequestStatus.PROCESSED));
+        countMap.put("ReportRequests", requestsRepository.countRequestByType(RequestType.REPORT, RequestStatus.PROCESSED));
         countMap.put("UnProcessedRequests",
-                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.SUPPLY, RequestStatus.PROCESSED) +
-                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.RETURN, RequestStatus.PROCESSED) +
-                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPAIR, RequestStatus.PROCESSED) +
-                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPORT, RequestStatus.PROCESSED));
+                        countMap.get("supplyRequests") + countMap.get("returnRequests")
+                                + countMap.get("repairRequests") + countMap.get("ReportRequests"));
+//                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.SUPPLY, RequestStatus.PROCESSED) +
+//                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.RETURN, RequestStatus.PROCESSED) +
+//                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPAIR, RequestStatus.PROCESSED) +
+//                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPORT, RequestStatus.PROCESSED));
 
         // 요청 종류별 최신 수정일자
         Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
-        modifiedAtMap.put("supplyModifiedAt", requestsRepository.supplyModifiedAt());
-        modifiedAtMap.put("returnModifiedAt", requestsRepository.returnModifiedAt());
-        modifiedAtMap.put("repairModifiedAt", requestsRepository.repairModifiedAt());
-        modifiedAtMap.put("ReportModifiedAt", requestsRepository.reportModifiedAt());
+        modifiedAtMap.put("supplyModifiedAt", requestsRepository.requestsModifiedAt(RequestType.SUPPLY));
+        modifiedAtMap.put("returnModifiedAt", requestsRepository.requestsModifiedAt(RequestType.RETURN));
+        modifiedAtMap.put("repairModifiedAt", requestsRepository.requestsModifiedAt(RequestType.REPAIR));
+        modifiedAtMap.put("ReportModifiedAt", requestsRepository.requestsModifiedAt(RequestType.REPORT));
 
         RequestsCountDto requestsCountDto = RequestsCountDto.of
                 (countMap, modifiedAtMap);
@@ -92,24 +94,27 @@ public class DashboardService {
     // 사용자 대시보드
     public ResponseDto<UserMainResponseDto> getUserMain(User user, LargeCategory largeCategory) {
         Set<LargeCategory> categoryQuery = getCategoryQuery(largeCategory);
-        List<Category> categoryList = categoryRepository.findByLargeCategoryInAndDeletedFalseOrderByCategoryName(categoryQuery);
 
         // 요청 현황 조회
         Map<String, Long> userCountMap = new HashMap<>();
-        userCountMap.put("userCountSupply", requestsRepository.userCountSupply(user.getId()));
-        userCountMap.put("userCountReturn", requestsRepository.userCountReturn(user.getId()));
-        userCountMap.put("userCountRepair", requestsRepository.userCountRepair(user.getId()));
-        userCountMap.put("userCountReport", requestsRepository.userCountReport(user.getId()));
+        userCountMap.put("userCountSupply", requestsRepository.countMyRequestByType(RequestType.SUPPLY, RequestStatus.PROCESSED, user.getId()));
+        userCountMap.put("userCountReturn", requestsRepository.countMyRequestByType(RequestType.RETURN, RequestStatus.PROCESSED, user.getId()));
+        userCountMap.put("userCountRepair", requestsRepository.countMyRequestByType(RequestType.REPAIR, RequestStatus.PROCESSED, user.getId()));
+        userCountMap.put("userCountReport", requestsRepository.countMyRequestByType(RequestType.REPORT, RequestStatus.PROCESSED, user.getId()));
+
         userCountMap.put("UnProcessedUserRequests",
-                requestsRepository.userCountSupply(user.getId()) + requestsRepository.userCountReturn(user.getId()) +
-                        requestsRepository.userCountRepair(user.getId()) + requestsRepository.userCountReport(user.getId()));
+                userCountMap.get("userCountSupply") + userCountMap.get("userCountReturn")
+                        + userCountMap.get("userCountRepair") + userCountMap.get("userCountReport"));
+
+//                requestsRepository.userCountSupply(user.getId()) + requestsRepository.userCountReturn(user.getId()) +
+//                        requestsRepository.userCountRepair(user.getId()) + requestsRepository.userCountReport(user.getId()));
 
         // 요청 종류별 최신 수정일자
         Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
-        modifiedAtMap.put("supplyUserModifiedAt", requestsRepository.supplyUserModifiedAt(user.getId()));
-        modifiedAtMap.put("returnUserModifiedAt", requestsRepository.returnUserModifiedAt(user.getId()));
-        modifiedAtMap.put("repairUserModifiedAt", requestsRepository.repairUserModifiedAt(user.getId()));
-        modifiedAtMap.put("ReportUserModifiedAt", requestsRepository.reportUserModifiedAt(user.getId()));
+        modifiedAtMap.put("supplyUserModifiedAt", requestsRepository.myRequestsModifiedAt(RequestType.SUPPLY, user.getId()));
+        modifiedAtMap.put("returnUserModifiedAt", requestsRepository.myRequestsModifiedAt(RequestType.RETURN, user.getId()));
+        modifiedAtMap.put("repairUserModifiedAt", requestsRepository.myRequestsModifiedAt(RequestType.REPAIR, user.getId()));
+        modifiedAtMap.put("ReportUserModifiedAt", requestsRepository.myRequestsModifiedAt(RequestType.REPORT, user.getId()));
 
         RequestsCountDto requestsCountDto = RequestsCountDto.of
                 (userCountMap, modifiedAtMap);
