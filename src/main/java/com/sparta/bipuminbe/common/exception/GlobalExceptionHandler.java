@@ -40,12 +40,12 @@ public class GlobalExceptionHandler {
 //    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> validationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ResponseDto.Error> validationException(MethodArgumentNotValidException e) {
         List<String> errors = e.getBindingResult().getFieldErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
         return ResponseEntity.status(ErrorCode.InValidException.getHttpStatus())
-                .body(errors);
+                .body(new ResponseDto.Error(errors.get(0)));
     }
 }
 
