@@ -141,7 +141,7 @@ public class SupplyService {
     // 존재한다면 재등록 비품 처리. (이름 및 시리얼 넘버만 변경.)
     private void checkDeletedSupply(String serialNum) {
         Optional<Supply> deletedSupply = supplyRepository.findBySerialNumAndDeletedTrue(serialNum);
-        if(deletedSupply.isPresent()) {
+        if (deletedSupply.isPresent()) {
             deletedSupply.get().reEnroll();
         }
     }
@@ -584,9 +584,13 @@ public class SupplyService {
                         () -> new CustomException.ExcelError(numberMessage, ErrorCode.NotFoundUser));
             }
 
-            String image = supplyExcelDto.getImage() == null || supplyExcelDto.getImage().equals("") ?
-                    s3Uploader.uploadFiles(multipartFileList.get(index++), supplyExcelDto.getCategory()) :
-                    supplyExcelDto.getImage();
+            String image = supplyExcelDto.getImage();
+            if (image != null && !image.equals("")) {
+                if (multipartFileList != null && index == multipartFileList.size()) {
+                    throw new CustomException(ErrorCode.NotMatchedAmountImages);
+                }
+                s3Uploader.uploadFiles(multipartFileList.get(index++), supplyExcelDto.getCategory());
+            }
 
             LocalDateTime createdAt = LocalDateTime.now();
             if (supplyExcelDto.getCreatedAt() != null && !supplyExcelDto.getCreatedAt().equals("")) {
@@ -628,10 +632,6 @@ public class SupplyService {
 
                 requestsList.add(requests);
             }
-        }
-
-        if (multipartFileList != null && index != multipartFileList.size()) {
-            throw new CustomException(ErrorCode.NotMatchedAmountImages);
         }
 
         return requestsList;
