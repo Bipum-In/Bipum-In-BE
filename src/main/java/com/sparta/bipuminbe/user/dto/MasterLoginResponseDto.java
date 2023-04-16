@@ -8,12 +8,12 @@ import lombok.Getter;
 @Builder
 public class MasterLoginResponseDto {
     private Boolean checkDept;
-    private String role;
+    private UserRoleEnum userRole;
 
     public static MasterLoginResponseDto of(Boolean checkDept) {
         return MasterLoginResponseDto.builder()
                 .checkDept(checkDept)
-                .role(UserRoleEnum.MASTER.getKorean())
+                .userRole(UserRoleEnum.MASTER)
                 .build();
     }
 }
