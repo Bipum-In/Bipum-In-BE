@@ -743,7 +743,8 @@ public class UserService {
 
         HttpHeaders responseHeader = new HttpHeaders();
         getAccessToken(master, responseHeader);
-        return ResponseDto.success(departmentRepository.findByDeletedFalse().size() == 0);
+        // 부서가 없으면 false를 반환하면서 초기 세팅 화면으로 이동한다.
+        return ResponseDto.success(departmentRepository.findByDeletedFalse().size() != 0);
     }
 
 
