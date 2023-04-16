@@ -14,13 +14,13 @@ public class DeptByEmployeeDto {
     private String username;
     private String authority;
 
-    public static DeptByEmployeeDto of(User user, UserRoleEnum checkRole) {
+    public static DeptByEmployeeDto of(User user) {
         return builder()
                 .image(user.getImage())
                 .empName(user.getEmpName())
                 .phone(user.getPhone())
                 .username(user.getUsername())
-                .authority(user.getRole() == checkRole ? user.getRole().getKorean() : null)
+                .authority(user.getRole() != UserRoleEnum.USER ? user.getRole().getKorean() : null)
                 .build();
     }
 }
