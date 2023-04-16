@@ -55,9 +55,8 @@ public class DepartmentController {
     @Secured(value = {UserRoleEnum.Authority.ADMIN, UserRoleEnum.Authority.MASTER})
     @GetMapping("/dept/{deptId}")
     @Operation(summary = "부서별 구성원 조회", description = "관리자/마스터 권한 필요.")
-    public ResponseDto<List<DeptByEmployeeDto>> getDeptByEmployee(@PathVariable Long deptId,
-                                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return departmentService.getDeptByEmployee(deptId, userDetails.getUser().getRole());
+    public ResponseDto<List<DeptByEmployeeDto>> getEmployeeByDept(@PathVariable Long deptId) {
+        return departmentService.getEmployeeByDept(deptId);
     }
 
 

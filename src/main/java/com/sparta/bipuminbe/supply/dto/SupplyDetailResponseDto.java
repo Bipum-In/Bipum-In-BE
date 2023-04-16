@@ -44,7 +44,7 @@ public class SupplyDetailResponseDto {
         this.isAdmin = role.equals(UserRoleEnum.ADMIN);
         // 개인은 유저 체크 / 공용은 부서와 권한 체크.
         this.isMySupply = (supply.getUseType() == UseType.PERSONAL && user.getId().equals(loginUser.getId()))
-                || (supply.getUseType() == UseType.COMMON && loginUser.getRole() == UserRoleEnum.RESPONSIBILITY
+                || (supply.getUseType() == UseType.COMMON && loginUser.getRole() != UserRoleEnum.USER
                 && supply.getDepartment() == loginUser.getDepartment());
 
         this.image = supply.getImage();

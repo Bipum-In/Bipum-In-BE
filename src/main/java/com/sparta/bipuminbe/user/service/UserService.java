@@ -750,6 +750,10 @@ public class UserService {
     @Transactional
     public ResponseDto<String> grantRole(Long userId, UserRoleEnum role) {
         User user = getUser(userId);
+        // Admin은 다른 Admin의 권한을 건드릴 수 없다.
+        if (user.getRole() == role) {
+            throw new CustomException(ErrorCode.NoPermission);
+        }
         // Master 계정은 Admin을 부여하고, Admin 계정은 Responsibility(책임자)를 부여한다.
         UserRoleEnum grantedRole = role == UserRoleEnum.MASTER ? UserRoleEnum.ADMIN : UserRoleEnum.RESPONSIBILITY;
         user.changeRole(grantedRole);
