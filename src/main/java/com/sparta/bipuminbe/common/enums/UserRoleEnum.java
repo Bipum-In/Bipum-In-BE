@@ -1,5 +1,8 @@
 package com.sparta.bipuminbe.common.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum UserRoleEnum {
     USER(Authority.USER, "유저"), // 사용자 권한
     ADMIN(Authority.ADMIN, "비품 총괄 관리자"), // 관리자 권한

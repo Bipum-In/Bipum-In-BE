@@ -20,7 +20,7 @@ public class DeptByEmployeeDto {
                 .empName(user.getEmpName())
                 .phone(user.getPhone())
                 .username(user.getUsername())
-                .authority(user.getRole() == checkRole ? user.getRole().getAuthority() : null)
+                .authority(user.getRole() == checkRole ? user.getRole().getKorean() : null)
                 .build();
     }
 }
