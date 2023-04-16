@@ -3,6 +3,7 @@ package com.sparta.bipuminbe.department.controller;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
+import com.sparta.bipuminbe.department.dto.DefaultDeptRequestDto;
 import com.sparta.bipuminbe.department.dto.DepartmentDto;
 import com.sparta.bipuminbe.department.dto.DeptByEmployeeDto;
 import com.sparta.bipuminbe.department.service.DepartmentService;
@@ -63,7 +64,7 @@ public class DepartmentController {
     @Secured(value = UserRoleEnum.Authority.MASTER)
     @PostMapping("/master/dept")
     @Operation(summary = "부서 초기 세팅(마스터)", description = "부서이름 리스트 보내면 됩니다.")
-    public ResponseDto<String> setDefaultDeptList(@RequestParam List<String> deptList) {
-        return departmentService.setDefaultDeptList(deptList);
+    public ResponseDto<String> setDefaultDeptList(@RequestBody DefaultDeptRequestDto defaultDeptRequestDto) {
+        return departmentService.setDefaultDeptList(defaultDeptRequestDto);
     }
 }

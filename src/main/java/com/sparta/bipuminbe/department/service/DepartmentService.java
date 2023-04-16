@@ -8,6 +8,7 @@ import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.department.dto.DefaultDeptRequestDto;
 import com.sparta.bipuminbe.department.dto.DepartmentDto;
 import com.sparta.bipuminbe.department.dto.DeptByEmployeeDto;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
@@ -129,13 +130,13 @@ public class DepartmentService {
 
 
     @Transactional
-    public ResponseDto<String> setDefaultDeptList(List<String> deptList) {
+    public ResponseDto<String> setDefaultDeptList(DefaultDeptRequestDto defaultDeptRequestDto) {
         // 초기세팅은 부서가 없을 때 띄울거다.
         List<Department> departmentList = new ArrayList<>();
-        if (deptList == null || deptList.size() == 0) {
+        if (defaultDeptRequestDto.getDeptList() == null || defaultDeptRequestDto.getDeptList().size() == 0) {
             throw new CustomException(ErrorCode.AtLeastOneNeedDept);
         }
-        for (String deptName : deptList) {
+        for (String deptName : defaultDeptRequestDto.getDeptList()) {
             checkDeletedDepartment(deptName);
             departmentList.add(Department.builder().deptName(deptName).build());
         }
