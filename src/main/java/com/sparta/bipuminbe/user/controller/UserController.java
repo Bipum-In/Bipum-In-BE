@@ -139,7 +139,7 @@ public class UserController {
 
     @PostMapping("/login/master")
     @Operation(summary = "마스터 로그인", description = "부서가 없으면 true 반환 -> 부서 초기 세팅 페이지로 이동.")
-    public ResponseEntity<ResponseDto<Boolean>> masterLogin(@RequestBody MasterLoginRequestDto masterLoginRequestDto) {
+    public ResponseEntity<ResponseDto<MasterLoginResponseDto>> masterLogin(@RequestBody MasterLoginRequestDto masterLoginRequestDto) {
         return userService.masterLogin(masterLoginRequestDto);
     }
 
