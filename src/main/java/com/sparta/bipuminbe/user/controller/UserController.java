@@ -132,8 +132,25 @@ public class UserController {
     @PutMapping("/password")
     @Operation(summary = "비밀번호 변경", description = "비밀번호 변경")
     public ResponseDto<String> changePassword(@RequestBody ChangePasswordDto changePasswordDto,
-                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.changePassword(changePasswordDto, userDetails.getUser());
+    }
+
+
+    @PostMapping("/login/master")
+    @Operation(summary = "마스터 로그인", description = "부서가 없으면 true 반환 -> 부서 초기 세팅 페이지로 이동.")
+    public ResponseDto<Boolean> masterLogin(@RequestBody MasterLoginRequestDto masterLoginRequestDto) {
+        return userService.masterLogin(masterLoginRequestDto);
+    }
+
+
+    @Secured(value = {UserRoleEnum.Authority.MASTER, UserRoleEnum.Authority.ADMIN})
+    @PutMapping("/role/{userId}")
+    @Operation(summary = "Role 부여", description = "Master가 하면 Admin이 부여되고,<br>" +
+            "Admin이 하면 Responsibility(책임자)가 부여됨.")
+    public ResponseDto<String> grantRole(@PathVariable Long userId,
+                                         @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.grantRole(userId, userDetails.getUser().getRole());
     }
 
 

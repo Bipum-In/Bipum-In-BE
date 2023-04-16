@@ -48,7 +48,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-//    private final EmailRedisRepository emailRedisRepository;
+    //    private final EmailRedisRepository emailRedisRepository;
     private final ImageRepository imageRepository;
     private final RequestsRepository requestsRepository;
     private final SupplyRepository supplyRepository;
@@ -107,25 +107,8 @@ public class UserService {
         // 4. JWT 토큰 반환
         // Token 생성 Access/Refresh + addHeader
         HttpHeaders responseHeader = new HttpHeaders();
-        String createdAccessToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.ACCESS);
-        String createdRefreshToken = jwtUtil.createToken(googleUser.getUsername(), googleUser.getRole(), TokenType.REFRESH);
-        responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createdAccessToken);
-        responseHeader.add(JwtUtil.REFRESH_HEADER, createdRefreshToken);
-
-        Optional<RefreshToken> refreshToken = redisRepository.findById(googleUser.getUsername());
-        long expiration = jwtUtil.REFRESH_TOKEN_TIME / 1000;    // ms -> seconds
-
-        if (refreshToken.isPresent()) {
-            RefreshToken savedRefreshToken = refreshToken.get().updateToken(createdRefreshToken, expiration);
-            redisRepository.save(savedRefreshToken);
-        } else {
-            RefreshToken refreshToSave = RefreshToken.builder()
-                    .username(googleUser.getUsername())
-                    .ip(getClientIp(httpServletRequest))
-                    .refreshToken(createdRefreshToken)
-                    .expiration(expiration).build();
-            redisRepository.save(refreshToSave);
-        }
+        getAccessToken(googleUser, responseHeader);
+        getRefreshToken(googleUser, responseHeader, httpServletRequest);
 
         Boolean checkUser = googleUser.getDepartment() != null && googleUser.getEmpName() != null
                 && googleUser.getPhone() != null && googleUser.getPassword() != null;
@@ -133,6 +116,31 @@ public class UserService {
         return ResponseEntity.ok()
                 .headers(responseHeader)
                 .body(ResponseDto.success(LoginResponseDto.of(googleUser, checkUser)));
+    }
+
+    private void getRefreshToken(User user, HttpHeaders responseHeader, HttpServletRequest httpServletRequest) {
+        String createdRefreshToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.REFRESH);
+        responseHeader.add(JwtUtil.REFRESH_HEADER, createdRefreshToken);
+
+        Optional<RefreshToken> refreshToken = redisRepository.findById(user.getUsername());
+        long expiration = jwtUtil.REFRESH_TOKEN_TIME / 1000;    // ms -> seconds
+
+        if (refreshToken.isPresent()) {
+            RefreshToken savedRefreshToken = refreshToken.get().updateToken(createdRefreshToken, expiration);
+            redisRepository.save(savedRefreshToken);
+        } else {
+            RefreshToken refreshToSave = RefreshToken.builder()
+                    .username(user.getUsername())
+                    .ip(getClientIp(httpServletRequest))
+                    .refreshToken(createdRefreshToken)
+                    .expiration(expiration).build();
+            redisRepository.save(refreshToSave);
+        }
+    }
+
+    private void getAccessToken(User user, HttpHeaders responseHeader) {
+        String createdAccessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
+        responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createdAccessToken);
     }
 
 //    @Transactional
@@ -722,6 +730,30 @@ public class UserService {
         if (redisEntity.isPresent()) {
             redisRepository.deleteById(username);
         }
+    }
+
+
+    @Transactional(readOnly = true)
+    public ResponseDto<Boolean> masterLogin(MasterLoginRequestDto masterLoginRequestDto) {
+        User master = userRepository.findByUsernameAndPassword(masterLoginRequestDto.getUsername(), masterLoginRequestDto.getPassword())
+                .orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
+        if (master.getRole() != UserRoleEnum.MASTER) {
+            throw new CustomException(ErrorCode.NoPermission);
+        }
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        getAccessToken(master, responseHeader);
+        return ResponseDto.success(departmentRepository.findByDeletedFalse().size() == 0);
+    }
+
+
+    @Transactional
+    public ResponseDto<String> grantRole(Long userId, UserRoleEnum role) {
+        User user = getUser(userId);
+        // Master 계정은 Admin을 부여하고, Admin 계정은 Responsibility(책임자)를 부여한다.
+        UserRoleEnum grantedRole = role == UserRoleEnum.MASTER ? UserRoleEnum.ADMIN : UserRoleEnum.RESPONSIBILITY;
+        user.changeRole(grantedRole);
+        return ResponseDto.success("권한 부여가 완료 되었습니다.");
     }
 
 

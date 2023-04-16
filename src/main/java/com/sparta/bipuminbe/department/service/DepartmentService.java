@@ -5,10 +5,7 @@ import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.Requests;
 import com.sparta.bipuminbe.common.entity.Supply;
 import com.sparta.bipuminbe.common.entity.User;
-import com.sparta.bipuminbe.common.enums.AcceptResult;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
-import com.sparta.bipuminbe.common.enums.RequestType;
-import com.sparta.bipuminbe.common.enums.UseType;
+import com.sparta.bipuminbe.common.enums.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.department.dto.DepartmentDto;
@@ -49,7 +46,7 @@ public class DepartmentService {
             throw new CustomException(ErrorCode.DuplicatedDepartment);
         }
         checkDeletedDepartment(departmentDto.getDeptName());
-        departmentRepository.save(Department.builder().departmentDto(departmentDto).build());
+        departmentRepository.save(Department.builder().deptName(departmentDto.getDeptName()).build());
         return ResponseDto.success("부서 등록 완료.");
     }
 
@@ -116,14 +113,33 @@ public class DepartmentService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<List<DeptByEmployeeDto>> getDeptByEmployee(Long deptId) {
+    public ResponseDto<List<DeptByEmployeeDto>> getDeptByEmployee(Long deptId, UserRoleEnum role) {
         List<User> employees = userRepository.findByDeptByEmployee(deptId);
         List<DeptByEmployeeDto> deptByEmployeeDtos = new ArrayList<>();
 
-        for(User employee : employees){
-            deptByEmployeeDtos.add(DeptByEmployeeDto.of(employee));
+        // 페이지에서 표시 되어야 할 role을 같이 넘겨야 한다.
+        // ex) Master라면 Admin이 누구인지가 표기, Admin이라면 Responsibility 표기.
+        UserRoleEnum checkRole = role == UserRoleEnum.MASTER ? UserRoleEnum.ADMIN : UserRoleEnum.RESPONSIBILITY;
+        for (User employee : employees) {
+            deptByEmployeeDtos.add(DeptByEmployeeDto.of(employee, checkRole));
         }
 
         return ResponseDto.success(deptByEmployeeDtos);
+    }
+
+
+    @Transactional
+    public ResponseDto<String> setDefaultDeptList(List<String> deptList) {
+        // 초기세팅은 부서가 없을 때 띄울거다.
+        List<Department> departmentList = new ArrayList<>();
+        if (deptList == null || deptList.size() == 0) {
+            throw new CustomException(ErrorCode.AtLeastOneNeedDept);
+        }
+        for (String deptName : deptList) {
+            checkDeletedDepartment(deptName);
+            departmentList.add(Department.builder().deptName(deptName).build());
+        }
+        departmentRepository.saveAll(departmentList);
+        return ResponseDto.success("부서 초기 세팅 완료.");
     }
 }

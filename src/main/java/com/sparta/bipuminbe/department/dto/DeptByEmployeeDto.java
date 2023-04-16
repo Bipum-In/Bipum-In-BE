@@ -1,6 +1,7 @@
 package com.sparta.bipuminbe.department.dto;
 
 import com.sparta.bipuminbe.common.entity.User;
+import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,16 +12,15 @@ public class DeptByEmployeeDto {
     private String empName;
     private String phone;
     private String username;
+    private String authority;
 
-     //공용 비품 책임자 권한? 추후 권한 추가 시 수정
-//    private String role;
-
-    public static DeptByEmployeeDto of(User user) {
+    public static DeptByEmployeeDto of(User user, UserRoleEnum checkRole) {
         return builder()
                 .image(user.getImage())
                 .empName(user.getEmpName())
                 .phone(user.getPhone())
                 .username(user.getUsername())
+                .authority(user.getRole() == checkRole ? user.getRole().getAuthority() : null)
                 .build();
     }
 }

@@ -86,4 +86,10 @@ public class User extends TimeStamped {
     public void refreshGoogleToken(String accessToken) {
         this.accessToken = accessToken;
     }
+
+    // 권한 부여
+    public void changeRole(UserRoleEnum role) {
+        // 부여하는 권한을 이미 가지고 있는 경우라면, 권한을 취소하는 경우이다.
+        this.role = this.role == role ? UserRoleEnum.USER : role;
+    }
 }

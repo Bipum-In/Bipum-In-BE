@@ -23,8 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByIdAndDeletedFalse(Long userId);
 
-    Optional<User> findByUsernameAndDeletedFalse(String username);
-
     List<User> findByDepartmentAndDeletedFalse(Department department);
 
     Optional<User> findByGoogleIdAndDeletedFalse(String googleId);
@@ -35,4 +33,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM users WHERE department_id = :department_id and deleted = false", nativeQuery = true)
     List<User> findByDeptByEmployee(@Param("department_id") Long deptId);
+
+    Optional<User> findByUsernameAndPassword(String username, String password);
 }
