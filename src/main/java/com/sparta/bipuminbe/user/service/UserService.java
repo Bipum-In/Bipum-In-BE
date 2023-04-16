@@ -199,7 +199,7 @@ public class UserService {
         body.add("code", code);
         body.add("client_id", clientId); // 클라이언트 Id
         body.add("client_secret", clientSecret); // 클라이언트 Secret
-        body.add("redirect_uri", "http://localhost:8080/login");
+        body.add("redirect_uri", redirectUrl);
         body.add("grant_type", "authorization_code");
         body.add("access_type", "offline");
         body.add("approval_prompt", "force");
