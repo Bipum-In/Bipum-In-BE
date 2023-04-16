@@ -17,9 +17,9 @@ public enum UserRoleEnum {
     }
 
     public static class Authority {
-        public static final String USER = "유저";
-        public static final String ADMIN = "비품 총괄 관리자";
-        public static final String MASTER = "마스터";
-        public static final String RESPONSIBILITY = "공용 비품 책임자";
+        public static final String USER = "ROLE_USER";
+        public static final String ADMIN = "ROLE_ADMIN";
+        public static final String MASTER = "ROLE_MASTER";
+        public static final String RESPONSIBILITY = "ROLE_RESPONSIBILITY";
     }
 }
