@@ -37,20 +37,6 @@ public interface RequestsRepository extends JpaRepository<Requests, Long>, Reque
                                    @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery,
                                    @Param("userIdQuery") Set<Long> userIdQuery, Pageable pageable);
 
-//    long countByRequestTypeAndRequestStatusNot(RequestType requestType, RequestStatus requestStatus);
-
-//    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'SUPPLY'", nativeQuery = true)
-//    LocalDateTime supplyModifiedAt();
-//
-//    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'RETURN'", nativeQuery = true)
-//    LocalDateTime returnModifiedAt();
-//
-//    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_type = 'REPAIR'", nativeQuery = true)
-//    LocalDateTime repairModifiedAt();
-//
-//    @Query(value = "SELECT max(modified_at) FROM requests WHERE requests.request_status = 'REPORT'", nativeQuery = true)
-//    LocalDateTime reportModifiedAt();
-
     Page<Requests> findBySupply_SupplyIdAndRequestTypeInAndAcceptResult(Long supplyId, Set<RequestType> requestTypeQuery, AcceptResult accept, Pageable pageable);
 
     // 비품 폐기 전 요청들 처리.
