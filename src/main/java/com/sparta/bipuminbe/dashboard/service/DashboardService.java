@@ -66,10 +66,6 @@ public class DashboardService {
         countMap.put("UnProcessedRequests",
                         countMap.get("supplyRequests") + countMap.get("returnRequests")
                                 + countMap.get("repairRequests") + countMap.get("ReportRequests"));
-//                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.SUPPLY, RequestStatus.PROCESSED) +
-//                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.RETURN, RequestStatus.PROCESSED) +
-//                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPAIR, RequestStatus.PROCESSED) +
-//                        requestsRepository.countByRequestTypeAndRequestStatusNot(RequestType.REPORT, RequestStatus.PROCESSED));
 
         // 요청 종류별 최신 수정일자
         Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
@@ -106,8 +102,6 @@ public class DashboardService {
                 userCountMap.get("userCountSupply") + userCountMap.get("userCountReturn")
                         + userCountMap.get("userCountRepair") + userCountMap.get("userCountReport"));
 
-//                requestsRepository.userCountSupply(user.getId()) + requestsRepository.userCountReturn(user.getId()) +
-//                        requestsRepository.userCountRepair(user.getId()) + requestsRepository.userCountReport(user.getId()));
 
         // 요청 종류별 최신 수정일자
         Map<String, LocalDateTime> modifiedAtMap = new HashMap<>();
