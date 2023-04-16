@@ -750,10 +750,8 @@ public class UserService {
         // 부서가 없으면 false를 반환하면서 초기 세팅 화면으로 이동한다.
         return ResponseEntity.ok()
                 .headers(responseHeader)
-                .body(ResponseDto.success(MasterLoginResponseDto.builder()
-                        .checkDept(departmentRepository.findByDeletedFalse().size() != 0)
-                        .userRole(UserRoleEnum.MASTER)
-                        .build()));
+                .body(ResponseDto.success(MasterLoginResponseDto
+                        .of(departmentRepository.findByDeletedFalse().size() != 0)));
     }
 
 

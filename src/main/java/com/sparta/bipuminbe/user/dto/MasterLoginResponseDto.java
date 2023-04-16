@@ -10,10 +10,10 @@ public class MasterLoginResponseDto {
     private Boolean checkDept;
     private UserRoleEnum userRole;
 
-    public static MasterLoginResponseDto of(Boolean checkDept, UserRoleEnum role) {
+    public static MasterLoginResponseDto of(Boolean checkDept) {
         return MasterLoginResponseDto.builder()
                 .checkDept(checkDept)
-                .userRole(role)
+                .userRole(UserRoleEnum.MASTER)
                 .build();
     }
 }
