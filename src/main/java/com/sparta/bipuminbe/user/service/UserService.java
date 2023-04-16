@@ -738,7 +738,7 @@ public class UserService {
 
 
     @Transactional(readOnly = true)
-    public ResponseDto<Boolean> masterLogin(MasterLoginRequestDto masterLoginRequestDto) {
+    public ResponseEntity<ResponseDto<Boolean>> masterLogin(MasterLoginRequestDto masterLoginRequestDto) {
         User master = userRepository.findByUsernameAndPassword(masterLoginRequestDto.getUsername(), masterLoginRequestDto.getPassword())
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
         if (master.getRole() != UserRoleEnum.MASTER) {
@@ -748,7 +748,9 @@ public class UserService {
         HttpHeaders responseHeader = new HttpHeaders();
         getAccessToken(master, responseHeader);
         // 부서가 없으면 false를 반환하면서 초기 세팅 화면으로 이동한다.
-        return ResponseDto.success(departmentRepository.findByDeletedFalse().size() != 0);
+        return ResponseEntity.ok()
+                .headers(responseHeader)
+                .body(ResponseDto.success(departmentRepository.findByDeletedFalse().size() != 0));
     }
 
 
