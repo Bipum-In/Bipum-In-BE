@@ -323,16 +323,22 @@ public class UserService {
         User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundUser));
 
-        deleteRefreshToken(googleUser.getUsername());
+        deleteUserModule(user, user);
 
+        return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
+    }
+
+
+    // 유저 삭제 단계 모듈화.
+    private void deleteUserModule(User user, User admin) {
+        // Redis RefreshToken 제거.
+        deleteRefreshToken(user.getUsername());
         // 비품 자동 반납
-        returnSuppliesByDeletedUser(user, user);
+        returnSuppliesByDeletedUser(user, admin);
         // 유저의 처리전 요청 거절 처리.
         declineRequestsByDeletedUser(user);
         // DB의 회원정보 삭제
-        userRepository.deleteByGoogleId(googleUser.getGoogleId());
-
-        return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
+        userRepository.delete(user);
     }
 
     private void declineRequestsByDeletedUser(User user) {
@@ -499,9 +505,7 @@ public class UserService {
 
     @Transactional
     public ResponseDto<String> manageUser(Long userId, User admin) {
-        User user = getUser(userId);
-        returnSuppliesByDeletedUser(user, admin);
-        userRepository.delete(user);
+        deleteUserModule(getUser(userId), admin);
         return ResponseDto.success("유저 삭제 완료.");
     }
 
