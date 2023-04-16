@@ -752,6 +752,7 @@ public class UserService {
                 .headers(responseHeader)
                 .body(ResponseDto.success(MasterLoginResponseDto.builder()
                         .checkDept(departmentRepository.findByDeletedFalse().size() != 0)
+                        .userRole(UserRoleEnum.MASTER)
                         .build()));
     }
 
