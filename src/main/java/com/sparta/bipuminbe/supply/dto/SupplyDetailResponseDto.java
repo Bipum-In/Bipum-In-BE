@@ -42,7 +42,10 @@ public class SupplyDetailResponseDto {
 
         this.supplyId = supply.getSupplyId();
         this.isAdmin = role.equals(UserRoleEnum.ADMIN);
-        this.isMySupply = user != null && user.getId().equals(loginUser.getId());
+        // 개인은 유저 체크 / 공용은 부서와 권한 체크.
+        this.isMySupply = (supply.getUseType() == UseType.PERSONAL && user.getId().equals(loginUser.getId()))
+                || (supply.getUseType() == UseType.COMMON && loginUser.getRole() == UserRoleEnum.RESPONSIBILITY
+                && supply.getDepartment() == loginUser.getDepartment());
 
         this.image = supply.getImage();
         this.largeCategory = supply.getCategory().getLargeCategory().getKorean();

@@ -7,6 +7,7 @@ import com.sparta.bipuminbe.department.dto.DepartmentDto;
 import com.sparta.bipuminbe.department.dto.DeptByEmployeeDto;
 import com.sparta.bipuminbe.department.service.DepartmentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,16 +46,19 @@ public class DepartmentController {
     @DeleteMapping("/dept/{deptId}")
     @Operation(summary = "부서 삭제", description = "관리자 권한 필요.")
     public ResponseDto<String> deleteDept(@PathVariable Long deptId,
-                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return departmentService.deleteDept(deptId, userDetails.getUser());
     }
 
-    @Secured(value = UserRoleEnum.Authority.ADMIN)
+
+    @Secured(value = {UserRoleEnum.Authority.ADMIN, UserRoleEnum.Authority.MASTER})
     @GetMapping("/dept/{deptId}")
-    @Operation(summary = "부서별 구성원 조회", description = "관리자 권한 필요.")
-    public ResponseDto<List<DeptByEmployeeDto>> getDeptByEmployee(@PathVariable Long deptId) {
-        return departmentService.getDeptByEmployee(deptId);
+    @Operation(summary = "부서별 구성원 조회", description = "관리자/마스터 권한 필요.")
+    public ResponseDto<List<DeptByEmployeeDto>> getDeptByEmployee(@PathVariable Long deptId,
+                                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return departmentService.getDeptByEmployee(deptId, userDetails.getUser().getRole());
     }
+
 
     @Secured(value = UserRoleEnum.Authority.MASTER)
     @PostMapping("/master/dept")
