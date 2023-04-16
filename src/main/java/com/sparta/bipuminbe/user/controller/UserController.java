@@ -113,9 +113,9 @@ public class UserController {
 
 
     @Secured(UserRoleEnum.Authority.ADMIN)
-    @DeleteMapping
+    @DeleteMapping("/{userId}")
     @Operation(summary = "회원 관리 기능(강퇴) *new Api*", description = "부서 관리 페이지 입니다.")
-    public ResponseDto<String> manageUser(@RequestParam Long userId,
+    public ResponseDto<String> manageUser(@PathVariable Long userId,
                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.manageUser(userId, userDetails.getUser());
     }
