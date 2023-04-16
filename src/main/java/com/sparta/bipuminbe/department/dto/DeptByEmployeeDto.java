@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DeptByEmployeeDto {
+    private Long userId;
     private String image;
     private String empName;
     private String phone;
@@ -16,6 +17,7 @@ public class DeptByEmployeeDto {
 
     public static DeptByEmployeeDto of(User user) {
         return builder()
+                .userId(user.getId())
                 .image(user.getImage())
                 .empName(user.getEmpName())
                 .phone(user.getPhone())
