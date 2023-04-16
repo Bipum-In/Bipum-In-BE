@@ -24,8 +24,8 @@ public class Department {
     private Boolean deleted;
 
     @Builder
-    public Department(DepartmentDto departmentDto){
-        this.deptName = departmentDto.getDeptName();
+    public Department(String deptName){
+        this.deptName = deptName;
         this.deleted = false;
     }
 

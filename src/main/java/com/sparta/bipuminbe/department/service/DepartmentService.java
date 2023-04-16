@@ -49,7 +49,7 @@ public class DepartmentService {
             throw new CustomException(ErrorCode.DuplicatedDepartment);
         }
         checkDeletedDepartment(departmentDto.getDeptName());
-        departmentRepository.save(Department.builder().departmentDto(departmentDto).build());
+        departmentRepository.save(Department.builder().deptName(departmentDto.getDeptName()).build());
         return ResponseDto.success("부서 등록 완료.");
     }
 
@@ -120,10 +120,26 @@ public class DepartmentService {
         List<User> employees = userRepository.findByDeptByEmployee(deptId);
         List<DeptByEmployeeDto> deptByEmployeeDtos = new ArrayList<>();
 
-        for(User employee : employees){
+        for (User employee : employees) {
             deptByEmployeeDtos.add(DeptByEmployeeDto.of(employee));
         }
 
         return ResponseDto.success(deptByEmployeeDtos);
+    }
+
+
+    @Transactional
+    public ResponseDto<String> setDefaultDeptList(List<String> deptList) {
+        // 초기세팅은 부서가 없을 때 띄울거다.
+        List<Department> departmentList = new ArrayList<>();
+        if (deptList == null || deptList.size() == 0) {
+            throw new CustomException(ErrorCode.AtLeastOneNeedDept);
+        }
+        for (String deptName : deptList) {
+            checkDeletedDepartment(deptName);
+            departmentList.add(Department.builder().deptName(deptName).build());
+        }
+        departmentRepository.saveAll(departmentList);
+        return ResponseDto.success("부서 초기 세팅 완료.");
     }
 }

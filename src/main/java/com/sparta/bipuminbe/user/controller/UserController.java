@@ -137,6 +137,12 @@ public class UserController {
     }
 
 
+    @PostMapping("/login/master")
+    @Operation(summary = "마스터 로그인", description = "부서가 없으면 true 반환 -> 부서 초기 세팅 페이지로 이동.")
+    public ResponseDto<Boolean> masterLogin(@RequestBody MasterLoginRequestDto masterLoginRequestDto) {
+        return userService.masterLogin(masterLoginRequestDto);
+    }
+
 //    @PostMapping("/password")
 //    @Operation(summary = "임시 비밀번호 받기", description = "비밀번호 찾기")
 //    public ResponseDto<String> sendPassword(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws MessagingException, IOException {

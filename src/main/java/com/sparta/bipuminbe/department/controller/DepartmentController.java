@@ -55,4 +55,11 @@ public class DepartmentController {
     public ResponseDto<List<DeptByEmployeeDto>> getDeptByEmployee(@PathVariable Long deptId) {
         return departmentService.getDeptByEmployee(deptId);
     }
+
+    @Secured(value = UserRoleEnum.Authority.MASTER)
+    @PostMapping("/master/dept")
+    @Operation(summary = "부서 초기 세팅(마스터)", description = "부서이름 리스트 보내면 됩니다.")
+    public ResponseDto<String> setDefaultDeptList(@RequestParam List<String> deptList) {
+        return departmentService.setDefaultDeptList(deptList);
+    }
 }

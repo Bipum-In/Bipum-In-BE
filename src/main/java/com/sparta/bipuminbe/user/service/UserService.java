@@ -48,7 +48,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-//    private final EmailRedisRepository emailRedisRepository;
+    //    private final EmailRedisRepository emailRedisRepository;
     private final ImageRepository imageRepository;
     private final RequestsRepository requestsRepository;
     private final SupplyRepository supplyRepository;
@@ -722,6 +722,17 @@ public class UserService {
         if (redisEntity.isPresent()) {
             redisRepository.deleteById(username);
         }
+    }
+
+
+    @Transactional(readOnly = true)
+    public ResponseDto<Boolean> masterLogin(MasterLoginRequestDto masterLoginRequestDto) {
+        User master = userRepository.findByUsernameAndPassword(masterLoginRequestDto.getUsername(), masterLoginRequestDto.getPassword())
+                .orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
+        if (master.getRole() != UserRoleEnum.MASTER) {
+            throw new CustomException(ErrorCode.NoPermission);
+        }
+        return ResponseDto.success(departmentRepository.findByDeletedFalse().size() == 0);
     }
 
 
