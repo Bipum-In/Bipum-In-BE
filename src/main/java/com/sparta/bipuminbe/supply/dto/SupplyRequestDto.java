@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.time.LocalDateTime;
 
 
 @Getter
@@ -18,6 +17,7 @@ public class SupplyRequestDto {
     @NotNull
     private LargeCategory largeCategory;
     @NotBlank
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]*${4,30}")
     private String categoryName;
     @NotBlank
     @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]*${4,30}")
