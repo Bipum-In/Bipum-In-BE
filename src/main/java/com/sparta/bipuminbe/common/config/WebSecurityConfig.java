@@ -53,6 +53,7 @@ public class WebSecurityConfig {
                 .antMatchers("/api/user/login/google").permitAll()
                 .antMatchers("/api/user/login/master").permitAll()
                 .antMatchers("/api/user/login/toy").permitAll()
+                .antMatchers("/api/user/deleteAllCookies").permitAll() // 테스트 용
                 // swagger
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/v3/api-docs/**").permitAll()

@@ -41,10 +41,20 @@ public class UserController {
         return userService.googleLogin(code, urlType, httpServletRequest, httpServletResponse);
     }
 
-    @Operation(summary = "로그아웃", description = "Redis refreshToken 제거.")
+    @Operation(summary = "로그아웃", description = "Redis refreshToken 제거 및 쿠키 삭제")
     @PostMapping("/logout")
-    public ResponseDto<String> logout(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return userService.logout(userDetails.getUsername());
+    public ResponseDto<String> logout(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                      HttpServletRequest httpServletRequest,
+                                      HttpServletResponse httpServletResponse) {
+        return userService.logout(userDetails.getUsername(), httpServletRequest, httpServletResponse);
+    }
+
+    @Operation(summary = "임시 쿠키 삭제용")
+    @PostMapping("/deleteAllCookies")
+    public ResponseDto<String> deleteAllCookies(HttpServletRequest httpServletRequest,
+                                      HttpServletResponse httpServletResponse) {
+        userService.deleteAllCookies(httpServletRequest, httpServletResponse);
+        return ResponseDto.success("쿠키 삭제 성공");
     }
 
     @Operation(summary = "토큰 재발급", description = "Refresh Token 을 보내줘야 합니다.")

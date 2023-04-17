@@ -29,6 +29,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -286,7 +287,8 @@ public class UserService {
 
 
     @Transactional
-    public ResponseDto<String> logout(String username) {
+    public ResponseDto<String> logout(String username, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        deleteAllCookies(httpServletRequest, httpServletResponse);
         deleteRefreshToken(username);
         return ResponseDto.success("로그아웃 성공");
     }
@@ -742,7 +744,17 @@ public class UserService {
         return ResponseDto.success("권한 부여가 완료 되었습니다.");
     }
 
-
+    public void deleteAllCookies(HttpServletRequest request, HttpServletResponse response){
+        Cookie[] cookies = request.getCookies();
+            if(cookies != null){
+                for (Cookie cookie : cookies){
+                    cookie.setValue("");
+                    cookie.setPath("/");
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                }
+            }
+    }
 //    @Transactional(readOnly = true)
 //    public ResponseDto<String> sendPassword(User user) throws MessagingException, IOException {
 //
