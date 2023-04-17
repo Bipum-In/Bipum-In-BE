@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class UserController {
     @Operation(summary = "토큰 재발급", description = "Refresh Token 을 보내줘야 합니다.")
     @PostMapping("/reissue") // access token이 만료됐을 경우
     public ResponseDto<String> reIssueAccessToken(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                  HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+                                                  HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         return userService.reIssueAccessToken(userDetails.getUser(), httpServletRequest, httpServletResponse);
     }
 
@@ -130,7 +131,7 @@ public class UserController {
     @PostMapping("/login/master")
     @Operation(summary = "마스터 로그인", description = "부서가 없으면 true 반환 -> 부서 초기 세팅 페이지로 이동.")
     public ResponseDto<MasterLoginResponseDto> masterLogin(@RequestBody MasterLoginRequestDto masterLoginRequestDto,
-                                                           HttpServletResponse httpServletResponse) {
+                                                           HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         return userService.masterLogin(masterLoginRequestDto, httpServletResponse);
     }
 

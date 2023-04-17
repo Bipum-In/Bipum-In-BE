@@ -32,6 +32,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 
 @Slf4j
@@ -83,7 +85,7 @@ public class UserService {
     @Transactional
     public ResponseDto<LoginResponseDto> googleLogin(String code, String urlType,
                                                      HttpServletRequest httpServletRequest,
-                                                     HttpServletResponse httpServletResponse) throws JsonProcessingException {
+                                                     HttpServletResponse httpServletResponse) throws JsonProcessingException, UnsupportedEncodingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         AccessTokenDto accessToken = getToken(code, urlType, GoogleTokenType.LOGIN);
 
@@ -108,9 +110,9 @@ public class UserService {
         return ResponseDto.success(LoginResponseDto.of(googleUser, checkUser));
     }
 
-    private void getRefreshToken(User user, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse) {
+    private void getRefreshToken(User user, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         String createdRefreshToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.REFRESH);
-        ResponseCookie cookie = ResponseCookie.from(JwtUtil.REFRESH_HEADER, createdRefreshToken).
+        ResponseCookie cookie = ResponseCookie.from(JwtUtil.REFRESH_HEADER, URLEncoder.encode(createdRefreshToken, "UTF-8")).
                 path("/").
                 httpOnly(true).
                 sameSite("None").
@@ -135,7 +137,7 @@ public class UserService {
         }
     }
 
-    private void getAccessToken(User user, HttpServletResponse httpServletResponse) {
+    private void getAccessToken(User user, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         String createdAccessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
 
         log.info("token : " + createdAccessToken);
@@ -143,7 +145,7 @@ public class UserService {
         // 4. JWT 토큰 반환
         ResponseCookie cookie = ResponseCookie.from(
                         JwtUtil.AUTHORIZATION_HEADER,
-                        createdAccessToken).
+                        URLEncoder.encode(createdAccessToken, "UTF-8")).
                 path("/").
                 httpOnly(true).
                 sameSite("None").
@@ -447,7 +449,7 @@ public class UserService {
 
 
     @Transactional(readOnly = true)
-    public ResponseDto<String> reIssueAccessToken(User user, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public ResponseDto<String> reIssueAccessToken(User user, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         RefreshToken refreshToken = redisRepository.findById(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRefreshToken));
         if (!getClientIp(httpServletRequest).equals(refreshToken.getIp())) {
@@ -713,7 +715,7 @@ public class UserService {
 
 
     @Transactional(readOnly = true)
-    public ResponseDto<MasterLoginResponseDto> masterLogin(MasterLoginRequestDto masterLoginRequestDto, HttpServletResponse httpServletResponse) {
+    public ResponseDto<MasterLoginResponseDto> masterLogin(MasterLoginRequestDto masterLoginRequestDto, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         User master = userRepository.findByUsernameAndPassword(masterLoginRequestDto.getUsername(), masterLoginRequestDto.getPassword())
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
         if (master.getRole() != UserRoleEnum.MASTER) {
