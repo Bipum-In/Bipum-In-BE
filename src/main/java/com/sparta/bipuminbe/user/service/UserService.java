@@ -29,6 +29,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -110,14 +111,12 @@ public class UserService {
 
     private void getRefreshToken(User user, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse) {
         String createdRefreshToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.REFRESH);
-        ResponseCookie cookie = ResponseCookie.from("DboongTokenRefreshToken", createdRefreshToken).
-                path("/").
-                httpOnly(true).
-                sameSite("None").
-                secure(true).
-                maxAge(JwtUtil.REFRESH_TOKEN_TIME).
-                build();
-        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE2, cookie.toString());
+        Cookie cookie = new Cookie("DboongTokenRefreshToken", createdRefreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge((int) JwtUtil.REFRESH_TOKEN_TIME);
+        httpServletResponse.addCookie(cookie);
 
         Optional<RefreshToken> refreshToken = redisRepository.findById(user.getUsername());
         long expiration = jwtUtil.REFRESH_TOKEN_TIME / 1000;    // ms -> seconds
@@ -141,16 +140,12 @@ public class UserService {
         log.info("token : " + createdAccessToken);
 
         // 4. JWT 토큰 반환
-        ResponseCookie cookie = ResponseCookie.from(
-                "DboongToken",
-                        createdAccessToken).
-                path("/").
-                httpOnly(true).
-                sameSite("None").
-                secure(true).
-                maxAge(JwtUtil.ACCESS_TOKEN_TIME).
-                build();
-        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, String.valueOf(cookie));
+        Cookie cookie = new Cookie("DboongTokenRefreshToken", createdAccessToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge((int) JwtUtil.ACCESS_TOKEN_TIME);
+        httpServletResponse.addCookie(cookie);
     }
 
 //    @Transactional
