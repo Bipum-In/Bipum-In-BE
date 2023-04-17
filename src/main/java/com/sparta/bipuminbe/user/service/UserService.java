@@ -109,12 +109,14 @@ public class UserService {
 
     private void getRefreshToken(User user, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse) {
         String createdRefreshToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.REFRESH);
-        ResponseCookie cookie = ResponseCookie.from("DboongTokenRefreshToken", createdRefreshToken.substring(7)).                path("/").
+        ResponseCookie cookie = ResponseCookie.from("DboongTokenRefreshToken", createdRefreshToken).
+                path("/").
                 httpOnly(true).
                 sameSite("None").
                 secure(true).
+                maxAge(JwtUtil.REFRESH_TOKEN_TIME).
                 build();
-        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE2, cookie.toString());
 
         Optional<RefreshToken> refreshToken = redisRepository.findById(user.getUsername());
         long expiration = jwtUtil.REFRESH_TOKEN_TIME / 1000;    // ms -> seconds
@@ -136,11 +138,12 @@ public class UserService {
         String createdAccessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
         ResponseCookie cookie = ResponseCookie.from(
                 "DboongToken",
-                        createdAccessToken.substring(7)).
+                        createdAccessToken).
                 path("/").
                 httpOnly(true).
                 sameSite("None").
                 secure(true).
+                maxAge(JwtUtil.ACCESS_TOKEN_TIME).
                 build();
         httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, String.valueOf(cookie));
     }
