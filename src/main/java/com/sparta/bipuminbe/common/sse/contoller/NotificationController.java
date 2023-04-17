@@ -37,8 +37,9 @@ public class NotificationController {
 
     @Operation(summary = "알림 전체 s삭제", description = "읽었든 안읽었든 삭제합니다.")
     @DeleteMapping(value = "/notification")
-    public ResponseDto<String> deleteNotifications(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return notificationService.deleteNotifications(userDetails.getUser());
+    public ResponseDto<String> deleteNotifications(@RequestParam UserRoleEnum role,
+                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return notificationService.deleteNotifications(userDetails.getUser(), role);
     }
 
     // role : ADMIN / USER
