@@ -757,7 +757,7 @@ public class UserService {
                                 secure(true).
                                 maxAge(1).
                                 build();
-                        response.addHeader("Set-Cookie", responseCookie.toString());
+                        response.setHeader("Set-Cookie", responseCookie.toString());
                 }
             }
     }
