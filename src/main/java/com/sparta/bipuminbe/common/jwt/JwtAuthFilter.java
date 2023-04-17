@@ -20,6 +20,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if (cookie == null) {
                     continue;
                 }
-                log.info(cookie.getName(), cookie.getValue());
+                log.info(cookie.getName(), URLDecoder.decode(cookie.getValue(), "UTF-8"));
                 if (cookie.getName().equals(JwtUtil.AUTHORIZATION_HEADER)) {
                     accessToken = jwtUtil.resolveToken(cookie);
                 } else if (cookie.getName().equals(JwtUtil.REFRESH_HEADER)) {

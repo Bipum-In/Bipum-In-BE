@@ -23,6 +23,8 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -55,8 +57,8 @@ public class JwtUtil {
     }
 
     // header 토큰을 가져오기
-    public String resolveToken(Cookie cookie) {
-        String bearerToken = cookie.getValue();
+    public String resolveToken(Cookie cookie) throws UnsupportedEncodingException {
+        String bearerToken = URLDecoder.decode(cookie.getValue(), "UTF-8");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
         }
