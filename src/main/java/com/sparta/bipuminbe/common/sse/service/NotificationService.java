@@ -10,6 +10,7 @@ import com.sparta.bipuminbe.common.enums.NotificationType;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
+import com.sparta.bipuminbe.common.sse.dto.NotificationCountResponseDto;
 import com.sparta.bipuminbe.common.sse.dto.NotificationResponseDto;
 import com.sparta.bipuminbe.common.entity.Notification;
 import com.sparta.bipuminbe.common.sse.repository.EmitterRepository;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -304,9 +306,16 @@ public class NotificationService {
 
 
     @Transactional(readOnly = true)
-    public ResponseDto<Long> countNotifications(User user, UserRoleEnum role) {
-        return ResponseDto.success(notificationRepository.countByReceiver_IdAndNotificationTypeAndIncludeCountTrue(user.getId(),
-                role == UserRoleEnum.ADMIN ? NotificationType.REQUEST : NotificationType.PROCESSED));
+    public ResponseDto<List<NotificationCountResponseDto>> countNotifications(User user) {
+        List<NotificationCountResponseDto> countResponseDtoList = new ArrayList<>();
+        if (user.getRole() == UserRoleEnum.ADMIN) {
+            countResponseDtoList.add(NotificationCountResponseDto.of(UserRoleEnum.ADMIN,
+                    notificationRepository.countByReceiver_IdAndNotificationTypeAndIncludeCountTrue(user.getId(), NotificationType.REQUEST)));
+        }
+        countResponseDtoList.add(NotificationCountResponseDto.of(UserRoleEnum.USER,
+                notificationRepository.countByReceiver_IdAndNotificationTypeAndIncludeCountTrue(user.getId(), NotificationType.PROCESSED)));
+
+        return ResponseDto.success(countResponseDtoList);
     }
 
 

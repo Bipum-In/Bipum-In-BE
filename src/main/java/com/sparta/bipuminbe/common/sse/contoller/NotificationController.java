@@ -3,6 +3,8 @@ package com.sparta.bipuminbe.common.sse.contoller;
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
+import com.sparta.bipuminbe.common.sse.dto.NotificationCountResponseDto;
+import com.sparta.bipuminbe.common.sse.dto.NotificationResponseDto;
 import com.sparta.bipuminbe.common.sse.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -46,9 +49,8 @@ public class NotificationController {
     @Operation(summary = "알림 카운트 갯수", description = "role = ADMIN / USER<br>" +
             "ADMIN/USER 페이지의 알림 카운트를 반환 해준다.")
     @GetMapping("/notification/count")
-    public ResponseDto<Long> countUserNotifications(@RequestParam UserRoleEnum role,
-                                                    @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return notificationService.countNotifications(userDetails.getUser(), role);
+    public ResponseDto<List<NotificationCountResponseDto>> countUserNotifications(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return notificationService.countNotifications(userDetails.getUser());
     }
 
     // role : ADMIN / USER
