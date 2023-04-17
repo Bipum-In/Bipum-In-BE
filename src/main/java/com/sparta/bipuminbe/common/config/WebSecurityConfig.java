@@ -52,6 +52,7 @@ public class WebSecurityConfig {
         http.authorizeRequests()
                 .antMatchers("/api/user/login/google").permitAll()
                 .antMatchers("/api/user/login/master").permitAll()
+                .antMatchers("/api/user/logout").permitAll()
                 .antMatchers("/api/user/login/toy").permitAll()
                 // swagger
                 .antMatchers("/swagger-ui/**").permitAll()
