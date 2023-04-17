@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Base64;
@@ -54,8 +55,8 @@ public class JwtUtil {
     }
 
     // header 토큰을 가져오기
-    public String resolveToken(HttpServletRequest request, TokenType tokenType) {
-        String bearerToken = tokenType == TokenType.ACCESS ? request.getHeader(AUTHORIZATION_HEADER) : request.getHeader(REFRESH_HEADER);
+    public String resolveToken(Cookie cookie) {
+        String bearerToken = cookie.getValue();
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
         }
