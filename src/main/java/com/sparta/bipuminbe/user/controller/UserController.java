@@ -45,14 +45,14 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseDto<String> logout(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
                                       HttpServletRequest httpServletRequest,
-                                      HttpServletResponse httpServletResponse) {
+                                      HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         return userService.logout(userDetails.getUsername(), httpServletRequest, httpServletResponse);
     }
 
     @Operation(summary = "임시 쿠키 삭제용")
     @PostMapping("/deleteAllCookies")
     public ResponseDto<String> deleteAllCookies(HttpServletRequest httpServletRequest,
-                                      HttpServletResponse httpServletResponse) {
+                                      HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         userService.deleteAllCookies(httpServletRequest, httpServletResponse);
         return ResponseDto.success("쿠키 삭제 성공");
     }

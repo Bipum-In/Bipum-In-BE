@@ -287,7 +287,7 @@ public class UserService {
 
 
     @Transactional
-    public ResponseDto<String> logout(String username, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public ResponseDto<String> logout(String username, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         deleteAllCookies(httpServletRequest, httpServletResponse);
         deleteRefreshToken(username);
         return ResponseDto.success("로그아웃 성공");
@@ -744,16 +744,26 @@ public class UserService {
         return ResponseDto.success("권한 부여가 완료 되었습니다.");
     }
 
-    public void deleteAllCookies(HttpServletRequest request, HttpServletResponse response){
+    public void deleteAllCookies(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         Cookie[] cookies = request.getCookies();
             if(cookies != null){
                 for (Cookie cookie : cookies){
                     cookie.setValue("");
                     cookie.setPath("/");
                     cookie.setMaxAge(0);
-                    response.addCookie(cookie);
+
+                    ResponseCookie responseCookie = ResponseCookie.from(cookie.getName(), URLEncoder.encode("", "UTF-8")).
+                            path("/").
+                            httpOnly(true).
+                            sameSite("None").
+                            secure(true).
+                            maxAge(JwtUtil.REFRESH_TOKEN_TIME).
+                            build();
+
+                    response.addHeader("Set-Cookie", responseCookie.toString());
                 }
             }
+
     }
 //    @Transactional(readOnly = true)
 //    public ResponseDto<String> sendPassword(User user) throws MessagingException, IOException {
