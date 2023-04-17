@@ -261,7 +261,7 @@ public class UserService {
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
 //                    refreshToken(accessToken.getRefresh_token()).
-        role(UserRoleEnum.ADMIN).
+                    role(UserRoleEnum.USER).
                     alarm(true).
                     deleted(false).
                     build();
