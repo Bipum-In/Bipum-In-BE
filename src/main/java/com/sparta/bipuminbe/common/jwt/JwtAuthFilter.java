@@ -54,6 +54,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (jwtUtil.validateToken(accessToken) == TokenState.VALID) {
                 setAuthentication(jwtUtil.getUserInfoFromToken(accessToken).getSubject());
             } else if (jwtUtil.validateToken(accessToken) == TokenState.EXPIRED) {
+                // Access Token Cookie 삭제
+                ResponseCookie responseCookie = ResponseCookie.from(JwtUtil.AUTHORIZATION_HEADER, null).
+                        domain("bipum-in.shop").
+                        path("/").
+                        httpOnly(true).
+                        sameSite("None").
+                        secure(true).
+                        maxAge(0).
+                        build();
+                response.addHeader("Set-Cookie", responseCookie.toString());
                 jwtExceptionHandler(response, "NEED REISSUE", HttpStatus.SEE_OTHER);
                 return;
             }
