@@ -115,7 +115,6 @@ public class UserService {
         String createdRefreshToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.REFRESH);
         ResponseCookie cookie = ResponseCookie.from(JwtUtil.REFRESH_HEADER, URLEncoder.encode(createdRefreshToken, "UTF-8")).
                 path("/").
-                domain("bipum-in.shop").
                 httpOnly(true).
                 sameSite("None").
                 secure(true).
@@ -149,7 +148,6 @@ public class UserService {
                         JwtUtil.AUTHORIZATION_HEADER,
                         URLEncoder.encode(createdAccessToken, "UTF-8")).
                 path("/").
-                domain("bipum-in.shop").
                 httpOnly(true).
                 sameSite("None").
                 secure(true).
