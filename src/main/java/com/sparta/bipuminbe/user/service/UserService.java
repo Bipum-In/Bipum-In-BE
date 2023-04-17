@@ -8,7 +8,6 @@ import com.sparta.bipuminbe.common.enums.*;
 import com.sparta.bipuminbe.common.exception.CustomException;
 import com.sparta.bipuminbe.common.exception.ErrorCode;
 import com.sparta.bipuminbe.common.s3.S3Uploader;
-import com.sparta.bipuminbe.common.util.redis.EmailRedisRepository;
 import com.sparta.bipuminbe.common.util.redis.RedisRepository;
 import com.sparta.bipuminbe.common.util.redis.RefreshToken;
 import com.sparta.bipuminbe.department.repository.DepartmentRepository;
@@ -20,14 +19,8 @@ import com.sparta.bipuminbe.common.jwt.JwtUtil;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,11 +29,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -91,7 +81,9 @@ public class UserService {
     private String from;
 
     @Transactional
-    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(String code, String urlType, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+    public ResponseDto<LoginResponseDto> googleLogin(String code, String urlType,
+                                                     HttpServletRequest httpServletRequest,
+                                                     HttpServletResponse httpServletResponse) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         AccessTokenDto accessToken = getToken(code, urlType, GoogleTokenType.LOGIN);
 
@@ -106,21 +98,19 @@ public class UserService {
 
         // 4. JWT 토큰 반환
         // Token 생성 Access/Refresh + addHeader
-        HttpHeaders responseHeader = new HttpHeaders();
-        getAccessToken(googleUser, responseHeader);
-        getRefreshToken(googleUser, responseHeader, httpServletRequest);
+        getAccessToken(googleUser, httpServletResponse);
+        getRefreshToken(googleUser, httpServletRequest, httpServletResponse);
 
         Boolean checkUser = googleUser.getDepartment() != null && googleUser.getEmpName() != null
                 && googleUser.getPhone() != null && googleUser.getPassword() != null;
 
-        return ResponseEntity.ok()
-                .headers(responseHeader)
-                .body(ResponseDto.success(LoginResponseDto.of(googleUser, checkUser)));
+        return ResponseDto.success(LoginResponseDto.of(googleUser, checkUser));
     }
 
-    private void getRefreshToken(User user, HttpHeaders responseHeader, HttpServletRequest httpServletRequest) {
+    private void getRefreshToken(User user, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse) {
         String createdRefreshToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.REFRESH);
-        responseHeader.add(JwtUtil.REFRESH_HEADER, createdRefreshToken);
+        ResponseCookie cookie = ResponseCookie.from("DboongTokenRefreshToken", createdRefreshToken.substring(7)).path("/").build();
+        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         Optional<RefreshToken> refreshToken = redisRepository.findById(user.getUsername());
         long expiration = jwtUtil.REFRESH_TOKEN_TIME / 1000;    // ms -> seconds
@@ -138,9 +128,10 @@ public class UserService {
         }
     }
 
-    private void getAccessToken(User user, HttpHeaders responseHeader) {
+    private void getAccessToken(User user, HttpServletResponse httpServletResponse) {
         String createdAccessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
-        responseHeader.add(JwtUtil.AUTHORIZATION_HEADER, createdAccessToken);
+        ResponseCookie cookie = ResponseCookie.from("DboongToken", createdAccessToken.substring(7)).path("/").build();
+        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, String.valueOf(cookie));
     }
 
 //    @Transactional
@@ -445,8 +436,8 @@ public class UserService {
             throw new CustomException(ErrorCode.NotMatchedIp);
         }
 
-        String accessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
-        httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+        getAccessToken(user, httpServletResponse);
+
         return ResponseDto.success("토큰 재발급 완료.");
     }
 
@@ -703,20 +694,17 @@ public class UserService {
 
 
     @Transactional(readOnly = true)
-    public ResponseEntity<ResponseDto<MasterLoginResponseDto>> masterLogin(MasterLoginRequestDto masterLoginRequestDto) {
+    public ResponseDto<MasterLoginResponseDto> masterLogin(MasterLoginRequestDto masterLoginRequestDto, HttpServletResponse httpServletResponse) {
         User master = userRepository.findByUsernameAndPassword(masterLoginRequestDto.getUsername(), masterLoginRequestDto.getPassword())
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
         if (master.getRole() != UserRoleEnum.MASTER) {
             throw new CustomException(ErrorCode.NoPermission);
         }
 
-        HttpHeaders responseHeader = new HttpHeaders();
-        getAccessToken(master, responseHeader);
+        getAccessToken(master, httpServletResponse);
         // 부서가 없으면 false를 반환하면서 초기 세팅 화면으로 이동한다.
-        return ResponseEntity.ok()
-                .headers(responseHeader)
-                .body(ResponseDto.success(MasterLoginResponseDto
-                        .of(departmentRepository.findByDeletedFalse().size() != 0)));
+        return ResponseDto.success(MasterLoginResponseDto
+                        .of(departmentRepository.findByDeletedFalse().size() != 0));
     }
 
 

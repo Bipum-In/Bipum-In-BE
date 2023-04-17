@@ -11,12 +11,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -34,11 +32,12 @@ public class UserController {
 
     @Operation(summary = "로그인 처리", description = "구글 계정정보 담은 Jwt토큰 발급")
     @PostMapping("/login/google")
-    public ResponseEntity<ResponseDto<LoginResponseDto>> googleLogin(@RequestParam String code,
+    public ResponseDto<LoginResponseDto> googleLogin(@RequestParam String code,
                                                                      @RequestParam String urlType,
-                                                                     HttpServletRequest httpServletRequest) throws IOException {
+                                                                     HttpServletRequest httpServletRequest,
+                                                                     HttpServletResponse httpServletResponse) throws IOException {
 
-        return userService.googleLogin(code, urlType, httpServletRequest);
+        return userService.googleLogin(code, urlType, httpServletRequest, httpServletResponse);
     }
 
     @Operation(summary = "로그아웃", description = "Redis refreshToken 제거.")
@@ -130,8 +129,9 @@ public class UserController {
 
     @PostMapping("/login/master")
     @Operation(summary = "마스터 로그인", description = "부서가 없으면 true 반환 -> 부서 초기 세팅 페이지로 이동.")
-    public ResponseEntity<ResponseDto<MasterLoginResponseDto>> masterLogin(@RequestBody MasterLoginRequestDto masterLoginRequestDto) {
-        return userService.masterLogin(masterLoginRequestDto);
+    public ResponseDto<MasterLoginResponseDto> masterLogin(@RequestBody MasterLoginRequestDto masterLoginRequestDto,
+                                                           HttpServletResponse httpServletResponse) {
+        return userService.masterLogin(masterLoginRequestDto, httpServletResponse);
     }
 
 
