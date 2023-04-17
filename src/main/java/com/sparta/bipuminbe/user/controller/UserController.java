@@ -103,7 +103,7 @@ public class UserController {
     }
 
 
-    @Secured(UserRoleEnum.Authority.ADMIN)
+    @Secured(value = {UserRoleEnum.Authority.ADMIN, UserRoleEnum.Authority.MASTER})
     @DeleteMapping("/{userId}")
     @Operation(summary = "회원 관리 기능(강퇴) *new Api*", description = "부서 관리 페이지 입니다.")
     public ResponseDto<String> manageUser(@PathVariable Long userId,
