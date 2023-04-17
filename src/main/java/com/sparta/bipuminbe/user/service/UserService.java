@@ -746,21 +746,25 @@ public class UserService {
 
     public void deleteAllCookies(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         Cookie[] cookies = request.getCookies();
+
+
             if(cookies != null){
                 for (Cookie cookie : cookies){
                     cookie.setValue("");
                     cookie.setPath("/");
                     cookie.setMaxAge(0);
 
-                    ResponseCookie responseCookie = ResponseCookie.from(cookie.getName(), URLEncoder.encode("", "UTF-8")).
-                            path("/").
-                            httpOnly(true).
-                            sameSite("None").
-                            secure(true).
-                            maxAge(JwtUtil.REFRESH_TOKEN_TIME).
-                            build();
+                    if(cookie.getName().equals(JwtUtil.AUTHORIZATION_HEADER) || cookie.getName().equals(JwtUtil.REFRESH_HEADER)){
+                        ResponseCookie responseCookie = ResponseCookie.from(cookie.getName(), URLEncoder.encode("", "UTF-8")).
+                                path("/").
+                                httpOnly(true).
+                                sameSite("None").
+                                secure(true).
+                                maxAge(JwtUtil.REFRESH_TOKEN_TIME).
+                                build();
 
-                    response.addHeader("Set-Cookie", responseCookie.toString());
+                        response.addHeader("Set-Cookie", responseCookie.toString());
+                    }
                 }
             }
 
