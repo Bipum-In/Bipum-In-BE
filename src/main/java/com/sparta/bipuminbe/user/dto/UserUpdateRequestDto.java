@@ -12,7 +12,7 @@ import javax.validation.constraints.Pattern;
 @Setter
 public class UserUpdateRequestDto {
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z가-힣 ]*${4,30}")
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]{1,30}$", message = "한글 자음/모음이 아닌 30자 이내")
     private String empName;
     @NotNull
     private Long deptId;

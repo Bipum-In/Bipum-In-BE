@@ -17,13 +17,13 @@ public class SupplyRequestDto {
     @NotNull
     private LargeCategory largeCategory;
     @NotBlank
-    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]*${4,30}")
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]{1,30}$", message = "한글 자음/모음이 아닌 30자 이내")
     private String categoryName;
     @NotBlank
-    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]*${4,30}")
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]{1,30}$", message = "한글 자음/모음이 아닌 30자 이내")
     private String modelName;
     @NotBlank
-    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]*${4,50}")
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]{1,50}$", message = "한글 자음/모음이 아닌 50자 이내")
     private String serialNum;
     private Long partnersId;
     private UseType useType;

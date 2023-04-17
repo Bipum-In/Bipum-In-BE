@@ -16,7 +16,7 @@ import javax.validation.constraints.Pattern;
 public class PartnersDto {
     private Long partnersId;
     @NotBlank
-    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]*${4,30}")
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]{1,30}$", message = "한글 자음/모음이 아닌 30자 이내")
     private String partnersName;
     @NotBlank
     private String phone;
