@@ -19,7 +19,7 @@ public class CategoryDto {
     @NotNull
     private String largeCategory;
     @NotBlank
-    @Pattern(regexp = "^[0-9a-zA-Z가-힣 ]*${4,30}")
+    @Pattern(regexp = "[^ㄱ-ㅎㅏ-ㅣ]{1,30}$", message = "한글 자음/모음이 아닌 30자 이내")
     private String categoryName;
 
     public static CategoryDto of(Category category) {
