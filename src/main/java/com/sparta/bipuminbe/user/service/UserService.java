@@ -746,28 +746,20 @@ public class UserService {
 
     public void deleteAllCookies(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         Cookie[] cookies = request.getCookies();
-
-
             if(cookies != null){
                 for (Cookie cookie : cookies){
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-
-                    if(cookie.getName().equals(JwtUtil.AUTHORIZATION_HEADER) || cookie.getName().equals(JwtUtil.REFRESH_HEADER)){
+                    log.info(cookie.getName() + " " + cookie.getValue() + " " + cookie.getMaxAge());
                         ResponseCookie responseCookie = ResponseCookie.from(cookie.getName(), URLEncoder.encode("", "UTF-8")).
+                                domain("bipum-in.shop").
                                 path("/").
                                 httpOnly(true).
                                 sameSite("None").
                                 secure(true).
-                                maxAge(JwtUtil.REFRESH_TOKEN_TIME).
+                                maxAge(0).
                                 build();
-
                         response.addHeader("Set-Cookie", responseCookie.toString());
-                    }
                 }
             }
-
     }
 //    @Transactional(readOnly = true)
 //    public ResponseDto<String> sendPassword(User user) throws MessagingException, IOException {
