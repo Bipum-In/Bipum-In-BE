@@ -61,7 +61,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         httpOnly(true).
                         sameSite("None").
                         secure(true).
-                        maxAge(0).
+                        maxAge(1).
                         build();
                 response.setHeader("Set-Cookie", responseCookie.toString());
                 jwtExceptionHandler(response, "NEED REISSUE", HttpStatus.SEE_OTHER);
