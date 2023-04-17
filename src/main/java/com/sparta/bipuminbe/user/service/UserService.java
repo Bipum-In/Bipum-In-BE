@@ -755,7 +755,7 @@ public class UserService {
                                 httpOnly(true).
                                 sameSite("None").
                                 secure(true).
-                                maxAge(0).
+                                maxAge(1).
                                 build();
                         response.addHeader("Set-Cookie", responseCookie.toString());
                 }
