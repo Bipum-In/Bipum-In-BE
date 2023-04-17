@@ -39,13 +39,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "AND n.is_read = 'true' AND NOW()", nativeQuery = true)
     List<Notification> findOldNotification();
 
-    List<Notification> findByReceiver(User user);
-
     long countByReceiver_IdAndNotificationTypeAndIncludeCountTrue(Long id, NotificationType notificationType);
 
     List<Notification> findByReceiver_IdAndNotificationTypeAndIncludeCountTrue(Long id, NotificationType notificationType);
 
     List<Notification> findByRequest_RequestId(Long requestId);
 
-
+    List<Notification> findByReceiverAndNotificationType(User user, NotificationType notificationType);
 }

@@ -18,15 +18,11 @@ import com.sparta.bipuminbe.requests.repository.RequestsRepository;
 import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -300,8 +296,9 @@ public class NotificationService {
     }
 
     @Transactional
-    public ResponseDto<String> deleteNotifications(User user) {
-        notificationRepository.deleteAll(notificationRepository.findByReceiver(user));
+    public ResponseDto<String> deleteNotifications(User user, UserRoleEnum role) {
+        notificationRepository.deleteAll(notificationRepository.findByReceiverAndNotificationType(user,
+                role == UserRoleEnum.ADMIN ? NotificationType.REQUEST : NotificationType.PROCESSED));
         return ResponseDto.success("알림 삭제 완료.");
     }
 
