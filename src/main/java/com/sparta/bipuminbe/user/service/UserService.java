@@ -637,41 +637,6 @@ public class UserService {
 //        return kakaoUser;
 //    }
 
-    //    public String encryptUser(LoginResponseDto loginResponseDto)
-//            throws IOException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException {
-//        Cipher cipher = Cipher.getInstance(alg);
-//        SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
-//        IvParameterSpec ivParamSpec = new IvParameterSpec(iv.getBytes());
-//        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParamSpec);
-//
-//        byte[] encrypted = cipher.doFinal(convertToBytes(loginResponseDto));
-//        String base64Encrpyted = Base64.getEncoder().encodeToString(encrypted);
-//
-//        // Generate HMAC
-//        String hmac = generateHmac(encrypted, key);
-//
-//        return base64Encrpyted + "." + hmac;
-//    }
-//
-//    public static byte[] convertToBytes(Serializable loginResponseDto) throws IOException{
-//        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
-//        ObjectOutputStream objectOutStream = new ObjectOutputStream(byteOutStream);
-//
-//        objectOutStream.writeObject(loginResponseDto);
-//        objectOutStream.flush();
-//        objectOutStream.close();
-//
-//        return byteOutStream.toByteArray();
-//    }
-//
-//    public String generateHmac(byte[] data, String key)
-//            throws NoSuchAlgorithmException, InvalidKeyException {
-//        SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), "HmacSHA256");
-//        Mac mac = Mac.getInstance("HmacSHA256");
-//        mac.init(signingKey);
-//        byte[] hmacBytes = mac.doFinal(data);
-//        return Base64.getEncoder().encodeToString(hmacBytes);
-//    }
 
 //    public AccessTokenDto refreshToken(User user) throws JsonProcessingException {
 //        // HTTP Header 생성
