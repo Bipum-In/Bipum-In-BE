@@ -56,7 +56,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             } else if (jwtUtil.validateToken(accessToken) == TokenState.EXPIRED) {
                 // Access Token Cookie 삭제
                 ResponseCookie responseCookie = ResponseCookie.from(JwtUtil.AUTHORIZATION_HEADER, null).
-                        domain("bipum-in.shop").
                         path("/").
                         httpOnly(true).
                         sameSite("None").

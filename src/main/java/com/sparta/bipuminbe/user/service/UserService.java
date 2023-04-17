@@ -750,7 +750,6 @@ public class UserService {
                 for (Cookie cookie : cookies){
                     log.info(cookie.getName() + " " + cookie.getValue() + " " + cookie.getMaxAge());
                         ResponseCookie responseCookie = ResponseCookie.from(cookie.getName(), null).
-                                domain("bipum-in.shop").
                                 path("/").
                                 httpOnly(true).
                                 sameSite("None").
