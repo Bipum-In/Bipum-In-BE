@@ -32,6 +32,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         String accessToken = null;
         String refreshToken = null;
+
         for(Cookie cookie : cookies){
             if(cookie != null){
                 if(cookie.getName().equals(JwtUtil.AUTHORIZATION_HEADER)){
