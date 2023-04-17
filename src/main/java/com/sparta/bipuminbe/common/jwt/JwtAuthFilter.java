@@ -63,7 +63,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         secure(true).
                         maxAge(0).
                         build();
-                response.addHeader("Set-Cookie", responseCookie.toString());
+                response.setHeader("Set-Cookie", responseCookie.toString());
                 jwtExceptionHandler(response, "NEED REISSUE", HttpStatus.SEE_OTHER);
                 return;
             }
