@@ -96,6 +96,7 @@ public class UserService {
         // 3. 필요시에 회원가입
         User googleUser = registerGoogleUserIfNeeded(googleUserInfo, accessToken);
 
+        log.info("User : " + googleUser.getEmpName());
         // 4. JWT 토큰 반환
         // Token 생성 Access/Refresh + addHeader
         getAccessToken(googleUser, httpServletResponse);
@@ -136,6 +137,10 @@ public class UserService {
 
     private void getAccessToken(User user, HttpServletResponse httpServletResponse) {
         String createdAccessToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.ACCESS);
+
+        log.info("token : " + createdAccessToken);
+
+        // 4. JWT 토큰 반환
         ResponseCookie cookie = ResponseCookie.from(
                 "DboongToken",
                         createdAccessToken).
