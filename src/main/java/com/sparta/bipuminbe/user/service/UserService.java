@@ -153,7 +153,7 @@ public class UserService {
                 secure(true).
                 maxAge(JwtUtil.ACCESS_TOKEN_TIME).
                 build();
-        httpServletResponse.addHeader("Set-Cookie", String.valueOf(cookie));
+        httpServletResponse.addHeader("Set-Cookie", cookie.toString());
     }
 
 //    @Transactional
