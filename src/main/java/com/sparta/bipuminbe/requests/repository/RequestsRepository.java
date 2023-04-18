@@ -22,20 +22,20 @@ public interface RequestsRepository extends JpaRepository<Requests, Long>, Reque
 
     boolean existsBySupply_SupplyIdAndRequestStatusNot(Long supplyId, RequestStatus requestStatus);
 
-    @Query(value = "SELECT r FROM Requests r " +
-            "INNER JOIN users u ON r.user = u " +
-            "INNER JOIN Department d ON u.department = d " +
-            "LEFT JOIN Category c ON r.category  = c " +
-            "LEFT JOIN Supply s ON r.supply = s " +
-            "WHERE (u.empName LIKE :keyword OR d.deptName LIKE :keyword OR c.categoryName LIKE :keyword " +
-            "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
-            "AND r.requestType IN :requestTypeQuery " +
-            "AND r.requestStatus IN :requestStatusQuery " +
-            "AND u.id IN :userIdQuery " +
-            "order by r.createdAt desc")
-    Page<Requests> getRequestsList(@Param("keyword") String keyword, @Param("requestTypeQuery") Set<RequestType> requestTypeQuery,
-                                   @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery,
-                                   @Param("userIdQuery") Set<Long> userIdQuery, Pageable pageable);
+//    @Query(value = "SELECT r FROM Requests r " +
+//            "INNER JOIN users u ON r.user = u " +
+//            "INNER JOIN Department d ON u.department = d " +
+//            "LEFT JOIN Category c ON r.category  = c " +
+//            "LEFT JOIN Supply s ON r.supply = s " +
+//            "WHERE (u.empName LIKE :keyword OR d.deptName LIKE :keyword OR c.categoryName LIKE :keyword " +
+//            "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword) " +
+//            "AND r.requestType IN :requestTypeQuery " +
+//            "AND r.requestStatus IN :requestStatusQuery " +
+//            "AND u.id IN :userIdQuery " +
+//            "order by r.createdAt desc")
+//    Page<Requests> getRequestsList(@Param("keyword") String keyword, @Param("requestTypeQuery") Set<RequestType> requestTypeQuery,
+//                                   @Param("requestStatusQuery") Set<RequestStatus> requestStatusQuery,
+//                                   @Param("userIdQuery") Set<Long> userIdQuery, Pageable pageable);
 
     Page<Requests> findBySupply_SupplyIdAndRequestTypeInAndAcceptResult(Long supplyId, Set<RequestType> requestTypeQuery, AcceptResult accept, Pageable pageable);
 

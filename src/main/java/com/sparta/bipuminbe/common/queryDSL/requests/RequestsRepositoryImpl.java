@@ -1,13 +1,18 @@
 package com.sparta.bipuminbe.common.queryDSL.requests;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sparta.bipuminbe.common.entity.QRequests;
+import com.sparta.bipuminbe.common.entity.*;
 import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,5 +46,30 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
         return queryFactory.select(requests.modifiedAt.max())
                 .from(requests).where(requests.requestType.eq(requestType)
                         .and(requests.user.id.eq(userId))).fetchOne();
+    }
+
+    public Page<Requests> getRequestsList(String keyword, Set<RequestType> requestTypeQuery,
+                                          Set<RequestStatus> requestStatusQuery, Set<Long> userIdQuery, Pageable pageable) {
+        QRequests requests = QRequests.requests;
+        QUser user = QUser.user;
+        QDepartment department = QDepartment.department;
+        QCategory category = QCategory.category;
+        QSupply supply = QSupply.supply;
+
+        JPAQuery<Requests> query = queryFactory.select(requests).from(requests)
+                .innerJoin(requests.user, user)
+                .innerJoin(user.department, department)
+                .leftJoin(requests.category, category)
+                .leftJoin(requests.supply, supply)
+                .where(user.empName.likeIgnoreCase(keyword)
+                        .or(department.deptName.likeIgnoreCase(keyword))
+                        .or(category.categoryName.likeIgnoreCase(keyword))
+                        .or(supply.modelName.likeIgnoreCase(keyword))
+                        .or(supply.serialNum.likeIgnoreCase(keyword))
+                        .and(requests.requestType.in(requestTypeQuery))
+                        .and(requests.requestStatus.in(requestStatusQuery)).and(user.id.in(userIdQuery)))
+                .orderBy(requests.createdAt.desc());
+
+        return PageableExecutionUtils.getPage(query.fetch(), pageable, query::fetchCount);
     }
 }
