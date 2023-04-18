@@ -720,7 +720,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public ResponseDto<MasterLoginResponseDto> masterLogin(MasterLoginRequestDto masterLoginRequestDto, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
-        User master = userRepository.findByUsername(masterLoginRequestDto.getUsername())
+        User master = userRepository.findByUsernameAndPassword(masterLoginRequestDto.getUsername(), masterLoginRequestDto.getPassword())
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
 
         if (!passwordEncoder.matches(master.getPassword(), masterLoginRequestDto.getPassword())) {
@@ -768,7 +768,8 @@ public class UserService {
         }
     }
 
-    @Transactional(readOnly = true)
+
+    @Transactional
     public ResponseDto<String> sendPassword(User user) throws MessagingException, IOException {
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
