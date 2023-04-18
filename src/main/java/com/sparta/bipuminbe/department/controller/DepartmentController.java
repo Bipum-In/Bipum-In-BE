@@ -55,8 +55,9 @@ public class DepartmentController {
     @Secured(value = {UserRoleEnum.Authority.ADMIN, UserRoleEnum.Authority.MASTER})
     @GetMapping("/dept/{deptId}")
     @Operation(summary = "부서별 구성원 조회", description = "관리자/마스터 권한 필요.")
-    public ResponseDto<List<DeptByEmployeeDto>> getEmployeeByDept(@PathVariable Long deptId) {
-        return departmentService.getEmployeeByDept(deptId);
+    public ResponseDto<List<DeptByEmployeeDto>> getEmployeeByDept(@PathVariable Long deptId,
+                                                                  @RequestParam(defaultValue = "") String keyword) {
+        return departmentService.getEmployeeByDept(deptId, keyword);
     }
 
 
@@ -66,4 +67,5 @@ public class DepartmentController {
     public ResponseDto<String> setDefaultDeptList(@RequestBody DefaultDeptRequestDto defaultDeptRequestDto) {
         return departmentService.setDefaultDeptList(defaultDeptRequestDto);
     }
+
 }

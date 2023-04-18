@@ -114,17 +114,13 @@ public class DepartmentService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<List<DeptByEmployeeDto>> getEmployeeByDept(Long deptId) {
-        List<User> employees = userRepository.findByDeptByEmployee(deptId);
+    public ResponseDto<List<DeptByEmployeeDto>> getEmployeeByDept(Long deptId, String keyword) {
+        List<User> employees = userRepository.findByDeptByEmployee(deptId, "%" + keyword + "%");
         List<DeptByEmployeeDto> deptByEmployeeDtos = new ArrayList<>();
 
-        // 페이지에서 표시 되어야 할 role을 같이 넘겨야 한다.
-        // ex) Master라면 Admin이 누구인지가 표기, Admin이라면 Responsibility 표기.
-//        UserRoleEnum checkRole = role == UserRoleEnum.MASTER ? UserRoleEnum.ADMIN : UserRoleEnum.RESPONSIBILITY;
         for (User employee : employees) {
             deptByEmployeeDtos.add(DeptByEmployeeDto.of(employee));
         }
-
         return ResponseDto.success(deptByEmployeeDtos);
     }
 

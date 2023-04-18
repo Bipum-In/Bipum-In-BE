@@ -31,8 +31,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmpNameAndDepartment_DeptNameAndDeletedFalse(String empName, String deptName);
 
-    @Query(value = "SELECT * FROM users WHERE department_id = :department_id and deleted = false", nativeQuery = true)
-    List<User> findByDeptByEmployee(@Param("department_id") Long deptId);
+    @Query(value = "SELECT u FROM users u " +
+            "inner join Department d on d = u.department " +
+            "WHERE d.id = :deptId and u.deleted = false " +
+            "and u.username like :keyword and lower(u.empName) like lower(:keyword) " +
+            "and u.phone like :keyword")
+    List<User> findByDeptByEmployee(@Param("deptId") Long deptId, @Param("keyword") String keyword);
+
 
     Optional<User> findByUsernameAndPassword(String username, String password);
 }
