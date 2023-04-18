@@ -81,13 +81,12 @@ public class UserController {
 
     @Operation(summary = "구글 연결 끊기", description = "앱과 연결된 구글 계정 연결 끊기")
     @PostMapping("/delete")
-    public ResponseDto<String> deleteUser(HttpServletRequest request,
+    public ResponseDto<String> deleteUser(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
                                           @RequestParam String code,
                                           @RequestParam String urlType) throws JsonProcessingException {
-        String bearerToken = request.getHeader("Authorization");
 
-        return userService.deleteUser(userDetails.getUser(), bearerToken, code, urlType);
+        return userService.deleteUser(userDetails.getUser(), code, urlType, httpServletRequest, httpServletResponse);
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
