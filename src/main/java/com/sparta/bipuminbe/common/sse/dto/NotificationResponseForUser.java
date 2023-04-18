@@ -2,14 +2,16 @@ package com.sparta.bipuminbe.common.sse.dto;
 
 import com.sparta.bipuminbe.common.enums.AcceptResult;
 import com.sparta.bipuminbe.common.enums.RequestType;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-public interface NotificationResponseForUser {
-    String getContent();
-    LocalDateTime getCreatedAt();
-    AcceptResult getAcceptresult();
-    Long getRequestid();
-    Long getNotificationId();
-    RequestType getRequesttype();
+@NoArgsConstructor
+public class NotificationResponseForUser {
+    private String getContent;
+    private LocalDateTime getCreatedAt;
+    private AcceptResult getAcceptresult;
+    private Long getRequestid;
+    private Long getNotificationId;
+    private RequestType getRequesttype;
 }
