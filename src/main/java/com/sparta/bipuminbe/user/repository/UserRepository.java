@@ -16,8 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 
     Optional<User> findById(Long id);
 
-    void deleteByGoogleId(String GoogleId);
-
     List<User> findByRoleAndAlarmAndDeletedFalse(UserRoleEnum admin, boolean b);
 
     List<User> findByDeletedFalse();
@@ -26,19 +24,9 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 
     List<User> findByDepartmentAndDeletedFalse(Department department);
 
-    Optional<User> findByGoogleIdAndDeletedFalse(String googleId);
-
     boolean existsByDepartment_IdAndDeletedFalse(Long id);
 
     Optional<User> findByEmpNameAndDepartment_DeptNameAndDeletedFalse(String empName, String deptName);
-
-//    @Query(value = "SELECT u FROM users u " +
-//            "inner join Department d on d = u.department " +
-//            "WHERE d.id = :deptId and u.deleted = false " +
-//            "and (u.username like :keyword or lower(u.empName) like lower(:keyword) " +
-//            "or u.phone like :keyword)")
-//    List<User> findByDeptByEmployee(@Param("deptId") Long deptId, @Param("keyword") String keyword);
-
 
     Optional<User> findByUsernameAndPassword(String username, String password);
 }
