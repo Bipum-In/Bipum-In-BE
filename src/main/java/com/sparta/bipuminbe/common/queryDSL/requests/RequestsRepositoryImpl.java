@@ -75,7 +75,7 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
                 .limit(pageable.getPageSize());
 
         List<Requests> requestsList = query.fetch();
-        long totalCount = query.fetch().size();
+        long totalCount = query.fetchCount();
 
         return new PageImpl<>(requestsList, pageable, totalCount);
     }
