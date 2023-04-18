@@ -33,7 +33,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom{
         QRequests request = QRequests.requests;
         QUser user = QUser.user;
 
-        JPAQuery<NotificationResponseForAdmin> query = jpaQueryFactory.select(Projections.bean(
+        JPAQuery<NotificationResponseForAdmin> query = jpaQueryFactory.select(Projections.constructor(
                         NotificationResponseForAdmin.class,
                         notification.content, user.image, notification.createdAt.as("createdAt"),
                         request.requestId.as("requestId"), notification.id.as("notificationId"), request.requestType))
@@ -60,7 +60,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom{
         QRequests requests = QRequests.requests;
         QUser user = QUser.user;
 
-        JPAQuery<NotificationResponseForUser> query = jpaQueryFactory.select(Projections.bean(
+        JPAQuery<NotificationResponseForUser> query = jpaQueryFactory.select(Projections.constructor(
                                 NotificationResponseForUser.class,
                                 notification.content, notification.createdAt.as("createdAt"), notification.acceptResult,
                                 requests.requestId.as("requestId"), notification.id.as("notificationId"), requests.requestType
