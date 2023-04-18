@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 public interface NotificationResponseForAdmin {
     String getContent();
     String getImage();
-    LocalDateTime getCreated_At();
-    Long getRequest_id();
-    Long getNotification_id();
-    RequestType getRequest_type();
+    LocalDateTime getCreatedAt();
+    Long getRequestId();
+    Long getNotificationId();
+    RequestType getRequestType();
 }

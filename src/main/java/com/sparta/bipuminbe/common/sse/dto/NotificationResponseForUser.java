@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 public interface NotificationResponseForUser {
     String getContent();
-    LocalDateTime getCreated_At();
-    AcceptResult getAccept_result();
-    Long getRequest_id();
-    Long getNotification_id();
-    RequestType getRequest_type();
+    LocalDateTime getCreatedAt();
+    AcceptResult getAcceptresult();
+    Long getRequestid();
+    Long getNotificationId();
+    RequestType getRequesttype();
 }
