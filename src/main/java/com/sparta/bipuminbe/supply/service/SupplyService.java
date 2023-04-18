@@ -222,7 +222,9 @@ public class SupplyService {
     public ResponseDto<SupplyWholeResponseDto> getSupply(Long supplyId, int size, User user, UserRoleEnum role) {
 
         Supply supply = getSupply(supplyId);
-        SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply, user, role);
+        // 영속성 걸어야 한다. 안에서 department를 씀.
+        User foundUser = getUser(user.getId());
+        SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply, foundUser, role);
 //        List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
 //        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
 //        List<Requests> requests = requestsRepository.findBySupply(supply);
@@ -238,6 +240,11 @@ public class SupplyService {
         Page<SupplyHistoryResponseDto> repairHistory = getRepairHistory(supplyId, 1, size).getData();
         SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, userHistory, repairHistory);
         return ResponseDto.success(supplyWhole);
+    }
+
+    private User getUser(Long id) {
+        return userRepository.findByIdAndDeletedFalse(id).orElseThrow(
+                () -> new CustomException(ErrorCode.NotFoundUser));
     }
 
     private Supply getSupply(Long supplyId) {
