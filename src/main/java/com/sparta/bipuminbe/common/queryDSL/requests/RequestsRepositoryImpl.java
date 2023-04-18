@@ -58,7 +58,7 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
         QCategory category = QCategory.category;
         QSupply supply = QSupply.supply;
 
-        List<Requests> requestsList = queryFactory.select(requests).from(requests)
+        JPAQuery<Requests> query = queryFactory.select(requests).from(requests)
                 .innerJoin(requests.user, user)
                 .innerJoin(user.department, department)
                 .leftJoin(requests.category, category)
@@ -72,9 +72,11 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
                         .and(requests.requestStatus.in(requestStatusQuery)).and(user.id.in(userIdQuery)))
                 .orderBy(requests.createdAt.desc())
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+                .limit(pageable.getPageSize());
 
-        return new PageImpl<>(requestsList, pageable, requestsList.size());
+        List<Requests> requestsList = query.fetch();
+        long totalCount = query.fetch().size();
+
+        return new PageImpl<>(requestsList, pageable, totalCount);
     }
 }
