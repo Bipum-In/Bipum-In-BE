@@ -7,11 +7,13 @@ import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.RequestType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Repository
@@ -56,7 +58,7 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
         QCategory category = QCategory.category;
         QSupply supply = QSupply.supply;
 
-        JPAQuery<Requests> query = queryFactory.select(requests).from(requests)
+        List<Requests> requestsList = queryFactory.select(requests).from(requests)
                 .innerJoin(requests.user, user)
                 .innerJoin(user.department, department)
                 .leftJoin(requests.category, category)
@@ -68,8 +70,10 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
                         .or(supply.serialNum.likeIgnoreCase(keyword))
                         .and(requests.requestType.in(requestTypeQuery))
                         .and(requests.requestStatus.in(requestStatusQuery)).and(user.id.in(userIdQuery)))
-                .orderBy(requests.createdAt.desc());
+                .orderBy(requests.createdAt.desc())
+                .limit(pageable.getPageSize())
+                .fetch();
 
-        return PageableExecutionUtils.getPage(query.fetch(), pageable, query::fetchCount);
+        return new PageImpl<>(requestsList, pageable, requestsList.size());
     }
 }
