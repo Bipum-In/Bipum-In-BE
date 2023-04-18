@@ -71,6 +71,7 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
                         .and(requests.requestType.in(requestTypeQuery))
                         .and(requests.requestStatus.in(requestStatusQuery)).and(user.id.in(userIdQuery)))
                 .orderBy(requests.createdAt.desc())
+                .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
