@@ -183,7 +183,6 @@ public class DashboardService {
         return supplyDtoList;
     }
 
-
     @Transactional(readOnly = true)
     public ResponseDto<SearchTotalDto> searchTotal(String keyword, User user, UserRoleEnum role) {
         Pageable pageable = getPageable_JPQL(1, 3);
