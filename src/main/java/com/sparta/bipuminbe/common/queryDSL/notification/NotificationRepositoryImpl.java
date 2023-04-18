@@ -36,7 +36,9 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom{
         JPAQuery<NotificationResponseForAdmin> query = jpaQueryFactory.select(Projections.constructor(
                         NotificationResponseForAdmin.class,
                         notification.content, user.image, notification.createdAt.as("createdAt"),
-                        request.requestId.as("requestId"), notification.id.as("notificationId"), request.requestType))
+                        request.requestId.as("requestId"), notification.id.as("notificationId"), request.requestType
+                        )
+                )
                 .from(notification)
                 .join(request).on(notification.request.requestId.eq(request.requestId))
                 .join(user).on(request.user.id.eq(user.id))
