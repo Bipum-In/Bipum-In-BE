@@ -22,6 +22,7 @@ public class DeptByEmployeeDto {
                 .empName(user.getEmpName())
                 .phone(user.getPhone())
                 .username(user.getUsername())
+                // 유저가 권한을 가지고 있다면 표기한다.
                 .authority(user.getRole() != UserRoleEnum.USER ? user.getRole().getKorean() : null)
                 .build();
     }
