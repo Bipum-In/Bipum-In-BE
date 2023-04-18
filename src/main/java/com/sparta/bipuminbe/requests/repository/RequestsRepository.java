@@ -39,8 +39,8 @@ public interface RequestsRepository extends JpaRepository<Requests, Long>, Reque
 
     Page<Requests> findBySupply_SupplyIdAndRequestTypeInAndAcceptResult(Long supplyId, Set<RequestType> requestTypeQuery, AcceptResult accept, Pageable pageable);
 
-    // 비품 폐기 전 요청들 처리.
+    // 비품 폐기 전 요청들 처리. (수리중 포함.)
     List<Requests> findBySupply_SupplyIdAndRequestStatusNot(Long supplyId, RequestStatus requestStatus);
-
-    List<Requests> findByUser_IdAndRequestStatusNot(Long id, RequestStatus requestStatus);
+    // 유저 탈퇴 전 요청들 처리. (수리중 불포함.)
+    List<Requests> findByUser_IdAndRequestStatus(Long id, RequestStatus unprocessed);
 }

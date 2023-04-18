@@ -111,7 +111,7 @@ public class UserService {
         return ResponseDto.success(LoginResponseDto.of(googleUser, checkUser));
     }
 
-    private void getRefreshToken(User user, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
+    private void getRefreshToken(User user, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         String createdRefreshToken = jwtUtil.createToken(user.getUsername(), user.getRole(), TokenType.REFRESH);
         ResponseCookie cookie = ResponseCookie.from(JwtUtil.REFRESH_HEADER, URLEncoder.encode(createdRefreshToken, "UTF-8")).
                 path("/").
@@ -274,7 +274,7 @@ public class UserService {
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
 //                    refreshToken(accessToken.getRefresh_token()).
-                    role(UserRoleEnum.USER).
+        role(UserRoleEnum.USER).
                     alarm(true).
                     deleted(false).
                     build();
@@ -287,7 +287,7 @@ public class UserService {
 
 
     @Transactional
-    public ResponseDto<String> logout(String username, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
+    public ResponseDto<String> logout(String username, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         deleteAllCookies(httpServletRequest, httpServletResponse);
         deleteRefreshToken(username);
         return ResponseDto.success("로그아웃 성공");
@@ -324,7 +324,9 @@ public class UserService {
 
     // 구글과 연결된 계정 삭제
     @Transactional
-    public ResponseDto<String> deleteUser(User user, String bearerToken, String code, String urlType) throws JsonProcessingException {
+    public ResponseDto<String> deleteUser(User user, String code, String urlType, HttpServletRequest httpServletRequest,
+                                          HttpServletResponse httpServletResponse) throws JsonProcessingException {
+
         // 유저에 있는 Access 토큰은 로그인 시에 생성된 Access 토큰이기 때문에, 삭제 시 갱신이 필요함. refresh 토큰 null 이슈로 인한 처리
         AccessTokenDto accessToken = getToken(code, urlType, GoogleTokenType.DELETE);
 
@@ -332,12 +334,10 @@ public class UserService {
         user.refreshGoogleToken(accessToken.getAccess_token());
 
         // 구글 API와 통신을 통해 연결 끊기
-        unlinkGoogleAPI(user, bearerToken);
-
-        User googleUser = userRepository.findByGoogleIdAndDeletedFalse(user.getGoogleId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NotFoundUser));
+        unlinkGoogleAPI(user, httpServletRequest.getHeader("Authorization"));
 
         deleteUserModule(user, user);
+        deleteAllCookies(httpServletRequest, httpServletResponse);
 
         return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
     }
@@ -356,7 +356,7 @@ public class UserService {
     }
 
     private void declineRequestsByDeletedUser(User user) {
-        List<Requests> requestList = requestsRepository.findByUser_IdAndRequestStatusNot(user.getId(), RequestStatus.PROCESSED);
+        List<Requests> requestList = requestsRepository.findByUser_IdAndRequestStatus(user.getId(), RequestStatus.UNPROCESSED);
         for (Requests requests : requestList) {
             requests.processingRequest(AcceptResult.DECLINE, "유저 탈퇴에 의한 요청 거절 처리", null, user);
         }
@@ -727,7 +727,7 @@ public class UserService {
         getAccessToken(master, httpServletResponse);
         // 부서가 없으면 false를 반환하면서 초기 세팅 화면으로 이동한다.
         return ResponseDto.success(MasterLoginResponseDto
-                        .of(departmentRepository.findByDeletedFalse().size() != 0));
+                .of(departmentRepository.findByDeletedFalse().size() != 0));
     }
 
 
@@ -744,21 +744,21 @@ public class UserService {
         return ResponseDto.success("권한 부여가 완료 되었습니다.");
     }
 
-    public void deleteAllCookies(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+    public void deleteAllCookies(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
-            if(cookies != null){
-                for (Cookie cookie : cookies){
-                    log.info(cookie.getName() + " " + cookie.getValue() + " " + cookie.getMaxAge());
-                        ResponseCookie responseCookie = ResponseCookie.from(cookie.getName(), null).
-                                path("/").
-                                httpOnly(true).
-                                sameSite("None").
-                                secure(true).
-                                maxAge(1).
-                                build();
-                        response.setHeader("Set-Cookie", responseCookie.toString());
-                }
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                log.info(cookie.getName() + " " + cookie.getValue() + " " + cookie.getMaxAge());
+                ResponseCookie responseCookie = ResponseCookie.from(cookie.getName(), null).
+                        path("/").
+                        httpOnly(true).
+                        sameSite("None").
+                        secure(true).
+                        maxAge(1).
+                        build();
+                response.setHeader("Set-Cookie", responseCookie.toString());
             }
+        }
     }
 //    @Transactional(readOnly = true)
 //    public ResponseDto<String> sendPassword(User user) throws MessagingException, IOException {
