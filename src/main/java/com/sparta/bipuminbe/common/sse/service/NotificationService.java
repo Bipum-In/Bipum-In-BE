@@ -319,7 +319,7 @@ public class NotificationService {
     }
 
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseDto<String> resetCount(User user, UserRoleEnum role) {
         List<Notification> notificationList = notificationRepository.findByReceiver_IdAndNotificationTypeAndIncludeCountTrue(user.getId(),
                 role == UserRoleEnum.ADMIN ? NotificationType.REQUEST : NotificationType.PROCESSED);
