@@ -762,7 +762,7 @@ public class UserService {
             }
         }
     }
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseDto<String> sendPassword(User user) throws MessagingException, IOException {
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
