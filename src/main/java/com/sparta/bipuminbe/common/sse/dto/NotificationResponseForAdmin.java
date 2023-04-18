@@ -2,10 +2,10 @@ package com.sparta.bipuminbe.common.sse.dto;
 
 import com.sparta.bipuminbe.common.enums.RequestType;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class NotificationResponseForAdmin {
     private String getContent;
     private String getImage;
