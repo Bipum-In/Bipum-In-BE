@@ -585,8 +585,8 @@ public class SupplyService {
             }
 
             String image = supplyExcelDto.getImage();
-            if (image != null && !image.equals("")) {
-                if (multipartFileList != null && index == multipartFileList.size()) {
+            if (image == null || image.equals("")) {
+                if (multipartFileList == null || index == multipartFileList.size()) {
                     throw new CustomException(ErrorCode.NotMatchedAmountImages);
                 }
                 s3Uploader.uploadFiles(multipartFileList.get(index++), supplyExcelDto.getCategory());
