@@ -1,6 +1,5 @@
 package com.sparta.bipuminbe.category.repository;
 
-
 import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.User;

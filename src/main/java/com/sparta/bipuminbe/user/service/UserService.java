@@ -722,6 +722,11 @@ public class UserService {
     public ResponseDto<MasterLoginResponseDto> masterLogin(MasterLoginRequestDto masterLoginRequestDto, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
         User master = userRepository.findByUsernameAndPassword(masterLoginRequestDto.getUsername(), masterLoginRequestDto.getPassword())
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
+
+        if (!passwordEncoder.matches(master.getPassword(), masterLoginRequestDto.getPassword())) {
+            throw new CustomException(ErrorCode.NotMatchPassword);
+        }
+
         if (master.getRole() != UserRoleEnum.MASTER) {
             throw new CustomException(ErrorCode.NoPermission);
         }
@@ -762,6 +767,8 @@ public class UserService {
             }
         }
     }
+
+
     @Transactional
     public ResponseDto<String> sendPassword(User user) throws MessagingException, IOException {
 
