@@ -115,7 +115,7 @@ public class DepartmentService {
 
     @Transactional(readOnly = true)
     public ResponseDto<List<DeptByEmployeeDto>> getEmployeeByDept(Long deptId, String keyword) {
-        List<User> employees = userRepository.findByDeptByEmployee(deptId, "%" + keyword + "%");
+        List<User> employees = userRepository.findByDeptByEmployee(deptId, keyword);
         List<DeptByEmployeeDto> deptByEmployeeDtos = new ArrayList<>();
 
         for (User employee : employees) {
