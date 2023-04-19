@@ -780,7 +780,8 @@ public class UserService {
 
         String pwCode = RandomStringUtils.randomNumeric(6);
 //        File file = new File("src/main/resources/templates/sendEmail.html");
-        File file = new File("build/resources/main/templates/sendEmail.html");
+        File file = new File("/home/ubuntu/app/build/resources/main/templates/sendEmail.html");
+
         Document doc = Jsoup.parse(file, "UTF-8");
         Element element = doc.getElementById("pwCode");
         element.appendText(pwCode);
