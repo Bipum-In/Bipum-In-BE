@@ -98,12 +98,11 @@ public class SupplyRepositoryImpl implements SupplyRepositoryCustom {
 
     // select subQuery는 돌때마다 새로 한다고 한다. 그냥 미리 해주자.
     private Set<Long> getUnprocessSupplySet(Set<RequestStatus> statusQuery, QSupply supply, QRequests requests) {
-        Set<Long> requestsIdSet = new HashSet<>(queryFactory.selectDistinct(supply.supplyId)
+        return new HashSet<>(queryFactory.selectDistinct(supply.supplyId)
                 .from(requests)
                 .innerJoin(requests.supply, supply)
                 .where(requests.requestStatus.in(statusQuery), supply.isNotNull())
                 .fetch());
-        return requestsIdSet;
     }
 
 
