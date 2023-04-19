@@ -467,7 +467,7 @@ public class SupplyService {
 
         for (int i = 0; i < modelNameList.size(); i++) {
             String modelName = modelNameList.get(i);
-            String errorMessage = (i + 1) + "번째 줄 " + modelName + "의 ";
+            String errorMessage = modelName + "의 ";
             Thread.sleep(75);
             ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
 
