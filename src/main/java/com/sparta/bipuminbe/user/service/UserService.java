@@ -723,7 +723,7 @@ public class UserService {
         User master = userRepository.findByUsername(masterLoginRequestDto.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
 
-        if (!passwordEncoder.matches(master.getPassword(), masterLoginRequestDto.getPassword())) {
+        if (!masterLoginRequestDto.getPassword().equals(master.getPassword())) {
             throw new CustomException(ErrorCode.NotMatchPassword);
         }
 
