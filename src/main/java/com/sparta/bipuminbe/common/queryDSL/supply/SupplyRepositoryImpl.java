@@ -61,7 +61,7 @@ public class SupplyRepositoryImpl implements SupplyRepositoryCustom {
                         .or(supply.modelName.containsIgnoreCase(keyword))
                         .or(supply.serialNum.containsIgnoreCase(keyword))
                         .or(partners.partnersName.containsIgnoreCase(keyword))
-                        .or(department_supply.deptName.contains(keyword))
+                        .or(department_supply.deptName.containsIgnoreCase(keyword))
                         .or(department_user.deptName.containsIgnoreCase(keyword))
                 ).and(category.id.in(categoryIdQuery))
                         .and(supply.status.in(statusQuery))

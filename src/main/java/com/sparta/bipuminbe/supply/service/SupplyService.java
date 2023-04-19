@@ -154,7 +154,7 @@ public class SupplyService {
         Set<SupplyStatusEnum> statusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page, size);
 
-        Page<Supply> supplies = supplyRepository.getSupplyList("%" + keyword + "%", categoryQuery, statusQuery, pageable);
+        Page<Supply> supplies = supplyRepository.getSupplyList(keyword, categoryQuery, statusQuery, pageable);
         List<SupplyResponseDto> supplyResponseDtoList = converToDto(supplies.getContent());
         return ResponseDto.success(new PageImpl<>(supplyResponseDtoList, supplies.getPageable(), supplies.getTotalElements()));
     }
