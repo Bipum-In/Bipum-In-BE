@@ -562,7 +562,7 @@ public class SupplyService {
         int index = 0;
         for (int i = 0; i < supplyExcelDtos.size(); i++) {
             SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelDtos.get(i), SupplyExcelDto.class);
-            String numberMessage = (i + 1) + "번째 줄 " + supplyExcelDto.getModelName() + "의 ";
+            String numberMessage = supplyExcelDto.getModelName() + "의 ";
 
             checkDeletedSupply(supplyExcelDto.getSerialNum());
             if (supplyRepository.existsBySerialNum(supplyExcelDto.getSerialNum())) {
