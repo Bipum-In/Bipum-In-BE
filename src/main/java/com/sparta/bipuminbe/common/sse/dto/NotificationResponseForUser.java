@@ -14,7 +14,7 @@ public class NotificationResponseForUser {
     private String getContent;
     private LocalDateTime getCreatedAt;
     private AcceptResult getAcceptresult;
-    private Long getRequestid;
+    private Long getRequestId;
     private Long getNotificationId;
     private RequestType getRequesttype;
 }

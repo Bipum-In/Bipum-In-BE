@@ -779,7 +779,9 @@ public class UserService {
         mimeMessageHelper.setSubject("[비품인] 임시 비밀번호 인증 코드");
 
         String pwCode = RandomStringUtils.randomNumeric(6);
-        File file = new File("src/main/resources/templates/sendEmail.html");
+//        File file = new File("src/main/resources/templates/sendEmail.html");
+        File file = new File("/home/ubuntu/app/build/resources/main/templates/sendEmail.html");
+
         Document doc = Jsoup.parse(file, "UTF-8");
         Element element = doc.getElementById("pwCode");
         element.appendText(pwCode);
