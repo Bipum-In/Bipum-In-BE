@@ -106,7 +106,7 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<List<String>> getMyLargeCategory(User user) {
+    public ResponseDto<List<LargeCategory>> getMyLargeCategory(User user) {
         return ResponseDto.success(categoryRepository.getMyLargeCategory(user));
     }
 
@@ -116,7 +116,7 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseDto<List<String>> getMyCommonLargeCategory(User user) {
+    public ResponseDto<List<LargeCategory>> getMyCommonLargeCategory(User user) {
         return ResponseDto.success(categoryRepository.getMyCommonLargeCategory(user.getDepartment()));
     }
 

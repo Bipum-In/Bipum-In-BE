@@ -18,7 +18,7 @@ import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
-public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
+public class RequestsRepositoryImpl implements RequestsRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     public Long countRequestByType(RequestType requestType, RequestStatus requestStatus) {

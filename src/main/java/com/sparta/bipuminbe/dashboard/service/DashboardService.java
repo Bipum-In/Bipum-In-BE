@@ -196,7 +196,7 @@ public class DashboardService {
         }
         Set<SupplyStatusEnum> supplyStatusEnumSet = getStatusQuerySet(role);
 
-        Page<Supply> supplyList = supplyRepository.getSupplyList(likeKeyword, categorySet, supplyStatusEnumSet, pageable);
+        Page<Supply> supplyList = supplyRepository.getSupplyList(keyword, categorySet, supplyStatusEnumSet, pageable);
         List<SupplySearchDto> supplySearchDtoList = convertToSupplySearchDtoList(supplyList.getContent());
 
         // Requests List
