@@ -23,9 +23,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 innerJoin(user.department, department)
                 .where(department.id.eq(deptId)
                         .and(user.deleted.eq(false))
-                        .and(user.username.like(keyword)
-                                .or(user.empName.lower().like(keyword.toLowerCase()))
-                                .or(user.phone.like(keyword))))
+                        .and(user.username.contains(keyword)
+                                .or(user.empName.lower().contains(keyword.toLowerCase()))
+                                .or(user.phone.contains(keyword))))
                 .fetch();
     }
 }

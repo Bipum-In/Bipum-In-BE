@@ -218,7 +218,7 @@ public class RequestsService {
         Pageable pageable = getPageable(page, size);
 
         Page<Requests> requestsList = requestsRepository.
-                getRequestsList("%" + keyword + "%", requestTypeQuery, requestStatusQuery, userIdQuery, pageable);
+                getRequestsList(keyword, requestTypeQuery, requestStatusQuery, userIdQuery, pageable);
 
         List<RequestsPageResponseDto> requestsDtoList = convertToDto(requestsList.getContent());
 

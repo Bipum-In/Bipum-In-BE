@@ -186,7 +186,6 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public ResponseDto<SearchTotalDto> searchTotal(String keyword, User user, UserRoleEnum role) {
         Pageable pageable = getPageable_JPQL(1, 3);
-        String likeKeyword = "%" + keyword + "%";
 
         // Supply List
         Set<Long> categorySet = new HashSet<>();
@@ -204,7 +203,7 @@ public class DashboardService {
         Set<RequestType> requestTypeSet = new HashSet<>(List.of(RequestType.values()));
         Set<Long> userIdSet = getUserIdQuerySet(user, role);
 
-        Page<Requests> requestList = requestsRepository.getRequestsList(likeKeyword, requestTypeSet, requestStatusSet, userIdSet, pageable);
+        Page<Requests> requestList = requestsRepository.getRequestsList(keyword, requestTypeSet, requestStatusSet, userIdSet, pageable);
         List<RequestsSearchDto> requestsSearchDtoList = convertToRequestsSearchDtoList(requestList.getContent());
 
         return ResponseDto.success(SearchTotalDto.of(supplySearchDtoList, requestsSearchDtoList));
