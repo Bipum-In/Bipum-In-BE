@@ -720,7 +720,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public ResponseDto<MasterLoginResponseDto> masterLogin(MasterLoginRequestDto masterLoginRequestDto, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
-        User master = userRepository.findByUsernameAndPassword(masterLoginRequestDto.getUsername(), masterLoginRequestDto.getPassword())
+        User master = userRepository.findByUsername(masterLoginRequestDto.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));
 
         if (!passwordEncoder.matches(master.getPassword(), masterLoginRequestDto.getPassword())) {
