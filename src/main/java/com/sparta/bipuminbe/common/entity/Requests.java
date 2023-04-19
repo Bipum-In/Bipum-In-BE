@@ -7,6 +7,7 @@ import com.sparta.bipuminbe.common.enums.UseType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class Requests extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private RequestStatus requestStatus;
 
+    @BatchSize(size = 10)
     @OneToMany(mappedBy = "requests", cascade = CascadeType.ALL)
     private List<Image> imageList = new ArrayList<>();
 
