@@ -22,10 +22,10 @@ public class PartnersRepositoryImpl implements PartnersRepositoryCustom {
         QPartners partners = QPartners.partners;
         JPAQuery<Partners> query = queryFactory.selectFrom(partners)
                 .distinct()
-                .where(partners.partnersName.containsIgnoreCase(keyword)
+                .where((partners.partnersName.containsIgnoreCase(keyword)
                         .or(partners.phone.containsIgnoreCase(keyword))
                         .or(partners.email.containsIgnoreCase(keyword))
-                .and(partners.deleted).eq(false))
+                ).and(partners.deleted.eq(false)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
