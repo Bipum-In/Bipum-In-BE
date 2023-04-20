@@ -28,9 +28,11 @@
 
 [비품인](https://www.bipumin.shop/)
 
-## [](https://www.youtube.com/watch?v=k1QiN9Er5AE)비품인 시연 영상 사이트
+## 비품인 시연 영상 사이트
 
-[비품인.youtube](https://www.youtube.com/watch?v=k1QiN9Er5AE)
+🖥️ [비품인 시연영상, 아키텍처, 트러블슈팅](https://www.youtube.com/watch?v=k1QiN9Er5AE&t=12s)
+
+🖥️ [비품인 간단 시연영상](https://www.youtube.com/watch?v=4NVqHG47y7o&t=38s)
 
 ## 깃허브 레포
 
@@ -66,7 +68,7 @@
 [![](https://user-images.githubusercontent.com/122663756/233054950-1a685026-8930-40a7-8c54-9e2dd579160f.png)](https://user-images.githubusercontent.com/122663756/233054950-1a685026-8930-40a7-8c54-9e2dd579160f.png)
 [![](https://user-images.githubusercontent.com/122663756/233086608-82087ed2-d39f-40f8-b8ca-9d083864ae77.gif)](https://user-images.githubusercontent.com/122663756/233086608-82087ed2-d39f-40f8-b8ca-9d083864ae77.gif)
 </details>
-
+ 
 #
 
 ## 👨‍💼 3. 관리자 모드
