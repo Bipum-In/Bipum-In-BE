@@ -21,7 +21,7 @@ public class UseTimeAop {
 
     private final ApiUseTimeRepository apiUseTimeRepository;
 
-    @Around("execution(public * com.sparta.bipuminbe.category.controller..*(..)) && args(httpServletRequest,..)")
+    @Around("execution(public * com.sparta.bipuminbe.category.controller.*.*(..)) && args(httpServletRequest,..)")
     public synchronized Object execute(ProceedingJoinPoint joinPoint, HttpServletRequest httpServletRequest) throws Throwable {
         // 측정 Path
         log.info("=======================" + httpServletRequest.getMethod() + " " +  httpServletRequest.getRequestURI() + ": ");
