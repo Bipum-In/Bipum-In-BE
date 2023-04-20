@@ -83,6 +83,7 @@ public class PartnersService {
         return partnersRepository.existsByPartnersNameAndDeletedFalse(partnersName);
     }
 
+    @Transactional(readOnly = true)
     public ResponseDto<Page<PartnersDto>> getPartnersPage(String keyword, int page, int size) {
         Pageable pageable = getPageable(page, size);
 
@@ -92,6 +93,7 @@ public class PartnersService {
 
         return ResponseDto.success(new PageImpl<>(partnersDtoList, partners.getPageable(), partners.getTotalElements()));
     }
+
 
     private Pageable getPageable(int page, int size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
