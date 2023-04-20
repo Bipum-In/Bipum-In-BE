@@ -302,73 +302,53 @@
 
 ## BE 기술적 의사결정
 
+<p>
+  <img src="https://user-images.githubusercontent.com/122662905/233285343-9436b1dc-d2b0-4ee9-b960-dd0c58e4a503.png">
+</p>
 
-| 기술                   | 설명                                                |
-|----------------------|---------------------------------------------------|
-| NGINX, Let’s Encrypt | 클라이언트와 서버의 통신 보안성 향상을 위해서 https를 적용하고자 함          
-| Redis                | 접속 제어를 위해 REFRESH TOKEN이 필요                       |
-| CI/CD                | 프로젝트 개발에 따른 코드 통합, 배포 과정에서 비효율적인 공수 발생            |
-| SSE                  | 실시간 알림처리를 위해 클라이언트와 서버 간 연결을 유지할 수 있는 기술이 요구됨     |
-| SMS                  | 일반 유저의 경우 저희 서비스는 가끔씩만 사용하게 될 서비스이기 때문에 알림 기능이 필요 |
-| Image Crawling       | 이미지는 매번 업로드 하는 것은 매우 힘들지만, 시각적 효과는 매우 뛰어남                |
+<p>
+  <img src="https://user-images.githubusercontent.com/122662905/233285862-41e613c6-429b-4dbb-baeb-0009d3ff3765.png">
+</p>
+
+<p>
+  <img src="https://user-images.githubusercontent.com/122662905/233285885-8dfd82c4-7e7d-49b9-b5b9-9ce0793891f1.png">
+</p>
+
+<p>
+  <img src="https://user-images.githubusercontent.com/122662905/233285916-7c2a3af0-68dc-4a29-96a1-bcadbeba4613.png">
+</p>
+
+<p>
+  <img src="https://user-images.githubusercontent.com/122662905/233285925-cfe60759-41c4-435b-a0c4-de1cbc733e1c.png">
+</p>
+
 
 ## BE 트러블 슈팅
 
 ### ☑ SSE (1)
 
-- 문제상황
-
-> 프론트에서 구독요청을 보내면 정상적으로 연결이 된 것이 확인되나, 1분 후에 연결이 끊기고 재요청을 보내는 현상이 발생
-
-- 원인
-
-> 리버스 프록시로 사용하는 NGINX 설정 중 연결 후 메시지 송수신이 없을 시 1분 후 연결이 종료되도록 하는 기본 설정이 존재
-
-- 해결
-
-> Nginx 서버 설정 파일에 proxy_read_timeout 3600000 , proxy_send_timeout 3600000 항목 추가하여 연결 유효시간을 1시간으로 설정
+<p>
+  <img src="https://user-images.githubusercontent.com/122662905/233286879-f1746ac4-9fef-4c44-8479-248ef8b0c0ae.png">
+</p>
 
 ### ☑ SSE (2)
 
-- 문제상황
+<p>
+  <img src="https://user-images.githubusercontent.com/122662905/233286914-2c9b0a36-9ffa-468f-8344-c2e4f93d611c.png">
+</p>
 
-> 프론트에서 SSE 구독 요청을 하여도 SSEEmitter가 반환되지 않고 pending 상태가 유지
->
-- 원인
+### ☑ Entity 설계 (1)
 
-> NGINX 서버 설정이 HTTP 1.0으로 설정
+<p>
+  <img src="https://user-images.githubusercontent.com/122662905/233286957-215809e8-0155-4e4f-9672-90405e4f2e3c.png">
+</p>
 
-- 해결
+### ☑ Entity 설계 (2)
 
-> Nginx 서버 설정 파일에 proxy_set_header Connection ''; , proxy_http_version 1.1; 항목 추가하여 HTTP 버전을 1.1로 변경
+<p>
+  <img src="https://user-images.githubusercontent.com/122662905/233286983-06bdd3a1-2548-43e1-9814-401f49ea16c0.png">
+</p>
 
-### ☑ Entity 설계
-
-- 문제상황
-
-> 처음에는 요청 Entity가 분리 되어 있었는데, ADMIN 모드에서는 현황을 한눈에 보기 위해 Sorting이 필수였는데 이 기능이 매번 Union과 함께 복잡한 쿼리 필요
-
-- 원인
-
-> 요청의 종류마다 필요한 정보가 다르기 때문에 Entity를 분리 하였는데, 사용자의 측면에서 모든 것을 커스텀 하게 맞춘 것이 원인
-
-- 해결
-
-> Requests Entity 들을 하나로 통합하고 최대한 융통적으로 Validation 및 필드 설정을 통해 사용에 불편함이 없도록 설계 시도 및 예외처리도 집중적으로 관리 시도
-
-### ☑ 비품 History
-
-- 문제상황
-
-> 유저와의 요청/승인 Process 가 아닌 관리자의 비품 강제 수정에서의 history 관리
-
-- 원인
-
-> 요청 이력을 통해 history 집계를 진행하는데, 요청 이력이 없음
-
-- 해결
-
-> 유저의 강제 주입이나 변경시에 자동 입력으로 요청을 만들게끔 구현하여 관리
 ## 서비스 아키텍쳐
 
 [![](https://user-images.githubusercontent.com/122663756/233143022-363f0b4f-aa39-4254-a817-dfa6b9626dba.png)](https://user-images.githubusercontent.com/122663756/233143022-363f0b4f-aa39-4254-a817-dfa6b9626dba.png)
