@@ -5,5 +5,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface PartnersRepositoryCustom {
-    Page<Partners> findAllByDeletedFalse(String keyword, Pageable pageable);
+    Page<Partners> getPartnersList(String keyword, Pageable pageable);
 }

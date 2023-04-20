@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 		@Server(url = "http://localhost:8080", description = "Local Server URL")})
 @EnableJpaAuditing
 @SpringBootApplication
-@EnableAspectJAutoProxy
 public class BipumInBeApplication {
 
 	public static void main(String[] args) {

@@ -86,7 +86,7 @@ public class PartnersService {
     public ResponseDto<Page<PartnersDto>> getPartnersPage(String keyword, int page, int size) {
         Pageable pageable = getPageable(page, size);
 
-        Page<Partners> partners = partnersRepository.findAllByDeletedFalse(keyword, pageable);
+        Page<Partners> partners = partnersRepository.getPartnersList(keyword, pageable);
 
         List<PartnersDto> partnersDtoList = convertToDto(partners.getContent());
 
