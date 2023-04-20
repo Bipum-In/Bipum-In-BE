@@ -83,10 +83,10 @@ public class PartnersService {
         return partnersRepository.existsByPartnersNameAndDeletedFalse(partnersName);
     }
 
-    public ResponseDto<Page<PartnersDto>> getPartnersPage(int page, int size) {
+    public ResponseDto<Page<PartnersDto>> getPartnersPage(String keyword, int page, int size) {
         Pageable pageable = getPageable(page, size);
 
-        Page<Partners> partners = partnersRepository.findAllByDeletedFalse(pageable);
+        Page<Partners> partners = partnersRepository.findAllByDeletedFalse(keyword, pageable);
 
         List<PartnersDto> partnersDtoList = convertToDto(partners.getContent());
 

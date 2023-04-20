@@ -4,14 +4,20 @@ import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.stream.Stream;
 
 @Slf4j
 @Aspect
@@ -63,27 +69,40 @@ public class UseTimeAop {
                     apiUseTime.addUseTime(runTime);
                 }
 
-                // API URI 가져오기
-                HttpServletRequest request = getRequest(joinPoint.getArgs());
-                String apiUri = (request != null) ? request.getRequestURI() : "";
-
-                log.info("[API Use Time] Username: " + loginUser.getUsername() + ", API URI: " + apiUri + ", " +
-                        "Total Time: " + apiUseTime.getTotalTime() + " ms");
+                Class clazz = joinPoint.getTarget().getClass();
+                log.info("[API Use Time] Username: " + loginUser.getUsername() + ", API URI: " + getRequestUrl(joinPoint, clazz) +
+                        ", Total Time: " + apiUseTime.getTotalTime() + " ms");
                 apiUseTimeRepository.save(apiUseTime);
 
             }
         }
     }
 
-    // HttpServletRequest 가져오기
-    private HttpServletRequest getRequest(Object[] args) {
-        if (args != null) {
-            for (Object arg : args) {
-                if (arg instanceof HttpServletRequest) {
-                    return (HttpServletRequest) arg;
-                }
-            }
+    private String getRequestUrl(JoinPoint joinPoint, Class clazz) {
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        Method method = methodSignature.getMethod();
+        RequestMapping requestMapping = (RequestMapping) clazz.getAnnotation(RequestMapping.class);
+        String baseUrl = requestMapping.value()[0];
+
+        String url = Stream.of( GetMapping.class, PutMapping.class, PostMapping.class,
+                        PatchMapping.class, DeleteMapping.class, RequestMapping.class)
+                .filter(mappingClass -> method.isAnnotationPresent(mappingClass))
+                .map(mappingClass -> getUrl(method, mappingClass, baseUrl))
+                .findFirst().orElse(null);
+        return url;
+    }
+
+    /* httpMETHOD + requestURI 를 반환 */
+    private String getUrl(Method method, Class<? extends Annotation> annotationClass, String baseUrl){
+        Annotation annotation = method.getAnnotation(annotationClass);
+        String[] value;
+        String httpMethod = null;
+        try {
+            value = (String[])annotationClass.getMethod("value").invoke(annotation);
+            httpMethod = (annotationClass.getSimpleName().replace("Mapping", "")).toUpperCase();
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            return null;
         }
-        return null;
+        return String.format("%s %s%s", httpMethod, baseUrl, value.length > 0 ? value[0] : "") ;
     }
 }
