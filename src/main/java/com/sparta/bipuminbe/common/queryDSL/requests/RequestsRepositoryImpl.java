@@ -18,7 +18,7 @@ import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
-public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
+public class RequestsRepositoryImpl implements RequestsRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     public Long countRequestByType(RequestType requestType, RequestStatus requestStatus) {
@@ -63,11 +63,11 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom{
                 .innerJoin(user.department, department)
                 .leftJoin(requests.category, category)
                 .leftJoin(requests.supply, supply)
-                .where(user.empName.likeIgnoreCase(keyword)
-                        .or(department.deptName.likeIgnoreCase(keyword))
-                        .or(category.categoryName.likeIgnoreCase(keyword))
-                        .or(supply.modelName.likeIgnoreCase(keyword))
-                        .or(supply.serialNum.likeIgnoreCase(keyword))
+                .where(user.empName.containsIgnoreCase(keyword)
+                        .or(department.deptName.containsIgnoreCase(keyword))
+                        .or(category.categoryName.containsIgnoreCase(keyword))
+                        .or(supply.modelName.containsIgnoreCase(keyword))
+                        .or(supply.serialNum.containsIgnoreCase(keyword))
                         .and(requests.requestType.in(requestTypeQuery))
                         .and(requests.requestStatus.in(requestStatusQuery)).and(user.id.in(userIdQuery)))
                 .orderBy(requests.createdAt.desc())

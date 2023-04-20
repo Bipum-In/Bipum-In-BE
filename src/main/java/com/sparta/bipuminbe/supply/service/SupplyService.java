@@ -154,7 +154,7 @@ public class SupplyService {
         Set<SupplyStatusEnum> statusQuery = getStatusSet(status);
         Pageable pageable = getPageable(page, size);
 
-        Page<Supply> supplies = supplyRepository.getSupplyList("%" + keyword + "%", categoryQuery, statusQuery, pageable);
+        Page<Supply> supplies = supplyRepository.getSupplyList(keyword, categoryQuery, statusQuery, pageable);
         List<SupplyResponseDto> supplyResponseDtoList = converToDto(supplies.getContent());
         return ResponseDto.success(new PageImpl<>(supplyResponseDtoList, supplies.getPageable(), supplies.getTotalElements()));
     }
@@ -467,7 +467,7 @@ public class SupplyService {
 
         for (int i = 0; i < modelNameList.size(); i++) {
             String modelName = modelNameList.get(i);
-            String errorMessage = (i + 1) + "번째 줄 ";
+            String errorMessage = modelName + "의 ";
             Thread.sleep(75);
             ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
 
@@ -562,7 +562,7 @@ public class SupplyService {
         int index = 0;
         for (int i = 0; i < supplyExcelDtos.size(); i++) {
             SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelDtos.get(i), SupplyExcelDto.class);
-            String numberMessage = (i + 1) + "번째 줄 ";
+            String numberMessage = supplyExcelDto.getModelName() + "의 ";
 
             checkDeletedSupply(supplyExcelDto.getSerialNum());
             if (supplyRepository.existsBySerialNum(supplyExcelDto.getSerialNum())) {

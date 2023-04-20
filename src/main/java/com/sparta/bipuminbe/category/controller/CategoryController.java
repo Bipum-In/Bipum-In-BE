@@ -54,7 +54,7 @@ public class CategoryController {
 
     @GetMapping("/category/myLargeCategory")
     @Operation(summary = "내가 가진 LargeCategory 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 LargeCategory만 가져온다.")
-    public ResponseDto<List<String>> getMyLargeCategory(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseDto<List<LargeCategory>> getMyLargeCategory(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return categoryService.getMyLargeCategory(userDetails.getUser());
     }
 
@@ -67,7 +67,7 @@ public class CategoryController {
 
     @GetMapping("/category/common/myLargeCategory")
     @Operation(summary = "공용 골랐을 때 LargeCategory 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 공용 LargeCategory")
-    public ResponseDto<List<String>> getMyCommonLargeCategory(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseDto<List<LargeCategory>> getMyCommonLargeCategory(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return categoryService.getMyCommonLargeCategory(userDetails.getUser());
     }
 

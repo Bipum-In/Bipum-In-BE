@@ -2,16 +2,10 @@ package com.sparta.bipuminbe.supply.repository;
 
 import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.Supply;
-import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
-import com.sparta.bipuminbe.common.enums.RequestStatus;
 import com.sparta.bipuminbe.common.enums.SupplyStatusEnum;
 import com.sparta.bipuminbe.common.queryDSL.supply.SupplyRepositoryCustom;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,19 +14,6 @@ import java.util.Set;
 
 public interface SupplyRepository extends JpaRepository<Supply, Long>, SupplyRepositoryCustom {
 
-    @Query(value = "SELECT distinct s FROM Supply s " +
-            "inner join Category c on s.category = c " +
-            "left join users u on s.user = u " +
-            "LEFT JOIN Partners p on s.partners = p " +
-            "left join Department d on u.department = d " +
-            "WHERE (u.empName LIKE :keyword OR d.deptName LIKE :keyword OR c.categoryName LIKE :keyword " +
-            "OR s.modelName LIKE :keyword OR s.serialNum LIKE :keyword OR p.partnersName LIKE :keyword) " +
-            "AND c.id IN :categoryIdQuery " +
-            "AND s.status IN :statusQuery " +
-            "AND s.deleted = false")
-    Page<Supply> getSupplyList(@Param("keyword") String keyword, @Param("categoryIdQuery") Set<Long> categoryIdQuery,
-                               @Param("statusQuery") Set<SupplyStatusEnum> statusQuery, Pageable pageable);
-
     Optional<List<Supply>> findByUser_IdAndCategory_LargeCategoryInAndDeletedFalse(Long id, Set<LargeCategory> categoryQuery);
 
     List<Supply> findByPartners_PartnersId(Long partnersId);
@@ -40,26 +21,6 @@ public interface SupplyRepository extends JpaRepository<Supply, Long>, SupplyRep
     Optional<Supply> findBySupplyIdAndDeletedFalse(Long supplyId);
 
     List<Supply> findByCategory_IdAndStatusAndDeletedFalse(Long categoryId, SupplyStatusEnum stock);
-
-    // 다른 요청을 처리 중이라 신청을 할 수 없는 비품은 출력하지 않는 로직.
-    @Query(value = "select s from Supply s " +
-            "inner join Category c on s.category = c " +
-            "where s.user = :user and c.id = :categoryId and s.deleted = false " +
-            "and s not in (select distinct r.supply from Requests r " +
-            "where r.requestStatus in :statusQuery and r.supply is not null)")
-    List<Supply> getMySupply(@Param("user") User user,
-                             @Param("categoryId") Long categoryId,
-                             @Param("statusQuery") Set<RequestStatus> statusQuery);
-
-    // 다른 요청을 처리 중이라 신청을 할 수 없는 비품은 출력하지 않는 로직. (공용 비품 버전)
-    @Query(value = "select s from Supply s " +
-            "inner join Category c on s.category = c " +
-            "where s.department = :department and c.id = :categoryId and s.deleted = false " +
-            "and s not in (select distinct r.supply from Requests r " +
-            "where r.requestStatus in :statusQuery and r.supply is not null)")
-    List<Supply> getMyCommonSupply(@Param("department") Department department,
-                             @Param("categoryId") Long categoryId,
-                             @Param("statusQuery") Set<RequestStatus> statusQuery);
 
     List<Supply> findByUser_IdAndDeletedFalse(Long id);
 

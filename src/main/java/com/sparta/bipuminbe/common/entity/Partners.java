@@ -53,6 +53,6 @@ public class Partners extends TimeStamped {
     }
 
     public void reEnroll() {
-        this.partnersName = this.partnersName + "(재등록됨#" + partnersId + ")";
+        this.partnersName = this.partnersName + "(삭제됨#" + partnersId + ")";
     }
 }
