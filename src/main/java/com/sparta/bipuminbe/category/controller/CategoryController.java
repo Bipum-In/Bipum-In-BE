@@ -30,7 +30,6 @@ public class CategoryController {
     @Operation(summary = "카테고리 리스트", description = "SelectBox용. 전체조회(ALL) or 대분류이름(영어). <br>" +
             "ALL/COMPUTER/DIGITAL/ELECTRONICS/FURNITURE/ETC")
     public ResponseDto<List<CategoryDto>> getCategoryList(@RequestParam(defaultValue = "ALL") String largeCategory) {
-        log.info("");
         return categoryService.getCategoryList(largeCategory);
     }
 
