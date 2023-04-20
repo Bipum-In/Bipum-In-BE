@@ -18,7 +18,7 @@ public class PartnersRepositoryImpl implements PartnersRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Partners> findAllByDeletedFalse(String keyword, Pageable pageable) {
+    public Page<Partners> getPartnersList(String keyword, Pageable pageable) {
         QPartners partners = QPartners.partners;
         JPAQuery<Partners> query = queryFactory.selectFrom(partners)
                 .distinct()
