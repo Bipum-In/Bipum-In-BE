@@ -69,7 +69,8 @@ public class RequestsRepositoryImpl implements RequestsRepositoryCustom {
                         .or(supply.modelName.containsIgnoreCase(keyword))
                         .or(supply.serialNum.containsIgnoreCase(keyword))
                         .and(requests.requestType.in(requestTypeQuery))
-                        .and(requests.requestStatus.in(requestStatusQuery)).and(user.id.in(userIdQuery)))
+                        .and(requests.requestStatus.in(requestStatusQuery))
+                        .and(user.id.in(userIdQuery)))
                 .orderBy(requests.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());

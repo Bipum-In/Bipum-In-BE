@@ -29,10 +29,11 @@ public class PartnersController {
     @GetMapping("/partners/admin")
     @Operation(summary = "협력 업체 관리 페이지", description = "관리자 설정 페이지 내 협력 업체 관리")
     public ResponseDto<Page<PartnersDto>> getPartnersPage(
+            @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return partnersService.getPartnersPage(page, size);
+        return partnersService.getPartnersPage(keyword, page, size);
     }
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
