@@ -1,22 +1,19 @@
-package com.sparta.bipuminbe.common.sse.contoller;
+package com.sparta.bipuminbe.common.sse.controller;
 
 import com.sparta.bipuminbe.common.dto.ResponseDto;
 import com.sparta.bipuminbe.common.enums.UserRoleEnum;
 import com.sparta.bipuminbe.common.security.UserDetailsImpl;
 import com.sparta.bipuminbe.common.sse.dto.NotificationCountResponseDto;
-import com.sparta.bipuminbe.common.sse.dto.NotificationResponseDto;
 import com.sparta.bipuminbe.common.sse.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Slf4j
