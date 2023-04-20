@@ -343,7 +343,7 @@ public class RequestsService {
         if (request.getUser().getAlarm()) {
             List<String> phoneList = new ArrayList<>();
             phoneList.add(request.getUser().getPhone());
-//            smsUtil.sendMail(message, phoneList);
+            smsUtil.sendMail(message, phoneList);
         }
         return message;
     }
