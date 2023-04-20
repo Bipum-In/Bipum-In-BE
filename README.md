@@ -30,7 +30,7 @@
 
 ## [](https://www.youtube.com/watch?v=_1JAHVzat2Q)비품인 시연 영상 사이트
 
-[비품인.youtube](https://www.youtube.com/watch?v=_1JAHVzat2Q)
+[비품인.youtube](https://www.youtube.com/watch?v=k1QiN9Er5AE)
 
 ## 깃허브 레포
 
@@ -306,18 +306,22 @@
   <img src="https://user-images.githubusercontent.com/122662905/233285343-9436b1dc-d2b0-4ee9-b960-dd0c58e4a503.png">
 </p>
 
+---
 <p>
   <img src="https://user-images.githubusercontent.com/122662905/233285862-41e613c6-429b-4dbb-baeb-0009d3ff3765.png">
 </p>
 
+---
 <p>
   <img src="https://user-images.githubusercontent.com/122662905/233285885-8dfd82c4-7e7d-49b9-b5b9-9ce0793891f1.png">
 </p>
 
+---
 <p>
   <img src="https://user-images.githubusercontent.com/122662905/233285916-7c2a3af0-68dc-4a29-96a1-bcadbeba4613.png">
 </p>
 
+---
 <p>
   <img src="https://user-images.githubusercontent.com/122662905/233285925-cfe60759-41c4-435b-a0c4-de1cbc733e1c.png">
 </p>
