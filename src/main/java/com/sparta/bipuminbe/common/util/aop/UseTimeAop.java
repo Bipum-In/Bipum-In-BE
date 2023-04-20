@@ -21,14 +21,7 @@ public class UseTimeAop {
 
     private final ApiUseTimeRepository apiUseTimeRepository;
 
-    @Around("(execution(public * com.sparta.bipuminbe.category.controller..*(..)) && args(httpServletRequest,..) ||" +
-            "execution(public * com.sparta.bipuminbe.common.sse.controller..*(..)) && args(httpServletRequest,..) ||" +
-            "execution(public * com.sparta.bipuminbe.dashboard.controller..*(..)) && args(httpServletRequest,..) ||" +
-            "execution(public * com.sparta.bipuminbe.department.controller..*(..)) && args(httpServletRequest,..) ||" +
-            "execution(public * com.sparta.bipuminbe.partners.controller..*(..)) && args(httpServletRequest,..) ||" +
-            "execution(public * com.sparta.bipuminbe.requests.controller..*(..)) && args(httpServletRequest,..) ||" +
-            "execution(public * com.sparta.bipuminbe.supply.controller..*(..)) && args(httpServletRequest,..) ||" +
-            "execution(public * com.sparta.bipuminbe.user.controller..*(..)) && args(httpServletRequest,..))")
+    @Around("execution(public * com.sparta.bipuminbe.category.controller..*(..)) && args(httpServletRequest,..)")
     public synchronized Object execute(ProceedingJoinPoint joinPoint, HttpServletRequest httpServletRequest) throws Throwable {
         // 측정 Path
         log.info("=======================" + httpServletRequest.getMethod() + " " +  httpServletRequest.getRequestURI() + ": ");
