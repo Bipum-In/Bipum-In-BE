@@ -61,7 +61,7 @@ public class SupplyController {
         List<Requests> requests = supplyService.createSupplies(excelCoverDto, userDetails.getUser());
 
         for(Requests request : requests){
-            if (request.getSupply().getUser().getId() != null) {
+            if (request.getSupply().getUser() != null) {
                 notificationService.sendForUser(userDetails.getUser(), request.getRequestId(), AcceptResult.ASSIGN);
             }
         }
