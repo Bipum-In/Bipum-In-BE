@@ -352,7 +352,7 @@
 ### ☑ Entity 설계 (1)
 
 <p>
-  <img src="https://user-images.githubusercontent.com/122662905/233286957-215809e8-0155-4e4f-9672-90405e4f2e3c.png">
+  <img src="https://user-images.githubusercontent.com/122662905/233411958-fdc0b652-f3cb-4096-afd1-fc969805a759.png">
 </p>
 
 ### ☑ Entity 설계 (2)
