@@ -21,7 +21,14 @@ public class UseTimeAop {
 
     private final ApiUseTimeRepository apiUseTimeRepository;
 
-    @Around("execution(public * com.sparta.bipuminbe.category.controller.*.*(..))")
+    @Around("execution(public * com.sparta.bipuminbe.category.controller.*.*(..)) ||" +
+            "execution(public * com.sparta.bipuminbe.common.sse.controller.*.*(..)) ||" +
+            "execution(public * com.sparta.bipuminbe.department.controller.*.*(..)) ||" +
+            "execution(public * com.sparta.bipuminbe.dashboard.controller.*.*(..)) ||" +
+            "execution(public * com.sparta.bipuminbe.requests.controller.*.*(..)) ||" +
+            "execution(public * com.sparta.bipuminbe.supply.controller.*.*(..)) ||" +
+            "execution(public * com.sparta.bipuminbe.user.controller.*.*(..)) ||" +
+            "execution(public * com.sparta.bipuminbe.partners.controller.*.*(..))")
     public synchronized Object execute(ProceedingJoinPoint joinPoint) throws Throwable {
 
         // 측정 시작 시간
@@ -56,10 +63,27 @@ public class UseTimeAop {
                     apiUseTime.addUseTime(runTime);
                 }
 
-                log.info("[API Use Time] Username: " + loginUser.getUsername() + ", Total Time: " + apiUseTime.getTotalTime() + " ms");
+                // API URI 가져오기
+                HttpServletRequest request = getRequest(joinPoint.getArgs());
+                String apiUri = (request != null) ? request.getRequestURI() : "";
+
+                log.info("[API Use Time] Username: " + loginUser.getUsername() + ", API URI: " + apiUri + ", " +
+                        "Total Time: " + apiUseTime.getTotalTime() + " ms");
                 apiUseTimeRepository.save(apiUseTime);
 
             }
         }
+    }
+
+    // HttpServletRequest 가져오기
+    private HttpServletRequest getRequest(Object[] args) {
+        if (args != null) {
+            for (Object arg : args) {
+                if (arg instanceof HttpServletRequest) {
+                    return (HttpServletRequest) arg;
+                }
+            }
+        }
+        return null;
     }
 }
