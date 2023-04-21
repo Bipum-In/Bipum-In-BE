@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE supply SET deleted = true WHERE supply_Id = ?")
-//@Where(clause = "deleted = false")  // 조회할 때 false만 찾는 것이 default 가 된다.
 public class Supply extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
