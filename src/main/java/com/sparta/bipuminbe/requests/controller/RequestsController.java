@@ -82,15 +82,6 @@ public class RequestsController {
         return requestsService.getRequestsAdminDetails(requestId);
     }
 
-//    @GetMapping("/requests/{requestId}")
-//    @Operation(summary = "요청서 상세 페이지(USER)",
-//            description = "isAdmin/requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다.")
-//    public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(@PathVariable Long requestId,
-//                                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        return requestsService.getRequestsDetails(requestId, userDetails.getUser(), UserRoleEnum.USER);
-//    }
-
-    // renewal 버전.
     @GetMapping("/requests/{requestId}")
     @Operation(summary = "요청서 상세 페이지(USER) *수정사항 있습니다.*",
             description = "requestType/requestStatus 필드에 따라 버튼 바꿔주시면 될 것 같습니다. <br>" +

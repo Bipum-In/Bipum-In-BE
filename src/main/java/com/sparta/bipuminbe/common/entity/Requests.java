@@ -21,17 +21,22 @@ public class Requests extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long requestId;
 
+    // 요청서 타입.
     @Enumerated(EnumType.STRING)
     private RequestType requestType;
 
+    // 요청 내용.
     @Column(nullable = false)
     private String content;
 
+    // Admin 메시지
     private String comment;
 
+    // 승인 결과.
     @Enumerated(EnumType.STRING)
     private AcceptResult acceptResult;
 
+    // 처리 상태.
     @Enumerated(EnumType.STRING)
     private RequestStatus requestStatus;
 
@@ -39,10 +44,12 @@ public class Requests extends TimeStamped {
     @OneToMany(mappedBy = "requests", cascade = CascadeType.ALL)
     private List<Image> imageList = new ArrayList<>();
 
+    // 비품 요청은 supply가 null.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplyId")
     private Supply supply;
 
+    // 요청인.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
@@ -67,6 +74,7 @@ public class Requests extends TimeStamped {
     @JoinColumn(name = "partnersId")
     private Partners partners;
 
+    // 처리 담당자.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "adminId")
     private User admin;
@@ -88,6 +96,8 @@ public class Requests extends TimeStamped {
         this.admin = admin;
     }
 
+
+    // 요청 처리.
     public void processingRequest(AcceptResult acceptResult, String comment, Supply supply, User admin) {
         // 처리중 상태 처리.
         if (this.requestType.equals(RequestType.REPAIR) && acceptResult.equals(AcceptResult.ACCEPT)
@@ -108,6 +118,7 @@ public class Requests extends TimeStamped {
         this.comment = comment;
         this.admin = admin;
     }
+
 
     public void update(Requests requests) {
         this.content = requests.getContent();
