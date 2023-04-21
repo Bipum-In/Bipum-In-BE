@@ -26,12 +26,14 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+
     @GetMapping("/category")
     @Operation(summary = "카테고리 리스트", description = "SelectBox용. 전체조회(ALL) or 대분류이름(영어). <br>" +
             "ALL/COMPUTER/DIGITAL/ELECTRONICS/FURNITURE/ETC")
     public ResponseDto<List<CategoryDto>> getCategoryList(@RequestParam(defaultValue = "ALL") String largeCategory) {
         return categoryService.getCategoryList(largeCategory);
     }
+
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PostMapping("/category")
@@ -40,12 +42,14 @@ public class CategoryController {
         return categoryService.createCategory(categoryDto);
     }
 
+
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping("/category/{categoryId}")
     @Operation(summary = "카테고리 수정", description = "카테고리 이름(null 불가), 카테고리 이미지(null 가능), 관리자 권한 필요.")
     public ResponseDto<String> updateCategory(@PathVariable Long categoryId, @RequestBody @Valid CategoryDto categoryDto) {
         return categoryService.updateCategory(categoryId, categoryDto);
     }
+
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @DeleteMapping("/category/{categoryId}")
@@ -54,11 +58,13 @@ public class CategoryController {
         return categoryService.deleteCategory(categoryId);
     }
 
+
     @GetMapping("/category/myLargeCategory")
     @Operation(summary = "내가 가진 LargeCategory 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 LargeCategory만 가져온다.")
     public ResponseDto<List<LargeCategory>> getMyLargeCategory(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return categoryService.getMyLargeCategory(userDetails.getUser());
     }
+
 
     @GetMapping("/category/myCategory")
     @Operation(summary = "내가 가진 Category 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 Category만 가져온다.")
@@ -67,11 +73,13 @@ public class CategoryController {
         return categoryService.getMyCategory(largeCategory, userDetails.getUser());
     }
 
+
     @GetMapping("/category/common/myLargeCategory")
     @Operation(summary = "공용 골랐을 때 LargeCategory 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 공용 LargeCategory")
     public ResponseDto<List<LargeCategory>> getMyCommonLargeCategory(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return categoryService.getMyCommonLargeCategory(userDetails.getUser());
     }
+
 
     @GetMapping("/category/common/myCategory")
     @Operation(summary = "공용 골랐을 때 Category 목록 (유저요청 페이지) *신규 Api*", description = "가지고 있는 공용 Category만 가져온다.")
