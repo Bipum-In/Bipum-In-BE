@@ -24,6 +24,8 @@ public class PartnersService {
     private final PartnersRepository partnersRepository;
     private final SupplyRepository supplyRepository;
 
+
+    // 협력 업체 리스트.
     @Transactional(readOnly = true)
     public ResponseDto<List<PartnersDto>> getPartnersList() {
         List<Partners> partnersList = partnersRepository.findByDeletedFalse();
@@ -34,6 +36,8 @@ public class PartnersService {
         return ResponseDto.success(partnersDtoList);
     }
 
+
+    // 협력 업체 생성.
     @Transactional
     public ResponseDto<String> createPartners(PartnersDto partnersDto) {
         if (checkPartners(partnersDto.getPartnersName())) {
@@ -44,6 +48,7 @@ public class PartnersService {
         return ResponseDto.success("협력 업체 등록 완료.");
     }
 
+
     // 삭제된 협력업체 체크
     private void checkDeletedPartners(String partnersName) {
         Optional<Partners> partners = partnersRepository.findByPartnersNameAndDeletedTrue(partnersName);
@@ -52,6 +57,8 @@ public class PartnersService {
         }
     }
 
+
+    // 협력 업체 수정.
     @Transactional
     public ResponseDto<String> updatePartners(Long partnersId, PartnersDto partnersDto) {
         Partners partners = getPartners(partnersId);
@@ -63,6 +70,8 @@ public class PartnersService {
         return ResponseDto.success("협력 업체 정보 수정 완료.");
     }
 
+
+    // 협력 업체 삭제.
     @Transactional
     public ResponseDto<String> deletePartners(Long partnersId) {
         // 연관관계 끊기.
@@ -83,6 +92,8 @@ public class PartnersService {
         return partnersRepository.existsByPartnersNameAndDeletedFalse(partnersName);
     }
 
+
+    // 협력 업체 페이지. 검색 가능.
     @Transactional(readOnly = true)
     public ResponseDto<Page<PartnersDto>> getPartnersPage(String keyword, int page, int size) {
         Pageable pageable = getPageable(page, size);
@@ -93,7 +104,6 @@ public class PartnersService {
 
         return ResponseDto.success(new PageImpl<>(partnersDtoList, partners.getPageable(), partners.getTotalElements()));
     }
-
 
     private Pageable getPageable(int page, int size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");

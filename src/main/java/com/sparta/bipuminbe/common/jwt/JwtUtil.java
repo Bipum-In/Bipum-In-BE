@@ -109,17 +109,6 @@ public class JwtUtil {
         return savedRefreshToken.isPresent() && refreshToken.equals(savedRefreshToken.get().getRefreshToken().substring(7));
     }
 
-//    // 토큰 검증
-//    public Boolean tokenValidation(String token) {
-//        try {
-//            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-//            return true;
-//        } catch (Exception ex) {
-//            log.error(ex.getMessage());
-//            return false;
-//        }
-//    }
-
     // 토큰에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
