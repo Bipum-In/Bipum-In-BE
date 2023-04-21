@@ -29,6 +29,7 @@ public class SupplyController {
     private final SupplyService supplyService;
     private final NotificationService notificationService;
 
+
     //비품 등록
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PostMapping(value = "/supply", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -46,6 +47,7 @@ public class SupplyController {
         }
         return ResponseDto.success("비품 등록 완료");
     }
+
 
     //비품 복수 등록
     @Secured(value = UserRoleEnum.Authority.ADMIN)
@@ -69,6 +71,7 @@ public class SupplyController {
         return ResponseDto.success("비품 등록 성공");
     }
 
+
     //비품 조회
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/supply")
@@ -85,6 +88,7 @@ public class SupplyController {
         return supplyService.getSupplyList(keyword, categoryId, status, page, size);
     }
 
+
     //비품 상세(ADMIN)
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/admin/supply/{supplyId}")
@@ -98,6 +102,7 @@ public class SupplyController {
         return supplyService.getSupply(supplyId, size, userDetails.getUser(), UserRoleEnum.ADMIN);
     }
 
+
     //비품 상세(USER)
     @GetMapping("/supply/{supplyId}")
     @Operation(summary = "비품 상세(USER) *수정사항 있습니다.*", description = "history의 경우 선택적으로 데이터 챙겨주시면 감사합니다. <br>" +
@@ -109,6 +114,7 @@ public class SupplyController {
     ) {
         return supplyService.getSupply(supplyId, size, userDetails.getUser(), UserRoleEnum.USER);
     }
+
 
     //비품 수정
     @Secured(value = UserRoleEnum.Authority.ADMIN)
@@ -134,6 +140,7 @@ public class SupplyController {
         return ResponseDto.success("비품 수정 성공");
     }
 
+
     //비품 폐기
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @DeleteMapping("/supply/{supplyId}")
@@ -149,6 +156,7 @@ public class SupplyController {
         return ResponseDto.success("비품 삭제 성공");
     }
 
+
     // 자신의 비품 목록(selectbox용)
     @GetMapping("/supply/mysupply/{categoryId}")
     @Operation(summary = "자신의 비품 목록 조회", description = "SelectBox용")
@@ -156,6 +164,7 @@ public class SupplyController {
                                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return supplyService.getSupplyUser(categoryId, userDetails.getUser());
     }
+
 
     // 자신의 부서 공용 비품 목록(selectbox용)
     @GetMapping("/supply/common/mysupply/{categoryId}")
@@ -165,6 +174,7 @@ public class SupplyController {
         return supplyService.getMyCommonSupply(categoryId, userDetails.getUser());
     }
 
+
     // 비품 요청 상세 페이지 SelectBox.
     @GetMapping("/supply/stock/{categoryId}")
     @Operation(summary = "재고 비품 조회(비품 요청 페이지)", description = "비품 요청 상세 페이지. SelectBox용.")
@@ -172,12 +182,14 @@ public class SupplyController {
         return supplyService.getStockSupply(categoryId);
     }
 
+
     // 비품 이미지 search
     @GetMapping("/supply/search")
     @Operation(summary = "naver Api를 통한 이미지 서치")
     public ResponseDto<List<ImageResponseDto>> getImageByNaver(@RequestParam List<String> modelNameList) throws InterruptedException {
         return supplyService.getImageByNaver(modelNameList);
     }
+
 
     // 비품 리스트 UserPage
     @GetMapping("/supply")
@@ -190,6 +202,7 @@ public class SupplyController {
         return supplyService.getStockList(keyword, categoryId, page, size);
     }
 
+
     // 유저 사용 내역(비품 상세 페이지 무한 스크롤)
     @GetMapping("/supply/history/user/{supplyId}")
     @Operation(summary = "유저 사용 내역(비품 상세 페이지 무한 스크롤)")
@@ -198,6 +211,7 @@ public class SupplyController {
                                                                       @RequestParam(defaultValue = "6") int size) {
         return supplyService.getUserHistory(supplyId, page, size);
     }
+
 
     // 수리 내역(비품 상세 페이지 무한 스크롤)
     @GetMapping("/supply/history/repair/{supplyId}")

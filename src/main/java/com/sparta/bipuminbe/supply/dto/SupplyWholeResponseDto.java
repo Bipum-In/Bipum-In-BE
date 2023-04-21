@@ -18,13 +18,6 @@ public class SupplyWholeResponseDto {
     private Page<SupplyHistoryResponseDto> supplyUserHistory;
     private Page<SupplyHistoryResponseDto> supplyRepairHistory;
 
-
-//    SupplyWholeResponseDto(SupplyDetailResponseDto supplyDetail, Page<SupplyHistoryResponseDto> supplyUserHistory, Page<SupplyHistoryResponseDto> supplyRepairHistory) {
-//        this.supplyDetail = supplyDetail;
-//        this.supplyUserHistory = supplyUserHistory;
-//        this.supplyRepairHistory = supplyRepairHistory;
-//    }
-
     public static SupplyWholeResponseDto of(SupplyDetailResponseDto supplyDetail, Page<SupplyHistoryResponseDto> supplyUserHistory, Page<SupplyHistoryResponseDto> supplyRepairHistory) {
         return SupplyWholeResponseDto.builder()
                 .supplyDetail(supplyDetail)
