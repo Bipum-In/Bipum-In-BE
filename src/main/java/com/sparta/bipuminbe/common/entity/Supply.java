@@ -93,7 +93,7 @@ public class Supply extends TimeStamped {
     }
 
 
-    // 비품 할당.
+    // 비품 배정.
     public void allocateSupply(Requests request, Department department) {
         if (request.getUseType() == UseType.COMMON) {
             this.department = department;

@@ -86,7 +86,7 @@ public class CategoryService {
         Optional<Category> deletedCategory = categoryRepository.findByCategoryNameAndDeletedTrue(categoryName);
         if (deletedCategory.isPresent()) {
             Category category = deletedCategory.get();
-            category.update(categoryName + "(삭제됨#" + category.getId() + ")", deletedCategory.get().getLargeCategory());
+            category.reEnroll();
         }
     }
 

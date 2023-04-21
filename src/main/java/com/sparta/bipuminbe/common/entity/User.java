@@ -21,23 +21,27 @@ public class User extends TimeStamped {
     @Column(nullable = false, unique = true)
     private String googleId;
 
+    // 아이디
     @Column(nullable = false, unique = true)
     private String username;
 
     private String password;
+
+    // 이름
     private String empName;
+
     private String phone;
+
     private String image;
 
+    // 구글 액세스 토큰
     @Column(nullable = false)
     private String accessToken;
-
-//    @Column(nullable = false)
-//    private String refreshToken;
 
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
+    // SMS 알림 ON/OFF
     @Column(nullable = false)
     private Boolean alarm;
 
@@ -47,6 +51,7 @@ public class User extends TimeStamped {
 
     @Column(nullable = false)
     private Boolean deleted;
+
 
     @Builder
     public User(String googleId, String username, String password, String empName, String phone,
@@ -58,12 +63,12 @@ public class User extends TimeStamped {
         this.phone = phone;
         this.image = image;
         this.accessToken = accessToken;
-//        this.refreshToken = refreshToken;
         this.role = role;
         this.alarm = alarm;
         this.department = department;
         this.deleted = deleted;
     }
+
 
     public void update(String empName, Department department, String phone, Boolean alarm, String image, String password) {
         this.empName = empName;
@@ -74,17 +79,17 @@ public class User extends TimeStamped {
         this.password = password;
     }
 
+
     public void changePassword(String password) {
         this.password = password;
     }
 
-    public void switchAlarm(Boolean alarm) {
-        this.alarm = !alarm;
-    }
 
+    // 구글 액세스 토큰. 재발급.
     public void refreshGoogleToken(String accessToken) {
         this.accessToken = accessToken;
     }
+
 
     // 권한 부여
     public void changeRole(UserRoleEnum role) {

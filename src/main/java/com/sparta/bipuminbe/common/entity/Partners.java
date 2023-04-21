@@ -35,6 +35,7 @@ public class Partners extends TimeStamped {
     @Column(nullable = false)
     private Boolean deleted;
 
+
     @Builder
     public Partners(PartnersDto partnersDto) {
         this.partnersName = partnersDto.getPartnersName();
@@ -44,6 +45,7 @@ public class Partners extends TimeStamped {
         this.deleted = false;
     }
 
+
     public void update(PartnersDto partnersDto) {
         this.partnersName = partnersDto.getPartnersName();
         this.phone = partnersDto.getPhone();
@@ -51,6 +53,8 @@ public class Partners extends TimeStamped {
         this.email = partnersDto.getEmail();
     }
 
+
+    // 재등록 되었을 때 이름 변경.
     public void reEnroll() {
         this.partnersName = this.partnersName + "(삭제됨#" + partnersId + ")";
     }

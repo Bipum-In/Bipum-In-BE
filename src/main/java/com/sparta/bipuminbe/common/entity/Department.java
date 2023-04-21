@@ -13,7 +13,6 @@ import javax.persistence.*;
 @Getter
 @SQLDelete(sql = "UPDATE department SET deleted = true WHERE id = ?")
 public class Department {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,11 +22,13 @@ public class Department {
 
     private Boolean deleted;
 
+
     @Builder
     public Department(String deptName){
         this.deptName = deptName;
         this.deleted = false;
     }
+
 
     public void update(String deptName) {
         this.deptName = deptName;
