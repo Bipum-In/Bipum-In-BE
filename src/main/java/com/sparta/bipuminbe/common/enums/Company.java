@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum Company {
-    BIPUMIN("비품인컴퍼니");
+    BIPUMIN("성인컴퍼니");
 
     private final String companyName;
 
