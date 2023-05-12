@@ -16,12 +16,15 @@ public interface SupplyRepository extends JpaRepository<Supply, Long>, SupplyRep
 
     Optional<List<Supply>> findByUser_IdAndCategory_LargeCategoryInAndDeletedFalse(Long id, Set<LargeCategory> categoryQuery);
 
+    // Partners 삭제 전 비품 리스트 호출.
     List<Supply> findByPartners_PartnersId(Long partnersId);
 
     Optional<Supply> findBySupplyIdAndDeletedFalse(Long supplyId);
 
+    // 재고 조회.
     List<Supply> findByCategory_IdAndStatusAndDeletedFalse(Long categoryId, SupplyStatusEnum stock);
 
+    // 회원 탈퇴시 반납 처리를 위한 비품 호출.
     List<Supply> findByUser_IdAndDeletedFalse(Long id);
 
     // 부서 삭제시 공용 비품 리스트 호출.
@@ -34,7 +37,9 @@ public interface SupplyRepository extends JpaRepository<Supply, Long>, SupplyRep
     List<Supply> findByDepartmentAndCategory_LargeCategoryInAndDeletedFalseOrderByCategory_CategoryNameAsc
             (Department department, Collection<LargeCategory> largeCategories);
 
+    // 시리얼 넘버 중복 체크.
     boolean existsBySerialNum(String serialNum);
 
+    // Soft Delete 목록중 SerialNum 같은 비품 조회.
     Optional<Supply> findBySerialNumAndDeletedTrue(String serialNum);
 }

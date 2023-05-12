@@ -18,7 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 
     List<User> findByRoleAndAlarmAndDeletedFalse(UserRoleEnum admin, boolean b);
 
-    List<User> findByDeletedFalse();
+    List<User> findByDeletedFalseAndDepartmentNotNull();
 
     Optional<User> findByIdAndDeletedFalse(Long userId);
 

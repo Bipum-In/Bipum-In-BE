@@ -21,6 +21,7 @@ import com.sparta.bipuminbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -63,13 +64,6 @@ public class UserService {
     private final RedisRepository redisRepository;
     private final JavaMailSender javaMailSender;
 
-//    @Value("${kakao.restapi.key}")
-//    private String apiKey;
-//    @Value("${kakao.redirect.local.url}")
-//    private String redirectLocalUrl;
-//    @Value("${kakao.redirect.server.url}")
-//    private String redirectServerUrl;
-
     @Value("${google.auth.clientId}")
     private String clientId;
     @Value("${google.auth.client_secret}")
@@ -85,6 +79,7 @@ public class UserService {
     @Value("spring.mail.username")
     private String from;
 
+
     @Transactional
     public ResponseDto<LoginResponseDto> googleLogin(String code, String urlType,
                                                      HttpServletRequest httpServletRequest,
@@ -92,16 +87,12 @@ public class UserService {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         AccessTokenDto accessToken = getToken(code, urlType, GoogleTokenType.LOGIN);
 
-        log.info("accessToken : " + accessToken.getAccess_token());
-
         // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기.
         GoogleUserInfoDto googleUserInfo = getGoogleUserInfo(accessToken);
-        log.info("구글 사용자 정보 : " + googleUserInfo.getId() + ", " + googleUserInfo.getEmail() + ", " + googleUserInfo.getName()
-                + ", " + googleUserInfo.getPicture());
+
         // 3. 필요시에 회원가입
         User googleUser = registerGoogleUserIfNeeded(googleUserInfo, accessToken);
 
-        log.info("User : " + googleUser.getEmpName());
         // 4. JWT 토큰 반환
         // Token 생성 Access/Refresh + addHeader
         getAccessToken(googleUser, httpServletResponse);
@@ -157,12 +148,6 @@ public class UserService {
                 build();
         httpServletResponse.addHeader("Set-Cookie", cookie.toString());
     }
-
-//    @Transactional
-//    public ResponseDto<AccessTokenDto> googleLoginTest(String code, String urlType) throws JsonProcessingException {
-//        // 1. "인가 코드"로 "액세스 토큰" 요청
-//        return ResponseDto.success(getToken(code, urlType, GoogleTokenType.LOGIN));
-//    }
 
     public static String getClientIp(HttpServletRequest request) {
         String clientIp = null;
@@ -232,9 +217,6 @@ public class UserService {
 
         // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         ObjectMapper objectMapper = new ObjectMapper(); // 받은 것을 Json형태로 파싱
-
-//        jsonNode.get("id_token").asText(); // refresh 토큰
-//        jsonNode.get("access_token").asText(); // 엑세스 토큰
         return objectMapper.readValue(response.getBody(), AccessTokenDto.class);
     }
 
@@ -275,7 +257,6 @@ public class UserService {
                     username(googleUserInfo.getEmail()).
                     image(googleUserInfo.getPicture()).
                     accessToken(accessToken.getAccess_token()).
-//                    refreshToken(accessToken.getRefresh_token()).
         role(UserRoleEnum.USER).
                     alarm(true).
                     deleted(false).
@@ -288,6 +269,7 @@ public class UserService {
     }
 
 
+    // 로그아웃
     @Transactional
     public ResponseDto<String> logout(String username, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         deleteAllCookies(httpServletRequest, httpServletResponse);
@@ -295,6 +277,8 @@ public class UserService {
         return ResponseDto.success("로그아웃 성공");
     }
 
+
+    // 로그인 추가정보 등록.(최초 로그인)
     @Transactional
     public ResponseDto<LoginResponseDto> loginAdd(LoginRequestDto loginRequestDto, User user) {
         User foundUser = getUser(user.getId());
@@ -308,6 +292,8 @@ public class UserService {
         return ResponseDto.success(LoginResponseDto.of(foundUser, checkUser));
     }
 
+
+    // 해당 부서의 사원 목록 SelectBox.
     @Transactional(readOnly = true)
     public ResponseDto<List<UserResponseDto>> getUserByDept(Long deptId) {
         List<User> userInDeptList = userRepository.findByDepartmentAndDeletedFalse(getDepartment(deptId));
@@ -344,7 +330,6 @@ public class UserService {
         return ResponseDto.success("계정 연결 끊기 및 삭제 완료");
     }
 
-
     // 유저 삭제 단계 모듈화.
     private void deleteUserModule(User user, User admin) {
         // Redis RefreshToken 제거.
@@ -363,7 +348,6 @@ public class UserService {
             requests.processingRequest(AcceptResult.DECLINE, "유저 탈퇴에 의한 요청 거절 처리", null, user);
         }
     }
-
 
     // 비품 자동 반납.
     public void returnSuppliesByDeletedUser(User user, User admin) {
@@ -391,10 +375,11 @@ public class UserService {
     }
 
 
+    // 부서 이름 : 사원명 keyValue Map (엑셀 등록, Front에서 1차 Validation용으로 요구.)
     @Transactional(readOnly = true)
     public ResponseDto<Map<String, Set<String>>> getAllUserList() {
         List<Department> departmentList = departmentRepository.findByDeletedFalse();
-        List<User> userList = userRepository.findByDeletedFalse();
+        List<User> userList = userRepository.findByDeletedFalseAndDepartmentNotNull();
 
         // 2중 for문을 돌리는 것 보다 유리할 것 같아 하나 만들어줌. (dept와 번호를 연결하는 SetList.)
         Map<String, Integer> deptNumber = new HashMap<>();
@@ -408,6 +393,7 @@ public class UserService {
         for (int i = 0; i < userListByDept.length; i++) {
             userListByDept[i] = new HashSet<>();
         }
+
         // 부서 이름에 맞는 배열에 사원명을 집어넣음.
         for (User user : userList) {
             String deptName = user.getDepartment().getDeptName();
@@ -425,9 +411,10 @@ public class UserService {
     }
 
 
+    // 내정보 페이지.
     @Transactional(readOnly = true)
     public ResponseDto<UserInfoResponseDto> getUserInfo(User user) {
-        // lazyInitialize 오류로 인해 user를 그대로 사용 못했음..
+        // 영속성 꺼내줘야 한다.
         User foundUser = getUser(user.getId());
         return ResponseDto.success(UserInfoResponseDto.of(foundUser));
     }
@@ -438,6 +425,7 @@ public class UserService {
     }
 
 
+    // 회원 정보 수정.
     @Transactional
     public ResponseDto<String> updateUser(UserUpdateRequestDto userUpdateRequestDto, User user) throws IOException {
         String image = userUpdateRequestDto.getImage();
@@ -452,21 +440,25 @@ public class UserService {
     }
 
 
+    // 액세스 토큰 재발급.
     @Transactional(readOnly = true)
     public ResponseDto<String> reIssueAccessToken(User user, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws UnsupportedEncodingException {
+        // Redis 서버에서 RefreshToken 점검.
         RefreshToken refreshToken = redisRepository.findById(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRefreshToken));
+
+        // Ip가 다르면 RefreshToken 제거.
         if (!getClientIp(httpServletRequest).equals(refreshToken.getIp())) {
             redisRepository.deleteById(user.getUsername());
             throw new CustomException(ErrorCode.NotMatchedIp);
         }
 
         getAccessToken(user, httpServletResponse);
-
         return ResponseDto.success("토큰 재발급 완료.");
     }
 
 
+    // swagger용 로그인.
     @Transactional(readOnly = true)
     public ResponseEntity<ResponseDto<LoginResponseDto>> toyLogin(String username, HttpServletRequest httpServletRequest) {
         User googleUser = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.NotFoundUser));

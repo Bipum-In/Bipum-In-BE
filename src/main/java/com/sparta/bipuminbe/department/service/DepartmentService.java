@@ -31,6 +31,8 @@ public class DepartmentService {
     private final SupplyRepository supplyRepository;
     private final RequestsRepository requestsRepository;
 
+
+    // 부서 목록 조회.(SelectBox.)
     @Transactional(readOnly = true)
     public ResponseDto<List<DepartmentDto>> getDeptList() {
         List<Department> departmentList = departmentRepository.findByDeletedFalse();
@@ -41,6 +43,8 @@ public class DepartmentService {
         return ResponseDto.success(departmentDtoList);
     }
 
+
+    // 부서 등록.
     @Transactional
     public ResponseDto<String> createDept(DepartmentDto departmentDto) {
         if (checkDepartment(departmentDto.getDeptName())) {
@@ -71,6 +75,8 @@ public class DepartmentService {
         return departmentRepository.existsByDeptNameAndDeletedFalse(deptName);
     }
 
+
+    // 부서 수정.
     @Transactional
     public ResponseDto<String> updateDept(Long deptId, DepartmentDto departmentDto) {
         Department department = getDept(deptId);
@@ -83,6 +89,8 @@ public class DepartmentService {
         return ResponseDto.success("부서 수정 완료.");
     }
 
+
+    // 부서 삭제.
     @Transactional
     public ResponseDto<String> deleteDept(Long deptId, User admin) {
         // 삭제 전 사원이 없는지 체크.
@@ -113,6 +121,8 @@ public class DepartmentService {
         return ResponseDto.success("부서 삭제 완료.");
     }
 
+
+    // 부서별 사원 조회. 검색 가능.
     @Transactional(readOnly = true)
     public ResponseDto<List<DeptByEmployeeDto>> getEmployeeByDept(Long deptId, String keyword) {
         List<User> employees = userRepository.findByDeptByEmployee(deptId, keyword);
@@ -125,6 +135,7 @@ public class DepartmentService {
     }
 
 
+    // 부서 초기 등록.(MASTER 최초 로그인)
     @Transactional
     public ResponseDto<String> setDefaultDeptList(DefaultDeptRequestDto defaultDeptRequestDto) {
         // 초기세팅은 부서가 없을 때 띄울거다.

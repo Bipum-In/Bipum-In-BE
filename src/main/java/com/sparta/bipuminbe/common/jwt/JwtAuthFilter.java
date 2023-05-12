@@ -41,7 +41,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if (cookie == null) {
                     continue;
                 }
-                log.info(cookie.getName(), URLDecoder.decode(cookie.getValue(), "UTF-8"));
                 if (cookie.getName().equals(JwtUtil.AUTHORIZATION_HEADER)) {
                     accessToken = jwtUtil.resolveToken(cookie);
                 } else if (cookie.getName().equals(JwtUtil.REFRESH_HEADER)) {

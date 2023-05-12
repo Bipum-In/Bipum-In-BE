@@ -21,13 +21,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class DepartmentController {
+
     private final DepartmentService departmentService;
+
 
     @GetMapping("/dept")
     @Operation(summary = "부서 목록", description = "SelectBox용")
     public ResponseDto<List<DepartmentDto>> getDeptList() {
         return departmentService.getDeptList();
     }
+
 
     @Secured(value = {UserRoleEnum.Authority.ADMIN, UserRoleEnum.Authority.MASTER})
     @PostMapping("/dept")
@@ -36,12 +39,14 @@ public class DepartmentController {
         return departmentService.createDept(departmentDto);
     }
 
+
     @Secured(value = {UserRoleEnum.Authority.ADMIN, UserRoleEnum.Authority.MASTER})
     @PutMapping("/dept/{deptId}")
     @Operation(summary = "부서 수정", description = "수정할 부서 이름 입력, 관리자 권한 필요.")
     public ResponseDto<String> updateDept(@PathVariable Long deptId, @RequestBody @Valid DepartmentDto departmentDto) {
         return departmentService.updateDept(deptId, departmentDto);
     }
+
 
     @Secured(value = {UserRoleEnum.Authority.ADMIN, UserRoleEnum.Authority.MASTER})
     @DeleteMapping("/dept/{deptId}")

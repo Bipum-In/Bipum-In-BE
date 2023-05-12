@@ -41,23 +41,7 @@ public class RequestsService {
     @Transactional
     public RequestsResponseDto createRequests(RequestsRequestDto requestsRequestDto, User user) throws Exception {
         Long requestId;
-//
-//        //아래 코드 중복되는 것 합치기
-//        if(requestsRequestDto.getRequestType().equals(RequestType.SUPPLY)){
-//            Category category = categoryRepository.findById(requestsRequestDto.getCategoryId())
-//                    .orElseThrow(() -> new CustomException(ErrorCode.NotFoundCategory));
-//        }else{
-//            Supply supply = supplyRepository.findById(requestsRequestDto.getSupplyId())
-//                    .orElseThrow(() -> new CustomException(ErrorCode.NotFoundSupply));
-//        }
-//
-//
-//        requestsRepository.save(Requests.builder()
-//                .content(requestsRequestDto.getContent())
-//                .requestType(requestsRequestDto.getRequestType())
-//                .requestStatus(RequestStatus.UNPROCESSED)
-//                .user(user).build()
-//        );
+
         if (requestsRequestDto.getRequestType().name().equals("SUPPLY")) {
             Category category = getCategory(requestsRequestDto.getCategoryId());
             if (requestsRequestDto.getUseType() == null) {
@@ -209,6 +193,8 @@ public class RequestsService {
         return ResponseDto.success("요청 삭제 완료");
     }
 
+
+    // 요청 현황 페이지. (ADMIN + USER)
     @Transactional(readOnly = true)
     public ResponseDto<Page<RequestsPageResponseDto>> getRequestsPage
             (String keyword, RequestType type, RequestStatus status, int page, int size, User user, UserRoleEnum role) {
@@ -274,11 +260,15 @@ public class RequestsService {
         return requestsDtoList;
     }
 
+
+    // 관리자 요청서 세부 페이지.
     @Transactional(readOnly = true)
     public ResponseDto<RequestsAdminDetailsResponseDto> getRequestsAdminDetails(Long requestId) {
         return ResponseDto.success(RequestsAdminDetailsResponseDto.of(getRequest(requestId)));
     }
 
+
+    // 유저 요청서 세부 패이지.
     @Transactional(readOnly = true)
     public ResponseDto<RequestsDetailsResponseDto> getRequestsDetails(Long requestId, User user) {
         Requests request = getRequest(requestId);
@@ -287,43 +277,46 @@ public class RequestsService {
     }
 
     // 해당 요청을 볼 권한 확인.
+    // 해당 요청이 본인의 요청인지 확인.
     private void checkPermission(Requests request, User user) {
         if (!user.getRole().equals(UserRoleEnum.ADMIN) && !request.getUser().getId().equals(user.getId())) {
             throw new CustomException(ErrorCode.NoPermission);
         }
     }
 
-    // 해당 요청이 본인의 요청인지 확인.
     private Requests getRequest(Long requestId) {
         return requestsRepository.findById(requestId).orElseThrow(
                 () -> new CustomException(ErrorCode.NotFoundRequest));
     }
 
+
+    // 요청 승인/거절
     @Transactional
-    public String processingRequests(Long requestId, RequestsProcessRequestDto requestsProcessRequestDto, User user) throws Exception {
+    public String processingRequests(Long requestId, RequestsProcessRequestDto requestsProcessRequestDto, User admin) throws Exception {
         Requests request = getRequest(requestId);
         AcceptResult acceptResult = requestsProcessRequestDto.getAcceptResult();
         checkProcessedRequest(request);
         checkAcceptResult(acceptResult, request.getRequestType());
 
-        Supply supply = request.getRequestType().equals(RequestType.SUPPLY)
-                ? requestsProcessRequestDto.getSupplyId() == null ? null : getSupply(requestsProcessRequestDto.getSupplyId())
-                : request.getSupply();
+        // 비품 요청 승인 시에만 supply를 전달 받는다.
+        Supply supply = request.getRequestType().equals(RequestType.SUPPLY) && acceptResult == AcceptResult.ACCEPT
+                ? getSupply(requestsProcessRequestDto.getSupplyId()) :  request.getSupply();
 
         // 요청 상태 처리.
-        request.processingRequest(acceptResult, requestsProcessRequestDto.getComment(), supply, user);
+        request.processingRequest(acceptResult, requestsProcessRequestDto.getComment(), supply, admin);
 
+        // SMS message 전반부.
         String message = "[비품인]\n" + request.getUser().getEmpName() +
                 " 님이 요청 하신 " + request.getRequestType().getKorean();
 
-        // 비품 상태 처리.
+        // 비품 상태 처리. + SMS message 후반부.
         if (acceptResult.equals(AcceptResult.DECLINE)) {
             checkNullComment(requestsProcessRequestDto.getComment());
             message += " 건이 거부 처리 되었습니다.";
         } else if (acceptResult.equals(AcceptResult.DISPOSE)) {
             supplyRepository.delete(supply);
             message += " 건의 비품이 폐기 처리 되었습니다.";
-        } else {
+        } else {    // 승인 처리 (비품 상태 처리)
             if (request.getRequestType().equals(RequestType.SUPPLY)) {
                 checkSupplyId(requestsProcessRequestDto.getSupplyId());
                 supply.allocateSupply(request, request.getUser().getDepartment());
@@ -333,13 +326,12 @@ public class RequestsService {
                 supply.returnSupply();
             }
 
-            if (request.getRequestType().equals(RequestType.REPAIR) && request.getRequestStatus().equals(RequestStatus.PROCESSED)) {
-                message += " 건의 비품이 수리 완료 되었습니다.";
-            } else {
-                message += " 건이 승인 처리 되었습니다.";
-            }
+            // 승인 처리 (SMS message 후반부)
+            message += request.getRequestType().equals(RequestType.REPAIR) && request.getRequestStatus().equals(RequestStatus.PROCESSED)
+                    ? " 건의 비품이 수리 완료 되었습니다." : " 건이 승인 처리 되었습니다.";
         }
 
+        // SMS
         if (request.getUser().getAlarm()) {
             List<String> phoneList = new ArrayList<>();
             phoneList.add(request.getUser().getPhone());
@@ -348,6 +340,7 @@ public class RequestsService {
         return message;
     }
 
+    // 이미 처리완료된 요청 체크.
     private void checkProcessedRequest(Requests request) {
         if (request.getRequestStatus() == RequestStatus.PROCESSED) {
             throw new CustomException(ErrorCode.ProcessedRequest);

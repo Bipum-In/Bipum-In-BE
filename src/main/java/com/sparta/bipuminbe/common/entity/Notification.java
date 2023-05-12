@@ -39,11 +39,6 @@ public class Notification extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private AcceptResult acceptResult;
 
-    //알림 종류
-//    @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
-//    private NotificationType notificationType;
-
     //회원 정보에 대한 연관관계 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id")
@@ -60,6 +55,7 @@ public class Notification extends TimeStamped {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Requests request;
 
+
     @Builder
     public Notification(User sender, User receiver, String content,
                         Boolean isRead, Requests request, NotificationType notificationType,
@@ -74,11 +70,15 @@ public class Notification extends TimeStamped {
         this.includeCount = true;
     }
 
+
+    // 알림 그 자체를 읽었을 때.
     public void read() {
         this.isRead = true;
         this.includeCount = false;
     }
 
+
+    // 상단의 종 눌렀을 때
     public void notCount() {
         this.includeCount = false;
     }

@@ -17,13 +17,16 @@ import java.util.List;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class PartnersController {
+
     private final PartnersService partnersService;
+
 
     @GetMapping("/partners")
     @Operation(summary = "협력 업체 목록", description = "SelectBox용")
     public ResponseDto<List<PartnersDto>> getPartnersList() {
         return partnersService.getPartnersList();
     }
+
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @GetMapping("/partners/admin")
@@ -36,12 +39,14 @@ public class PartnersController {
         return partnersService.getPartnersPage(keyword, page, size);
     }
 
+
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PostMapping("/partners")
     @Operation(summary = "협력 업체 등록", description = "이름(NotNull), 번호, 주소 입력. 관리자 권한 필요.")
     public ResponseDto<String> createPartners(@RequestBody @Valid PartnersDto partnersDto) {
         return partnersService.createPartners(partnersDto);
     }
+
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @PutMapping("/partners/{partnersId}")
@@ -50,6 +55,7 @@ public class PartnersController {
                                               @RequestBody @Valid PartnersDto partnersDto) {
         return partnersService.updatePartners(partnersId, partnersDto);
     }
+
 
     @Secured(value = UserRoleEnum.Authority.ADMIN)
     @DeleteMapping("/partners/{partnersId}")

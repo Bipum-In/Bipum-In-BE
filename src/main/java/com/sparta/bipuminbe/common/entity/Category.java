@@ -25,6 +25,7 @@ public class Category {
 
     private Boolean deleted;
 
+
     @Builder
     public Category(String categoryName, LargeCategory largeCategory, Boolean deleted) {
         this.categoryName = categoryName;
@@ -32,8 +33,15 @@ public class Category {
         this.deleted = deleted;
     }
 
+
     public void update(String categoryName, LargeCategory largeCategory) {
         this.categoryName = categoryName;
         this.largeCategory = largeCategory;
+    }
+
+
+    // 재등록 되었을 때 이름 변경.
+    public void reEnroll() {
+        this.categoryName = this.categoryName + "(삭제됨#" + this.id + ")";
     }
 }

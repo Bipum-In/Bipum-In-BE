@@ -159,6 +159,7 @@ public class SupplyService {
         return ResponseDto.success(new PageImpl<>(supplyResponseDtoList, supplies.getPageable(), supplies.getTotalElements()));
     }
 
+    // 조회할 카테고리 영역.
     private Set<Long> getCategoryQuerySet(Long categoryId) {
         Set<Long> categoryQuerySet = new HashSet<>();
         if (categoryId == null) {
@@ -198,24 +199,6 @@ public class SupplyService {
         return supplyDtoList;
     }
 
-//    //비품 조회
-//    @Transactional(readOnly = true)
-//    public ResponseDto<SupplyCategoryDto> getSupplyCategory(Long categoryId) {
-//        List<Category> categoryList = categoryRepository.findAll();
-//        List<Supply> supplyList = supplyRepository.findByCategory_Id(categoryId);
-//        List<SupplyResponseDto> supplyDtoList = new ArrayList<>();
-//        for (Supply supply : supplyList) {
-//            supplyDtoList.add(SupplyResponseDto.of(supply));
-//        }
-//        List<CategoryDto> categoryDtoList = new ArrayList<>();
-//        for (Category category : categoryList) {
-//            categoryDtoList.add(CategoryDto.of(category));
-//        }
-//
-//        SupplyCategoryDto supplyCategory = SupplyCategoryDto.of(categoryDtoList,supplyDtoList);
-//        return ResponseDto.success(supplyCategory);
-//    }
-
 
     //비품 상세
     @Transactional(readOnly = true)
@@ -225,17 +208,9 @@ public class SupplyService {
         // 영속성 걸어야 한다. 안에서 department를 씀.
         User foundUser = getUser(user.getId());
         SupplyDetailResponseDto supplyDetail = new SupplyDetailResponseDto(supply, foundUser, role);
-//        List<SupplyHistoryResponseDto> historyList = new ArrayList<>();
-//        List<SupplyRepairHistoryResponseDto> repairHistoryList = new ArrayList<>();
-//        List<Requests> requests = requestsRepository.findBySupply(supply);
-//        for (Requests request : requests) {
-//            historyList.add(SupplyHistoryResponseDto.of(request));
-//            repairHistoryList.add(new SupplyRepairHistoryResponseDto(request.getSupply()));
-//        }
-//        SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, historyList, repairHistoryList);
 
-        // Todo 여기 좀 힘들어 하실 것 같아서 page처리 해봤습니다.
-        // 1페이지를 가져오는 것은 고정이다.
+        // 여기 좀 힘들어 하실 것 같아서 page처리 해놨습니다.
+        // 처음엔 1페이지를 가져오는 것은 고정이다.
         Page<SupplyHistoryResponseDto> userHistory = getUserHistory(supplyId, 1, size).getData();
         Page<SupplyHistoryResponseDto> repairHistory = getRepairHistory(supplyId, 1, size).getData();
         SupplyWholeResponseDto supplyWhole = SupplyWholeResponseDto.of(supplyDetail, userHistory, repairHistory);
@@ -253,25 +228,6 @@ public class SupplyService {
         );
     }
 
-//    //유저 할당
-//    @Transactional
-//    public ResponseDto<String> updateSupply(Long supplyId, Long userId) {
-//
-//        Supply supply = getSupply(supplyId);
-//
-//        User user = userRepository.findById(userId).orElseThrow(
-//                () -> new CustomException(ErrorCode.NotFoundUsers)
-//        );
-//
-//        //Todo 여기 관리자 권한을 이미 Controller에서 Secured로 확인 했어서 필요없어 보입니다.
-////        if (supply.getUser() != user) {
-////            throw new CustomException(ErrorCode.NoPermission);
-////        }
-//
-//        supply.allocateSupply(user);
-//
-//        return ResponseDto.success("비품 수정 성공");
-//    }
 
     //비품 수정
     @Transactional
@@ -304,7 +260,7 @@ public class SupplyService {
 
         supply.update(partners, image);
 
-        //Todo 여기 조금 수정 되서 바꾸게 되었습니다.
+        // 여기 조금 수정 되서 바꾸게 되었습니다.
         User user = null;
         if (supplyRequestDto.getUseType() == UseType.PERSONAL) {
             user = userRepository.findByIdAndDeletedFalse(supplyRequestDto.getUserId()).orElseThrow(
@@ -412,6 +368,7 @@ public class SupplyService {
     //자신의 비품 목록(selectbox용)
     @Transactional(readOnly = true)
     public ResponseDto<List<SupplyUserDto>> getSupplyUser(Long categoryId, User user) {
+        // 요청이 걸려있는 비품은 가져오지 않는다.
         List<Supply> supplyInUserList = supplyRepository.getMySupply(user, categoryId, getNotProcessedStatusQuery());
         return ResponseDto.success(convertToMySupplyDtoList(supplyInUserList));
     }
@@ -433,12 +390,15 @@ public class SupplyService {
         return supplyUserDtoList;
     }
 
+
     // 자신의 부서의 공용 비품 목록(selectBox용)
     @Transactional(readOnly = true)
     public ResponseDto<List<SupplyUserDto>> getMyCommonSupply(Long categoryId, User user) {
+        // 요청이 걸려있는 비품은 가져오지 않는다.
         List<Supply> commonSupplyList = supplyRepository.getMyCommonSupply(user.getDepartment(), categoryId, getNotProcessedStatusQuery());
         return ResponseDto.success(convertToMySupplyDtoList(commonSupplyList));
     }
+
 
     // 비품 요청 상세 페이지. 재고 SelectBox.
     @Transactional(readOnly = true)
@@ -469,7 +429,8 @@ public class SupplyService {
             String modelName = modelNameList.get(i);
             String errorMessage = modelName + "의 ";
             Thread.sleep(75);
-            ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query=" + modelName, HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<String> responseEntity = rest.exchange("https://openapi.naver.com/v1/search/shop.json?display=1&query="
+                    + modelName, HttpMethod.GET, requestEntity, String.class);
 
             HttpStatus httpStatus = responseEntity.getStatusCode();
             int status = httpStatus.value();
@@ -546,6 +507,7 @@ public class SupplyService {
         return historyDtoPage;
     }
 
+
     //비품 복수 등록
     @Transactional
     public List<Requests> createSupplies(ExcelCoverDto excelCoverDto, User admin) throws IOException {
@@ -562,6 +524,7 @@ public class SupplyService {
         int index = 0;
         for (int i = 0; i < supplyExcelDtos.size(); i++) {
             SupplyExcelDto supplyExcelDto = mapper.readValue(supplyExcelDtos.get(i), SupplyExcelDto.class);
+            // error 메시지 비품 구분용.
             String numberMessage = supplyExcelDto.getModelName() + "의 ";
 
             checkDeletedSupply(supplyExcelDto.getSerialNum());
