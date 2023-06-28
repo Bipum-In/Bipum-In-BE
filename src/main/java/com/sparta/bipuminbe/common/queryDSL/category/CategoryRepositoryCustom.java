@@ -5,8 +5,7 @@ import com.sparta.bipuminbe.common.entity.Category;
 import com.sparta.bipuminbe.common.entity.Department;
 import com.sparta.bipuminbe.common.entity.User;
 import com.sparta.bipuminbe.common.enums.LargeCategory;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
 
 import java.util.List;
 import java.util.Set;

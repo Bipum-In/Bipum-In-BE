@@ -9,6 +9,7 @@ import com.sparta.bipuminbe.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
@@ -38,7 +39,6 @@ public class UserController {
                                                                      @RequestParam String urlType,
                                                                      HttpServletRequest httpServletRequest,
                                                                      HttpServletResponse httpServletResponse) throws IOException {
-
         return userService.googleLogin(code, urlType, httpServletRequest, httpServletResponse);
     }
 
